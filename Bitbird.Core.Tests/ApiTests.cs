@@ -38,15 +38,9 @@ namespace Bitbird.Core.Tests
             var list = new List<string> { "data1", "data2", "data3" };
             var data = new Fahrer { Id = "123", Name = "hansi", Keys = list };
             var testApiDocument = new JsonApiDocument<Fahrer>(data);
-            JsonSerializerSettings settings = new JsonSerializerSettings()
-            {
-                ContractResolver = new BitbirdCoreProperyNamesContractResolver(),
-                Formatting = Formatting.Indented
-            };
-            string jsonString = JsonConvert.SerializeObject(testApiDocument, settings);
-
-            System.Diagnostics.Debug.WriteLine(jsonString);
-            var result = JsonConvert.DeserializeObject<JsonApiDocument<Fahrer>>(jsonString, settings);
+            string jsonString = JsonConvert.SerializeObject(testApiDocument);
+            
+            var result = JsonConvert.DeserializeObject<JsonApiDocument<Fahrer>>(jsonString);
             Assert.IsNotNull(result);
             var deserialzedModel = result.ParseData()?.FirstOrDefault();
             Assert.IsNotNull(deserialzedModel);

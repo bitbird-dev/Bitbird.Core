@@ -166,7 +166,7 @@ namespace Bitbird.Core.JsonApi
                 T result = item.Attributes.ToObject<T>();
                 result.Id = item.Id;
 
-                if (item.Relationships == null) continue;
+                if (item.Relationships == null) { results.Add(result); continue; }
 
                 foreach(var propertyInfo in resultType.GetProperties())
                 {
@@ -193,10 +193,7 @@ namespace Bitbird.Core.JsonApi
                     }
                     else continue;
                 }
-
-
                 results.Add(result);
-
             }
 
             return results;
