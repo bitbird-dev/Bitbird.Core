@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Bitbird.Core.JsonApi
 {
-    public class BitbirdCoreProperyNamesContractResolver : CamelCasePropertyNamesContractResolver, IBitbirdCoreJsonApiContractResolver
+    public class BitbirdCorePropertyNamesContractResolver : CamelCasePropertyNamesContractResolver, IBitbirdCoreJsonApiContractResolver
     {
 
         public string ResolveRelationshipName(string propertyName)
