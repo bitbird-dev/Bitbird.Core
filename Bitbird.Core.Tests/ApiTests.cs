@@ -92,13 +92,13 @@ namespace Bitbird.Core.Tests
 
             var result = JsonConvert.DeserializeObject<JsonApiDocument<Firma>>(jsonString, settings);
 
-            var deserialzedModel = result.ParseData()?.FirstOrDefault();
+            var deserializedModel = result.ParseData()?.FirstOrDefault();
 
-            Assert.IsNotNull(deserialzedModel);
+            Assert.IsNotNull(deserializedModel);
 
-            Assert.AreEqual(deserialzedModel.Fahrer.Name, model.Fahrer.Name);
+            Assert.AreEqual(deserializedModel.Fahrer.Name, model.Fahrer.Name);
 
-            Assert.AreEqual(deserialzedModel.Fahrer.Keys.Count(), model.Fahrer.Keys.Count());
+            Assert.AreEqual(deserializedModel.Fahrer.Keys.Count(), model.Fahrer.Keys.Count());
         }
 
         [TestMethod]
