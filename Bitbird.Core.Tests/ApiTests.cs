@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Bitbird.Core.JsonApi;
+using Bitbird.Core.Tests.DataAccess;
 using Bitbird.Core.Tests.Models;
 using Bitbird.Core.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -39,13 +40,13 @@ namespace Bitbird.Core.Tests
             var data = new Fahrer { Id = "123", Name = "hansi", Keys = list };
             var testApiDocument = new JsonApiDocument<Fahrer>(data);
             string jsonString = JsonConvert.SerializeObject(testApiDocument);
-            
+
             var result = JsonConvert.DeserializeObject<JsonApiDocument<Fahrer>>(jsonString);
             Assert.IsNotNull(result);
             var deserialzedModel = result.ParseData()?.FirstOrDefault();
             Assert.IsNotNull(deserialzedModel);
             Assert.AreEqual(list.Count, deserialzedModel.Keys.Count());
-            for(int i = 0; i < list.Count; i++)
+            for (int i = 0; i < list.Count; i++)
             {
                 Assert.AreEqual(list[i], deserialzedModel.Keys.ElementAt(i));
             }
@@ -66,7 +67,7 @@ namespace Bitbird.Core.Tests
             System.Diagnostics.Debug.WriteLine(jsonString);
 
             var result = JsonConvert.DeserializeObject<JsonApiDocument<Firma>>(jsonString, settings);
-            
+
             var deserialzedModel = result.ParseData()?.FirstOrDefault();
 
             Assert.IsNotNull(deserialzedModel);
@@ -110,8 +111,8 @@ namespace Bitbird.Core.Tests
                 model.GetType().GetProperty(nameof(model.Fahrzeuge)),
                 model.GetType().GetProperty(nameof(model.Fahrer))
             });
-            
-            string jsonString = JsonConvert.SerializeObject(testApiDocument,Formatting.Indented);
+
+            string jsonString = JsonConvert.SerializeObject(testApiDocument, Formatting.Indented);
 
             System.Diagnostics.Debug.WriteLine(jsonString);
 
@@ -124,6 +125,27 @@ namespace Bitbird.Core.Tests
             Assert.AreEqual(deserialzedModel.Fahrzeuge.Count(), model.Fahrzeuge.Count());
 
             Assert.AreEqual(deserialzedModel.Fahrzeuge.First().Id, model.Fahrzeuge.First().Id);
+        }
+
+        [TestMethod]
+        public void TestAccessRestriction()
+        {
+            JsonAccessBroker.Instance.UserGroup = TestAccessGroup.FULL_ACCESS;
+            var model = GetSomeData().FirstOrDefault();
+            var testApiDocument = new JsonApiDocument<Firma>(model);
+            string jsonString = JsonConvert.SerializeObject(testApiDocument);
+            var result = JsonConvert.DeserializeObject<JsonApiDocument<Firma>>(jsonString);
+            var deserialzedModel1 = result.ParseData()?.FirstOrDefault();
+
+            Assert.IsNotNull(deserialzedModel1.FirmenName);
+
+            JsonAccessBroker.Instance.UserGroup = TestAccessGroup.LIMITED_ACCES;
+            var testApiDocument2 = new JsonApiDocument<Firma>(model);
+            string jsonString2 = JsonConvert.SerializeObject(testApiDocument2);
+            var result2 = JsonConvert.DeserializeObject<JsonApiDocument<Firma>>(jsonString2);
+            var deserialzedModel2 = result2.ParseData()?.FirstOrDefault();
+
+            Assert.IsNull(deserialzedModel2.FirmenName);
         }
 
 

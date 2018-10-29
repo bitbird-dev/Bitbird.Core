@@ -1,4 +1,5 @@
-﻿using Bitbird.Core.Utils;
+﻿using Bitbird.Core.JsonApi.Attributes;
+using Bitbird.Core.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -70,6 +71,13 @@ namespace Bitbird.Core.JsonApi
                 // check for existing ignore attributes
                 var ignoreAttribute = propertyInfo.GetCustomAttribute<JsonIgnoreAttribute>();
                 if (ignoreAttribute != null) { continue; }
+
+                // check for existing ignore attributes
+                var accessAttribute = propertyInfo.GetCustomAttribute<JsonAccessRestrictedAttribute>();
+                if (accessAttribute != null && !data.IsPropertyAccessible(propertyInfo))
+                {
+                    continue;
+                }
 
                 ExtractAttributeAndRelationsFromProperty(Attributes, propertyInfo, data, processRelationships);
             }

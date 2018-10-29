@@ -162,8 +162,16 @@ namespace Bitbird.Core.JsonApi
             Type resultType = typeof(T);
             foreach(var item in Data)
             {
+                T result = null;
                 // process attributes
-                T result = item.Attributes.ToObject<T>();
+                if (item.Attributes == null)
+                {
+                    result = Activator.CreateInstance<T>();
+                }
+                else
+                {
+                    result = item.Attributes.ToObject<T>();
+                }
                 result.Id = item.Id;
 
                 if (item.Relationships == null) { results.Add(result); continue; }

@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiTests.cs" />
+    <Compile Include="DataAccess\JsonAccessBroker.cs" />
     <Compile Include="Models\Fahrer.cs" />
     <Compile Include="Models\Fahrzeug.cs" />
     <Compile Include="Models\Firma.cs" />
