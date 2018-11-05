@@ -13,18 +13,18 @@ namespace Bitbird.Core.Tests.DataAccess
         FULL_ACCESS
     }
 
-    public class JsonAccessBroker
+    public class TestAccessBroker
     {
-        private static JsonAccessBroker _instance;
+        private static TestAccessBroker _instance;
 
-        public static JsonAccessBroker Instance
+        public static TestAccessBroker Instance
         {
-            get => _instance ?? (_instance = new JsonAccessBroker());
+            get => _instance ?? (_instance = new TestAccessBroker());
         }
 
         public TestAccessGroup UserGroup { get; set; } = TestAccessGroup.FULL_ACCESS;
 
-        private JsonAccessBroker()
+        private TestAccessBroker()
         {
         }
     }

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,6 +10,7 @@ namespace Bitbird.Core.JsonApi
     /// Where specified, a links member can be used to represent links. 
     /// The value of each links member MUST be an object (a “links object”).
     /// </summary>
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public sealed class JsonApiLinksObject
     {
         public JsonApiLinksObject(JsonApiLink self = null, JsonApiLink related = null)

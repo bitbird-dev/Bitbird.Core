@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -24,6 +25,7 @@ namespace Bitbird.Core.JsonApi
     /// not the related resources.
     /// </summary>
     [JsonConverter(typeof(JsonApiRelationshipsObjectConverter))]
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public abstract class JsonApiRelationshipBase
     {
         [JsonIgnore]

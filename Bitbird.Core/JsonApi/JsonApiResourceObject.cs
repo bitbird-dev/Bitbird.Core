@@ -1,7 +1,10 @@
-﻿using Bitbird.Core.JsonApi.Attributes;
+﻿using Bitbird.Core.Extensions;
+using Bitbird.Core.JsonApi.Attributes;
+using Bitbird.Core.JsonApi.UrlBuilder;
 using Bitbird.Core.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -27,6 +30,7 @@ namespace Bitbird.Core.JsonApi
     ///     meta: a meta object containing non-standard meta-information about a resource that can not be represented as an attribute or relationship.
     /// 
     /// </summary>
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class JsonApiResourceObject
     {
 
@@ -55,11 +59,17 @@ namespace Bitbird.Core.JsonApi
         /// </summary>
         /// <param name="data">must not be null!</param>
         /// <param name="processRelationships">if set to false, the Relationships property will not be generated and stay null</param>
-        public JsonApiResourceObject(JsonApiBaseModel data, bool processRelationships = true)
+        public JsonApiResourceObject(JsonApiBaseModel data, Uri queryUri = null, bool processRelationships = true)
         {
             Type type = data.GetType();
             Id = data.Id;
             Type = StringUtils.ToTrimmedLowerCase(type.Name);
+
+            // set url
+            if(queryUri != null)
+            {
+                Links = new JsonApiLinksObject { Self = new JsonApiLink( queryUri.GetFullHost() + (new DefaultUrlPathBuilder()).BuildCanonicalPath(data)) };
+            }  
 
             // extract attributes and relations
             Attributes = new JObject();
@@ -92,7 +102,7 @@ namespace Bitbird.Core.JsonApi
             // Directly add primitive as well as string properties to the Attributes
             if (propertyType.IsPrimitive || propertyType.IsValueType || propertyType == typeof(string))
             {
-                targetNode.Add(new JProperty(propertyInfo.Name, propertyInfo.GetValue(data)));
+                targetNode.Add(new JProperty(StringUtils.ToCamelCase(propertyInfo.Name), propertyInfo.GetValue(data)));
             }
             else if (propertyType.IsNonStringEnumerable())
             {
@@ -109,7 +119,7 @@ namespace Bitbird.Core.JsonApi
                     {
                         array.Add(new JValue(element));
                     }
-                    targetNode.Add(new JProperty(propertyInfo.Name, array));
+                    targetNode.Add(new JProperty(StringUtils.ToCamelCase(propertyInfo.Name), array));
                 }
                 else if (processRelationships && innerType.IsSubclassOf(typeof(JsonApiBaseModel)))
                 {

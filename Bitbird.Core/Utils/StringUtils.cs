@@ -1,12 +1,36 @@
 ﻿using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Bitbird.Core.Utils
 {
     public static class StringUtils
     {
+        #region Extensions
+
+        public static string TrimJoin(this char separator, params string[] parts)
+        {
+            return string.Join(separator.ToString(), parts.Select(p => p.Trim(separator)));
+        }
+
+        public static string EnsureEndsWith(this string source, string end)
+        {
+            return source.EndsWith(end)
+                ? source
+                : source + end;
+        }
+
+        public static string EnsureStartsWith(this string source, string start)
+        {
+            return source.StartsWith(start)
+                ? source
+                : start + source;
+        }
+
+        #endregion
+
         #region CamelCase
 
         public static string ToCamelCase(string s)

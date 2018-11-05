@@ -40,10 +40,13 @@ namespace Bitbird.Core.JsonApi
     ///     an array of resource objects, an array of resource identifier objects, or an empty array([]), for requests that target resource collections
     /// 
     /// </summary>
-    /// 
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class JsonApiDocument<T> where T : JsonApiBaseModel
     {
         #region Properties
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public JObject JsonApi => new JObject(new JProperty("version", "1.0"));
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<JsonApiResourceObject> Data { get; set; }
@@ -55,31 +58,38 @@ namespace Bitbird.Core.JsonApi
         public object Meta { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public object JsonApi { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public object Links { get; set; }
+        public JsonApiLinksObject Links { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public List<JsonApiResourceObject> Included { get; set; }
+        
 
         #endregion
 
         #region Constructor
 
-        public JsonApiDocument()
-        {
-
-        }
+        public JsonApiDocument() {}
 
         public JsonApiDocument(IEnumerable<T> data)
         {
             SetupResources(data);
         }
 
+        public JsonApiDocument(IEnumerable<T> data, Uri queryString)
+        {
+            SetupResources(data, queryString);
+            SetupLinks(queryString);
+        }
+
         public JsonApiDocument(T data)
         {
             SetupResources(data);
+        }
+
+        public JsonApiDocument(T data, Uri queryString)
+        {
+            SetupResources(data, queryString);
+            SetupLinks(queryString);
         }
 
         public JsonApiDocument(IEnumerable<T> data, IEnumerable<PropertyInfo> includedTypes)
@@ -88,59 +98,95 @@ namespace Bitbird.Core.JsonApi
             SetupIncludes(data, includedTypes);
         }
 
+        public JsonApiDocument(IEnumerable<T> data, IEnumerable<PropertyInfo> includedTypes, Uri queryString)
+        {
+            SetupResources(data, queryString);
+            SetupIncludes(data, includedTypes, queryString);
+            SetupLinks(queryString);
+        }
+
         public JsonApiDocument(T data, IEnumerable<PropertyInfo> includedTypes)
         {
             SetupResources(data);
             SetupIncludes(data, includedTypes);
         }
 
+        public JsonApiDocument(T data, IEnumerable<PropertyInfo> includedTypes, Uri queryString)
+        {
+            SetupResources(data, queryString);
+            SetupIncludes(data, includedTypes, queryString);
+            SetupLinks(queryString);
+        }
+
         #endregion
 
         #region Init
 
-        private void SetupResources(T data)
+        /// <summary>
+        /// Instantiates the ResourceObjects in the Data property
+        /// </summary>
+        /// <param name="data"></param>
+        private void SetupResources(T data, Uri queryString = null)
         {
             // Fill data array with resource objects
-            Data = new List<JsonApiResourceObject>() { new JsonApiResourceObject(data) };
+            Data = new List<JsonApiResourceObject>() { new JsonApiResourceObject(data, queryString) };
         }
 
-        private void SetupResources(IEnumerable<T> data)
+        /// <summary>
+        /// Instantiates the ResourceObjects in the Data property
+        /// </summary>
+        /// <param name="data"></param>
+        private void SetupResources(IEnumerable<T> data, Uri queryString = null)
         {
             // Fill data array with resource objects
-            Data = data.Select(dataItem => new JsonApiResourceObject(dataItem));
+            Data = data.Select(dataItem => new JsonApiResourceObject(dataItem, queryString));
         }
 
-        private void SetupIncludes(T data, IEnumerable<PropertyInfo> includedProperties)
+        /// <summary>
+        /// Populates the Included Property with ResourceObjects
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="includedProperties"></param>
+        private void SetupIncludes(T data, IEnumerable<PropertyInfo> includedProperties, Uri queryString = null)
         {
             SetupIncludes(new List<T> { data }, includedProperties);
         }
 
-        private void SetupIncludes(IEnumerable<T> dataSet, IEnumerable<PropertyInfo> includedProperties)
+        /// <summary>
+        /// Populates the Included Property with ResourceObjects
+        /// </summary>
+        /// <param name="dataSet">The data conatining the properties</param>
+        /// <param name="includedProperties">Defines which properties are to be included</param>
+        private void SetupIncludes(IEnumerable<T> dataSet, IEnumerable<PropertyInfo> includedProperties, Uri queryString = null)
         {
-            if (includedProperties.Any())
+            // ignore if no data is present
+            if (!includedProperties.Any()) return;
+
+            // instatiate the included collection
+            Included = new List<JsonApiResourceObject>();
+
+            // process each item in data
+            foreach(var data in dataSet)
             {
-                Included = new List<JsonApiResourceObject>();
-                foreach(var data in dataSet)
+                // iterate over all of the items' properties and look for the requested properties
+                var propertiesArray = data.GetType().GetProperties();
+                foreach (var propertyInfo in propertiesArray)
                 {
-                    var propertiesArray = data.GetType().GetProperties();
-                    foreach (var propertyInfo in propertiesArray)
+                    if (includedProperties.Any(x=> x.Name == propertyInfo.Name))
                     {
-                        if (includedProperties.Any(x=> x.Name == propertyInfo.Name))
+                        if (propertyInfo.PropertyType.IsSubclassOf(typeof(JsonApiBaseModel)))
                         {
-                            if (propertyInfo.PropertyType.IsSubclassOf(typeof(JsonApiBaseModel)))
+                            var rawdata = propertyInfo.GetValue(data) as JsonApiBaseModel;
+                            Included.Add(new JsonApiResourceObject(rawdata, queryString, false));
+                        }
+                        else if (propertyInfo.PropertyType.IsNonStringEnumerable())
+                        {
+                            var rawdata = propertyInfo.GetValue(data) as IEnumerable<JsonApiBaseModel>;
+                            if (rawdata != null)
                             {
-                                var rawdata = propertyInfo.GetValue(data) as JsonApiBaseModel;
-                                Included.Add(new JsonApiResourceObject(rawdata, false));
-                            }
-                            else if (propertyInfo.PropertyType.IsNonStringEnumerable())
-                            {
-                                var rawdata = propertyInfo.GetValue(data) as IEnumerable<JsonApiBaseModel>;
-                                if (rawdata != null)
+                                foreach(var item in rawdata as IEnumerable<JsonApiBaseModel>)
                                 {
-                                    foreach(var item in rawdata as IEnumerable<JsonApiBaseModel>)
-                                    {
-                                        Included.Add(new JsonApiResourceObject(item, false));
-                                    }
+                                    Included.Add(new JsonApiResourceObject(item,queryString, false));
                                 }
                             }
                         }
@@ -149,13 +195,27 @@ namespace Bitbird.Core.JsonApi
             }
         }
 
+        public void SetupLinks(Uri queryString)
+        {
+            //check if baseUri contains actual information
+            if (queryString == null || string.IsNullOrWhiteSpace( queryString.Host)) return;
+
+            // setup link to self
+            Links = new JsonApiLinksObject { Self = new JsonApiLink(queryString.AbsoluteUri) };
+        }
+
         #endregion
 
         #region Data Access
 
-        public IEnumerable<T> ParseData()
+        /// <summary>
+        /// Extracts all primary data items from the JsonApiDocuments.
+        /// If any Relationships are present the model instances with the respective id's will being injected.
+        /// If any Includes are present the model instances with the respective attirbutes will being injected.
+        /// </summary>
+        /// <returns>An empty collection if no data exists</returns>
+        public IEnumerable<T> ExtractData()
         {
-            
             List<T> results = new List<T>();
             if (Data == null || !Data.Any()) { return results; }
 

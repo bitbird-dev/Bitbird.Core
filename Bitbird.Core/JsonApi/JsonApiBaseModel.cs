@@ -6,6 +6,7 @@ using System.Text;
 
 namespace Bitbird.Core.JsonApi
 {
+    [JsonObject(NamingStrategyType = typeof(Newtonsoft.Json.Serialization.CamelCaseNamingStrategy))]
     public abstract class JsonApiBaseModel
     {
         [JsonIgnore, JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
@@ -20,6 +21,16 @@ namespace Bitbird.Core.JsonApi
         public virtual bool IsPropertyAccessible(PropertyInfo propertyInfo)
         {
             return true;
+        }
+
+        public string GetJsonApiClassName()
+        {
+            return GetJsonApiClassName(GetType());
+        }
+
+        public static string GetJsonApiClassName(Type type)
+        {
+            return type?.Name?.ToLower();
         }
     }
 }

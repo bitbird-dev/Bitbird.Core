@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,6 +18,7 @@ namespace Bitbird.Core.JsonApi
     ///     meta: a meta object containing non-standard meta-information about the link.
     /// 
     /// </summary>
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public sealed class JsonApiLink
     {
         public JsonApiLink(string url, object metadata = null)

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,6 +14,7 @@ namespace Bitbird.Core.JsonApi
     /// A “resource identifier object” MAY also include a meta member, 
     /// whose value is a meta object that contains non-standard meta-information.
     /// </summary>
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class JsonApiResourceIdentifierObject
     {
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]
