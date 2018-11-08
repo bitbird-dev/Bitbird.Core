@@ -40,7 +40,6 @@ namespace Bitbird.Core.JsonApi
     ///     an array of resource objects, an array of resource identifier objects, or an empty array([]), for requests that target resource collections
     /// 
     /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class JsonApiDocument<T> where T : JsonApiBaseModel
     {
         #region Properties
