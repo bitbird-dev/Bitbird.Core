@@ -13,13 +13,13 @@ namespace Bitbird.Core.JsonApi
 
         protected JsonApiRelationshipBase Create(Type objectType, JObject jObject, IContractResolver resolver)
         {
-            if (FieldExists(jObject, StringUtils.ResolvePropertyName(resolver, nameof(JsonApiToOneRelationship.Data)), JTokenType.Object))
+            if (FieldExists(jObject, "data", JTokenType.Object))
                 return new JsonApiToOneRelationship();
 
-            if (FieldExists(jObject, StringUtils.ResolvePropertyName(resolver, nameof(JsonApiToManyRelationship.Data)), JTokenType.Array))
+            if (FieldExists(jObject, "data", JTokenType.Array))
                 return new JsonApiToManyRelationship();
 
-            if (FieldExists(jObject, StringUtils.ResolvePropertyName(resolver, nameof(JsonApiToOneRelationship.Links)), JTokenType.Object))
+            if (FieldExists(jObject, "links", JTokenType.Object))
                 return new JsonApiToOneRelationship();
 
             throw new InvalidOperationException();
@@ -40,7 +40,7 @@ namespace Bitbird.Core.JsonApi
         {
             var jObject = JObject.Load(reader);
 
-            if (FieldExists(jObject, StringUtils.ResolvePropertyName(serializer.ContractResolver, "data"), JTokenType.Null)) return null;
+            if (FieldExists(jObject, "data", JTokenType.Null)) return null;
 
             JsonApiRelationshipBase target = Create(objectType, jObject, serializer.ContractResolver);
             serializer.Populate(jObject.CreateReader(), target);

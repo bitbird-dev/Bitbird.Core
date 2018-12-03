@@ -11,6 +11,44 @@ using System.Text;
 
 namespace Bitbird.Core.JsonApi
 {
+    public class JsonDocumentDataConverter : JsonConverter
+    {
+        public override bool CanConvert(Type objectType)
+        {
+            return typeof(JsonApiResourceObject).IsAssignableFrom(objectType) || typeof(IEnumerable<JsonApiResourceObject>).IsAssignableFrom(objectType);
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            if(reader.TokenType != JsonToken.StartArray)
+            {
+                var res = serializer.Deserialize<JsonApiResourceObject>(reader);
+                if (res != null)
+                {
+                    return new List<JsonApiResourceObject> { res };
+                }
+            }
+            return serializer.Deserialize(reader, objectType);
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            var resourceCollection = value as IEnumerable<JsonApiResourceObject>;
+            if(resourceCollection != null)
+            {
+                if(resourceCollection.Count() < 2)
+                {
+                    var singleResource = resourceCollection.FirstOrDefault();
+                    serializer.Serialize(writer, singleResource);
+                }
+                else
+                {
+                    serializer.Serialize(writer, resourceCollection);
+                }
+            }
+        }
+    }
+
     /// <summary>
     /// A document MUST contain at least one of the following top-level members:
     ///
@@ -40,6 +78,8 @@ namespace Bitbird.Core.JsonApi
     ///     an array of resource objects, an array of resource identifier objects, or an empty array([]), for requests that target resource collections
     /// 
     /// </summary>
+    
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class JsonApiDocument<T> where T : JsonApiBaseModel
     {
         #region Properties
@@ -47,6 +87,7 @@ namespace Bitbird.Core.JsonApi
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public JObject JsonApi => new JObject(new JProperty("version", "1.0"));
 
+        [JsonConverter(typeof(JsonDocumentDataConverter))]
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<JsonApiResourceObject> Data { get; set; }
 

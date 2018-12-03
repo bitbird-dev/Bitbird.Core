@@ -53,6 +53,20 @@ namespace Bitbird.Core.Tests
         }
 
         [TestMethod]
+        public void JsonApiDocument_DataArray()
+        {
+            var data = GetSomeData();
+            var testApiDocument = new JsonApiDocument<Firma>(data);
+            string jsonString = JsonConvert.SerializeObject(testApiDocument, Formatting.Indented);
+
+            var result = JsonConvert.DeserializeObject<JsonApiDocument<Firma>>(jsonString);
+            Assert.IsNotNull(result);
+            var deserialzedModel = result.ExtractData();
+            Assert.IsNotNull(deserialzedModel);
+            Assert.AreEqual(deserialzedModel.Count(), data.Count());
+        }
+
+        [TestMethod]
         public void JsonApiDocument_TestSelfLinks()
         {
             // create test data

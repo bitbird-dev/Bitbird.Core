@@ -160,7 +160,8 @@ namespace Bitbird.Core.Utils
         {
             DefaultContractResolver r = resolver as DefaultContractResolver;
             if (r == null) { throw new Exception("Invalid ContractResolver. Derive from DefaultContractResolver!"); }
-            return r.GetResolvedPropertyName(propertyName);
+            var result = r.GetResolvedPropertyName(propertyName);
+            return result;
         }
     }
 }

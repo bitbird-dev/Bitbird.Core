@@ -11,7 +11,7 @@ namespace Bitbird.Core.JsonApi
     /// </summary>
     public class JsonApiToOneRelationship : JsonApiRelationshipBase
     {
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("data",NullValueHandling = NullValueHandling.Ignore)]
         public JsonApiResourceIdentifierObject Data
         {
             get
