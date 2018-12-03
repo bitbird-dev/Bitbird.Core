@@ -33,7 +33,7 @@ namespace Bitbird.Core.JsonApi
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class JsonApiResourceObject
     {
-
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Id { get; set; }
 
         public string Type { get; set; }

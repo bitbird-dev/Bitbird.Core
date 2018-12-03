@@ -84,8 +84,8 @@ namespace Bitbird.Core.JsonApi
     {
         #region Properties
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public JObject JsonApi => new JObject(new JProperty("version", "1.0"));
+        //[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        //public JObject JsonApi => new JObject(new JProperty("version", "1.0"));
 
         [JsonConverter(typeof(JsonDocumentDataConverter))]
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
