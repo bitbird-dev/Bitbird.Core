@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.Text;
 
 namespace Bitbird.Core.JsonApi
 {
+    
     /// <summary>
     /// Where specified, a links member can be used to represent links. 
     /// The value of each links member MUST be an object (a “links object”).
@@ -26,10 +28,14 @@ namespace Bitbird.Core.JsonApi
             Href = url;
             Meta = metadata;
         }
+        public JsonApiLink()
+        {
 
-        public string Href { get; }
+        }
+        [JsonProperty("href")]
+        public string Href { get; set; }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public object Meta { get; }
+        [JsonProperty("meta",NullValueHandling = NullValueHandling.Ignore)]
+        public object Meta { get; set; }
     }
 }

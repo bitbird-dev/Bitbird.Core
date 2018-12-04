@@ -77,7 +77,12 @@ namespace Bitbird.Core.Tests
 
             // create JsonDocument
             var jsonDocument = new JsonApiDocument<Firma>(model, new List<PropertyInfo> { typeof(Firma).GetProperty(nameof(Firma.Fahrer)) }, queryUri);
+            jsonDocument.Links.Related = new JsonApiLink("test", 1);
             var jsonString = JsonConvert.SerializeObject(jsonDocument, Formatting.Indented);
+            var result = JsonConvert.DeserializeObject<JsonApiDocument<Firma>>(jsonString);
+            Assert.IsNotNull(result);
+            var deserialzedModel = result.ExtractData();
+            Assert.IsNotNull(deserialzedModel);
         }
 
         [TestMethod]
