@@ -132,7 +132,8 @@ namespace Bitbird.Core.JsonApi
             else if (processRelationships && propertyType.IsSubclassOf(typeof(JsonApiBaseModel)))
             {
                 // add relationship
-                AddJsonApiToOneRelationship(propertyInfo, propertyType, propertyInfo.GetValue(data) as JsonApiBaseModel);
+                var value = propertyInfo.GetValue(data) as JsonApiBaseModel;
+                if (value != null) { AddJsonApiToOneRelationship(propertyInfo, propertyType, value); }
             }
         }
 
