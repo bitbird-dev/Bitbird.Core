@@ -136,8 +136,7 @@ namespace Bitbird.Core.JsonApi
                 if (value != null) { AddJsonApiToOneRelationship(propertyInfo, propertyType, value); }
             }
         }
-
-
+        
         /// <summary>
         /// Adds a new JsonApiToOneRelationship to the Relationships rroperty.
         /// </summary>
