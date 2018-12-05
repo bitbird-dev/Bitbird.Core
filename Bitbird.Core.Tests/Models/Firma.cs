@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace Bitbird.Core.Tests.Models
 {
+    [JsonApiClass("firmacustom")]
     public class Firma : JsonApiBaseModel
     {
         [JsonAccessRestricted]

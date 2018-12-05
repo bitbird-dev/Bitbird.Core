@@ -63,7 +63,8 @@ namespace Bitbird.Core.JsonApi
         {
             Type type = data.GetType();
             Id = data.Id;
-            Type = StringUtils.ToTrimmedLowerCase(type.Name);
+            
+            Type = StringUtils.GetTypeString(type);
 
             // set url
             if(queryUri != null)
@@ -124,7 +125,7 @@ namespace Bitbird.Core.JsonApi
                 else if (processRelationships && innerType.IsSubclassOf(typeof(JsonApiBaseModel)))
                 {
                     var relations = (enumeratedData as IEnumerable<JsonApiBaseModel>).Select(
-                        x => new JsonApiResourceIdentifierObject(x.Id, StringUtils.ToTrimmedLowerCase(innerType.Name)));
+                        x => new JsonApiResourceIdentifierObject(x.Id, StringUtils.GetTypeString(innerType)));
                     Relationships.Add(StringUtils.ToSnakeCase(propertyInfo.Name), new JsonApiToManyRelationship{Data = relations});
                 }
             }
@@ -147,7 +148,7 @@ namespace Bitbird.Core.JsonApi
         {
             Relationships.Add(StringUtils.ToSnakeCase(propertyInfo.Name), new JsonApiToOneRelationship
             {
-                Data = new JsonApiResourceIdentifierObject(rawdata.Id, StringUtils.ToTrimmedLowerCase(propertyType.Name))
+                Data = new JsonApiResourceIdentifierObject(rawdata.Id, StringUtils.GetTypeString(propertyType))
             });
         }
     }

@@ -1,7 +1,9 @@
-﻿using Newtonsoft.Json.Serialization;
+﻿using Bitbird.Core.JsonApi.Attributes;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace Bitbird.Core.Utils
@@ -152,6 +154,14 @@ namespace Bitbird.Core.Utils
         {
             string result = s.Trim();
             return result.ToLowerInvariant();
+        }
+
+        public static string GetTypeString(Type t)
+        {
+            var customName = t.GetTypeInfo().GetCustomAttribute<JsonApiClassAttribute>();
+            string typeName = (customName != null) ? customName.Name : t.Name;
+            typeName = typeName.Trim();
+            return typeName.ToLowerInvariant();
         }
 
         #endregion
