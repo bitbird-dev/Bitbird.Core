@@ -21,7 +21,6 @@ namespace Bitbird.Core.JsonApi
     /// 
     /// </summary>
     [JsonConverter(typeof(JsonApiLinkConverter))]
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public sealed class JsonApiLink
     {
         public JsonApiLink(string url, object metadata = null)
