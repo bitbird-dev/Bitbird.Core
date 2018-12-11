@@ -68,5 +68,40 @@ namespace Bitbird.Core.Tests.JsonApi
 
             Assert.IsTrue(string.Equals(result, referenceResult));
         }
+
+        [TestMethod]
+        public void TestLinkObjectSerializationEmtyLinks()
+        {
+            JsonApiLinksObject l = new JsonApiLinksObject
+            {
+                Self = new JsonApiLink { Href = testUrl },
+            };
+
+            JObject reference = new JObject(
+                new JProperty("self", testUrl)
+                );
+            var result = JsonConvert.SerializeObject(l, Formatting.Indented);
+            var referenceResult = JsonConvert.SerializeObject(reference, Formatting.Indented);
+
+            Assert.IsTrue(string.Equals(result, referenceResult));
+        }
+
+        [TestMethod]
+        public void TestLinkObjectDeserializationEmtyLinks()
+        {
+            var link1 = new JsonApiLink { Href = testUrl, Meta = meta };
+            var link2 = new JsonApiLink { Href = testUrl};
+            JsonApiLinksObject l = new JsonApiLinksObject
+            {
+                Self = link1,
+                Related = link2
+            };
+            
+            var json = JsonConvert.SerializeObject(l, Formatting.Indented);
+            var result = JsonConvert.DeserializeObject<JsonApiLinksObject>(json);
+            Assert.IsTrue(string.Equals(result.Self.Href, link1.Href));
+            Assert.IsTrue(string.Equals(result.Related.Href, link2.Href));
+        }
+
     }
 }
