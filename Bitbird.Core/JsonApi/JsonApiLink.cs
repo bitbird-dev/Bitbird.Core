@@ -20,7 +20,7 @@ namespace Bitbird.Core.JsonApi
     ///     meta: a meta object containing non-standard meta-information about the link.
     /// 
     /// </summary>
-    [JsonConverter(typeof(JsonApiLinkConverterZwei))]
+    [JsonConverter(typeof(JsonApiLinkConverter))]
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public sealed class JsonApiLink
     {
@@ -40,7 +40,7 @@ namespace Bitbird.Core.JsonApi
         public object Meta { get; set; }
     }
 
-    public class JsonApiLinkConverterZwei : JsonConverter
+    public class JsonApiLinkConverter : JsonConverter
     {
         public override bool CanConvert(Type objectType)
         {
