@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Bitbird.Core.JsonApi;
+using Bitbird.Core.JsonApi.ResourceObjectDictionary;
 using Bitbird.Core.Tests.DataAccess;
 using Bitbird.Core.Tests.Models;
 using Bitbird.Core.Utils;
@@ -15,6 +16,24 @@ using Newtonsoft.Json.Serialization;
 
 namespace Bitbird.Core.Tests
 {
+    internal class ClassA : JsonApiBaseModel
+    {
+        public string AName { get; set; }
+
+        public ClassB BReference { get; set; }
+    }
+
+    internal class ClassB : JsonApiBaseModel
+    {
+        public string BName { get; set; }
+        public ClassC CReference { get; set; }
+    }
+
+    internal class ClassC : JsonApiBaseModel
+    {
+        public string CName { get; set; }
+    }
+
     [TestClass]
     public class ApiTests
     {
@@ -32,6 +51,58 @@ namespace Bitbird.Core.Tests
         }
 
         #endregion
+
+        [TestMethod]
+        public void JsonApiDocument_TestResourceKeyCollision()
+        {
+            ResourceKey k1 = new ResourceKey("123", "classA");
+            ResourceKey k2 = new ResourceKey("123", "classB");
+            ResourceKey k3 = new ResourceKey("123", "classB");
+
+            Assert.IsFalse(k1.Equals(k2));
+            Assert.IsTrue(k2.Equals(k3));
+            Assert.IsFalse(k1.GetHashCode() == k2.GetHashCode());
+            Assert.IsTrue(k2.GetHashCode() == k3.GetHashCode());
+        }
+
+        [TestMethod]
+        public void JsonApiDocument_TestNestedIncludes()
+        {
+            // A has a reference to B
+            // B has a reference to C
+            // B AND C ARE INCLUDED
+            var data = new ClassA
+            {
+                Id = Guid.NewGuid().ToString(),
+                AName = "A",
+                BReference = new ClassB
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    BName = "B",
+                    CReference = new ClassC
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        CName = "C"
+                    }
+                }
+            };
+            
+            var doc = new JsonApiDocument<ClassA>(data);
+            doc.Included.AddResource(new JsonApiResourceObject(data.BReference));
+            doc.Included.AddResource(new JsonApiResourceObject(data.BReference.CReference));
+            string jsonString = JsonConvert.SerializeObject(doc, Formatting.Indented);
+            var deserializedDocument = JsonConvert.DeserializeObject<JsonApiDocument<ClassA>>(jsonString);
+
+            var aResource = deserializedDocument.Data.FirstOrDefault();
+            Assert.IsNotNull(aResource);
+
+            var aObject = aResource.ToObject<ClassA>();
+            Assert.IsNotNull(aObject);
+            aObject.BReference = deserializedDocument.Included.GetResource(aObject.BReference.Id, aObject.BReference.GetJsonApiClassName()).ToObject<ClassB>();
+            Assert.IsTrue(aObject.BReference.BName == data.BReference.BName);
+            aObject.BReference.CReference = deserializedDocument.Included.GetResource(aObject.BReference.CReference.Id, aObject.BReference.CReference.GetJsonApiClassName()).ToObject<ClassC>();
+            Assert.IsTrue(aObject.BReference.CReference.CName == data.BReference.CReference.CName);
+        }
 
         [TestMethod]
         public void JsonApiDocument_TestPrimitveArray()

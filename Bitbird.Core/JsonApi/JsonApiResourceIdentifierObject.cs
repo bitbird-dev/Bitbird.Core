@@ -32,5 +32,19 @@ namespace Bitbird.Core.JsonApi
             Type = type;
             Meta = meta;
         }
+
+        public JsonApiBaseModel ToObject(Type type)
+        {
+            JsonApiBaseModel result = null;
+
+            try
+            {
+                result = Activator.CreateInstance(type) as JsonApiBaseModel;
+                result.Id = Id;
+            }
+            catch { }
+
+            return result;
+        }
     }
 }

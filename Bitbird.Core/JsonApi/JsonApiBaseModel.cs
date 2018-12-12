@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Bitbird.Core.JsonApi.Attributes;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -30,7 +31,10 @@ namespace Bitbird.Core.JsonApi
 
         public static string GetJsonApiClassName(Type type)
         {
-            return type?.Name?.ToLower();
+            var customName = type.GetTypeInfo().GetCustomAttribute<JsonApiClassAttribute>();
+            string typeName = (customName != null) ? customName.Name : type.Name;
+            typeName = typeName.Trim();
+            return typeName.ToLowerInvariant();
         }
     }
 }

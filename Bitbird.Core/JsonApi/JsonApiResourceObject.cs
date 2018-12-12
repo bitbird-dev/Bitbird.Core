@@ -63,8 +63,8 @@ namespace Bitbird.Core.JsonApi
         {
             Type type = data.GetType();
             Id = data.Id;
-            
-            Type = StringUtils.GetTypeString(type);
+
+            Type = data.GetJsonApiClassName();
 
             // set url
             if(queryUri != null)
@@ -125,7 +125,7 @@ namespace Bitbird.Core.JsonApi
                 else if (processRelationships && innerType.IsSubclassOf(typeof(JsonApiBaseModel)))
                 {
                     var relations = (enumeratedData as IEnumerable<JsonApiBaseModel>).Select(
-                        x => new JsonApiResourceIdentifierObject(x.Id, StringUtils.GetTypeString(innerType)));
+                        x => new JsonApiResourceIdentifierObject(x.Id, JsonApiBaseModel.GetJsonApiClassName(innerType)));
                     Relationships.Add(StringUtils.ToSnakeCase(propertyInfo.Name), new JsonApiToManyRelationship{Data = relations});
                 }
             }
@@ -134,7 +134,7 @@ namespace Bitbird.Core.JsonApi
             {
                 // add relationship
                 var value = propertyInfo.GetValue(data) as JsonApiBaseModel;
-                if (value != null) { AddJsonApiToOneRelationship(propertyInfo, propertyType, value); }
+                if (value != null) { AddJsonApiToOneRelationship(propertyInfo, value); }
             }
         }
         
@@ -142,14 +142,69 @@ namespace Bitbird.Core.JsonApi
         /// Adds a new JsonApiToOneRelationship to the Relationships rroperty.
         /// </summary>
         /// <param name="propertyInfo"></param>
-        /// <param name="propertyType"></param>
         /// <param name="rawdata"></param>
-        private void AddJsonApiToOneRelationship(PropertyInfo propertyInfo, Type propertyType, JsonApiBaseModel rawdata)
+        private void AddJsonApiToOneRelationship(PropertyInfo propertyInfo, JsonApiBaseModel rawdata)
         {
             Relationships.Add(StringUtils.ToSnakeCase(propertyInfo.Name), new JsonApiToOneRelationship
             {
-                Data = new JsonApiResourceIdentifierObject(rawdata.Id, StringUtils.GetTypeString(propertyType))
+                Data = new JsonApiResourceIdentifierObject(rawdata.Id, rawdata.GetJsonApiClassName())
             });
+        }
+
+        /// <summary>
+        /// Converts the resource to a object.
+        /// Return null if conversion is impossible.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T ToObject<T>() where T : JsonApiBaseModel
+        {
+            T result = null;
+
+            // try to create object from attributes
+            try
+            {
+                result = Attributes.ToObject<T>();
+                result.Id = Id;
+            }
+            catch { }
+            if (result == null) { return result; }
+
+            // try to instantiate related resources
+            foreach (var propertyInfo in typeof(T).GetProperties())
+            {
+                var propertyType = propertyInfo.PropertyType;
+                bool isBaseModel = typeof(JsonApiBaseModel).IsAssignableFrom(propertyType);
+                bool isBaseModelCollection = propertyType.IsNonStringEnumerable() && typeof(JsonApiBaseModel).IsAssignableFrom(propertyType.GetEnumUnderlyingType());
+                if (!isBaseModel || isBaseModelCollection) { continue; }
+
+                // find related resourceIdentifier for property
+                string typeName = StringUtils.GetRelationShipName(propertyInfo);
+                JsonApiRelationshipBase relationship = null;
+                Relationships.TryGetValue(typeName, out relationship);
+                if (relationship == null) { continue; }
+                if (isBaseModel)
+                {
+                    var resIdentifier = (relationship as JsonApiToOneRelationship).Data;
+                    var resourceInstance = resIdentifier.ToObject(propertyType);
+                    resourceInstance.Id = resIdentifier.Id;
+                    propertyInfo.SetValue(result, resourceInstance);
+                }
+                else if (isBaseModelCollection)
+                {
+                    var resIdentifiers = (relationship as JsonApiToManyRelationship).Data;
+                    var concreteInstance = Activator.CreateInstance(propertyType);
+                    var resCollectionInstance = concreteInstance as List<JsonApiBaseModel>;
+                    foreach (var resIdentifier in resIdentifiers)
+                    {
+                        var resourceInstance = resIdentifier.ToObject(propertyType.GetEnumUnderlyingType());
+                        resourceInstance.Id = resIdentifier.Id;
+                        resCollectionInstance.Add(resourceInstance);
+                    }
+                    propertyInfo.SetValue(result, concreteInstance);
+                }
+            }
+            return result;
         }
     }
 }

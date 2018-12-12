@@ -1,4 +1,5 @@
-﻿using Bitbird.Core.Utils;
+﻿using Bitbird.Core.JsonApi.ResourceObjectDictionary;
+using Bitbird.Core.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
@@ -78,7 +79,7 @@ namespace Bitbird.Core.JsonApi
     ///     an array of resource objects, an array of resource identifier objects, or an empty array([]), for requests that target resource collections
     /// 
     /// </summary>
-    
+
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class JsonApiDocument<T> where T : JsonApiBaseModel
     {
@@ -101,7 +102,7 @@ namespace Bitbird.Core.JsonApi
         public JsonApiLinksObject Links { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public List<JsonApiResourceObject> Included { get; set; }
+        public JsonApiResourceObjectDictionary Included { get; set; } = new JsonApiResourceObjectDictionary();
         
 
         #endregion
@@ -201,10 +202,7 @@ namespace Bitbird.Core.JsonApi
         {
             // ignore if no data is present
             if (!includedProperties.Any()) return;
-
-            // instatiate the included collection
-            Included = new List<JsonApiResourceObject>();
-
+            
             // process each item in data
             foreach(var data in dataSet)
             {
@@ -217,7 +215,7 @@ namespace Bitbird.Core.JsonApi
                         if (propertyInfo.PropertyType.IsSubclassOf(typeof(JsonApiBaseModel)))
                         {
                             var rawdata = propertyInfo.GetValue(data) as JsonApiBaseModel;
-                            Included.Add(new JsonApiResourceObject(rawdata, queryString, false));
+                            Included.AddResource(new JsonApiResourceObject(rawdata, queryString, false));
                         }
                         else if (propertyInfo.PropertyType.IsNonStringEnumerable())
                         {
@@ -226,7 +224,7 @@ namespace Bitbird.Core.JsonApi
                             {
                                 foreach(var item in rawdata as IEnumerable<JsonApiBaseModel>)
                                 {
-                                    Included.Add(new JsonApiResourceObject(item,queryString, false));
+                                    Included.AddResource(new JsonApiResourceObject(item,queryString, false));
                                 }
                             }
                         }
@@ -307,6 +305,12 @@ namespace Bitbird.Core.JsonApi
             return results;
         }
 
+        /// <summary>
+        /// Include referenced data from a collection property
+        /// </summary>
+        /// <param name="targetData"></param>
+        /// <param name="propertyInfo"></param>
+        /// <param name="resources"></param>
         private void ParseToManyInclude(T targetData, PropertyInfo propertyInfo, IEnumerable<JsonApiResourceIdentifierObject> resources)
         {
             var innerType = propertyInfo.PropertyType.GenericTypeArguments[0];
@@ -319,10 +323,9 @@ namespace Bitbird.Core.JsonApi
             foreach (var resource in resources)
             {
                 var targetResource = targetCollection.Where(x => x.Id == resource.Id)?.FirstOrDefault();
-                
-                var IncludedResource = Included?.Where(x => (x.Id == resource.Id)&&(x.Type == resource.Type))?.FirstOrDefault();
-                if (IncludedResource == null) { listInstance.Add(targetResource); continue; }
-                var includedData = IncludedResource.Attributes.ToObject(innerType) as JsonApiBaseModel;
+                JsonApiResourceObject includedResource = Included.GetResource(resource.Id, resource.Type);
+                if (includedResource == null) { listInstance.Add(targetResource); continue; }
+                var includedData = includedResource.Attributes.ToObject(innerType) as JsonApiBaseModel;
                 if (includedData == null) { listInstance.Add(targetResource); continue; }
                 includedData.Id = resource.Id;
                 listInstance.Add(includedData);
@@ -330,11 +333,21 @@ namespace Bitbird.Core.JsonApi
             propertyInfo.SetValue(targetData, listInstance);
         }
 
+
+        /// <summary>
+        /// Include referenced data from a property
+        /// </summary>
+        /// <param name="targetData"></param>
+        /// <param name="propertyInfo"></param>
+        /// <param name="resource"></param>
+        /// <returns></returns>
         private JsonApiBaseModel ParseToOneInclude(T targetData, PropertyInfo propertyInfo, JsonApiResourceIdentifierObject resource)
         {
-            var IncludedResource = Included?.Where(x => (x.Id == resource.Id) && (x.Type == resource.Type))?.FirstOrDefault();
-            if (IncludedResource == null) return null;
-            var includedData = IncludedResource.Attributes.ToObject(propertyInfo.PropertyType) as JsonApiBaseModel;
+            //var IncludedResource = Included?.Where(x => (x.Id == resource.Id) && (x.Type == resource.Type))?.FirstOrDefault();
+            //if (IncludedResource == null) return null;
+            JsonApiResourceObject includedResource = Included.GetResource(resource.Id, resource.Type);
+            if (includedResource == null) { return null; }
+            var includedData = includedResource.Attributes.ToObject(propertyInfo.PropertyType) as JsonApiBaseModel;
             if (includedData == null) return null;
             includedData.Id = resource.Id;
             propertyInfo.SetValue(targetData, includedData);

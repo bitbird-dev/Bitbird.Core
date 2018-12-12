@@ -1,4 +1,5 @@
 ﻿using Bitbird.Core.JsonApi.Attributes;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
@@ -156,22 +157,14 @@ namespace Bitbird.Core.Utils
             return result.ToLowerInvariant();
         }
 
-        public static string GetTypeString(Type t)
-        {
-            var customName = t.GetTypeInfo().GetCustomAttribute<JsonApiClassAttribute>();
-            string typeName = (customName != null) ? customName.Name : t.Name;
-            typeName = typeName.Trim();
-            return typeName.ToLowerInvariant();
-        }
-
         #endregion
 
-        public static string ResolvePropertyName(IContractResolver resolver, string propertyName)
+        public static string GetRelationShipName(PropertyInfo propertyInfo)
         {
-            DefaultContractResolver r = resolver as DefaultContractResolver;
-            if (r == null) { throw new Exception("Invalid ContractResolver. Derive from DefaultContractResolver!"); }
-            var result = r.GetResolvedPropertyName(propertyName);
-            return result;
+            var customName = propertyInfo.GetCustomAttribute<JsonPropertyAttribute>();
+            string relationShipName = (customName != null) ? customName.PropertyName : propertyInfo.Name;
+            relationShipName = relationShipName.Trim();
+            return StringUtils.ToSnakeCase(relationShipName);
         }
     }
 }
