@@ -282,7 +282,7 @@ namespace Bitbird.Core.JsonApi
                     // process to-one relation
                     if (propertyInfo.PropertyType.IsSubclassOf(typeof(JsonApiBaseModel)))
                     {
-                        var relationshipBase = item.Relationships.Where(r => r.Key == StringUtils.ToSnakeCase(propertyInfo.Name))?.FirstOrDefault().Value;
+                        var relationshipBase = item.Relationships.Where(r => r.Key == StringUtils.GetRelationShipName(propertyInfo))?.FirstOrDefault().Value;
                         var relatedResource = ParseToOneRelation(result, relationshipBase as JsonApiToOneRelationship, propertyInfo);
                         if(relatedResource == null) { continue; }
                         ParseToOneInclude(result, propertyInfo, relatedResource);
@@ -290,7 +290,7 @@ namespace Bitbird.Core.JsonApi
                     // process to-many relation
                     else if (propertyInfo.PropertyType.IsNonStringEnumerable())
                     {
-                        var relationshipBase = item.Relationships.Where(r => r.Key == StringUtils.ToSnakeCase(propertyInfo.Name))?.FirstOrDefault().Value;
+                        var relationshipBase = item.Relationships.Where(r => r.Key == StringUtils.GetRelationShipName(propertyInfo))?.FirstOrDefault().Value;
                         var relatedResources = ParseToManyRelation(result, relationshipBase as JsonApiToManyRelationship, propertyInfo);
                         if(relatedResources != null)
                         {

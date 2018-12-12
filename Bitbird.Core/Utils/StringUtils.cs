@@ -161,10 +161,14 @@ namespace Bitbird.Core.Utils
 
         public static string GetRelationShipName(PropertyInfo propertyInfo)
         {
+            return ToSnakeCase(GetAttributeName(propertyInfo));
+        }
+
+        public static string GetAttributeName(PropertyInfo propertyInfo)
+        {
             var customName = propertyInfo.GetCustomAttribute<JsonPropertyAttribute>();
-            string relationShipName = (customName != null) ? customName.PropertyName : propertyInfo.Name;
-            relationShipName = relationShipName.Trim();
-            return StringUtils.ToSnakeCase(relationShipName);
+            string attributeName = (customName != null) ? customName.PropertyName : propertyInfo.Name;
+            return attributeName = attributeName.Trim();
         }
     }
 }

@@ -103,7 +103,7 @@ namespace Bitbird.Core.JsonApi
             // Directly add primitive as well as string properties to the Attributes
             if (propertyType.IsPrimitive || propertyType.IsValueType || propertyType == typeof(string))
             {
-                targetNode.Add(new JProperty(StringUtils.ToCamelCase(propertyInfo.Name), propertyInfo.GetValue(data)));
+                targetNode.Add(new JProperty(StringUtils.GetAttributeName(propertyInfo), propertyInfo.GetValue(data)));
             }
             else if (propertyType.IsNonStringEnumerable())
             {
@@ -126,7 +126,7 @@ namespace Bitbird.Core.JsonApi
                 {
                     var relations = (enumeratedData as IEnumerable<JsonApiBaseModel>).Select(
                         x => new JsonApiResourceIdentifierObject(x.Id, JsonApiBaseModel.GetJsonApiClassName(innerType)));
-                    Relationships.Add(StringUtils.ToSnakeCase(propertyInfo.Name), new JsonApiToManyRelationship{Data = relations});
+                    Relationships.Add(StringUtils.GetRelationShipName(propertyInfo), new JsonApiToManyRelationship{Data = relations});
                 }
             }
             // Classes derived from JsonApiBaseModel will be added to the relationships collection.
@@ -134,18 +134,18 @@ namespace Bitbird.Core.JsonApi
             {
                 // add relationship
                 var value = propertyInfo.GetValue(data) as JsonApiBaseModel;
-                if (value != null) { AddJsonApiToOneRelationship(propertyInfo, value); }
+                if (value != null) { AddJsonApiToOneRelationship(StringUtils.GetRelationShipName(propertyInfo), value); }
             }
         }
         
         /// <summary>
-        /// Adds a new JsonApiToOneRelationship to the Relationships rroperty.
+        /// Adds a new JsonApiToOneRelationship to the Relationships property.
         /// </summary>
         /// <param name="propertyInfo"></param>
         /// <param name="rawdata"></param>
-        private void AddJsonApiToOneRelationship(PropertyInfo propertyInfo, JsonApiBaseModel rawdata)
+        private void AddJsonApiToOneRelationship(string key, JsonApiBaseModel rawdata)
         {
-            Relationships.Add(StringUtils.ToSnakeCase(propertyInfo.Name), new JsonApiToOneRelationship
+            Relationships.Add(key, new JsonApiToOneRelationship
             {
                 Data = new JsonApiResourceIdentifierObject(rawdata.Id, rawdata.GetJsonApiClassName())
             });

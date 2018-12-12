@@ -163,7 +163,6 @@ namespace Bitbird.Core.Tests
             var testApiDocument = new JsonApiDocument<Firma>(model);
             JsonSerializerSettings settings = new JsonSerializerSettings()
             {
-                ContractResolver = new BitbirdCorePropertyNamesContractResolver(),
                 Formatting = Formatting.Indented
             };
             string jsonString = JsonConvert.SerializeObject(testApiDocument, settings);
@@ -188,7 +187,6 @@ namespace Bitbird.Core.Tests
             var testApiDocument = new JsonApiDocument<Firma>(model, new List<PropertyInfo> { model.GetType().GetProperty(nameof(model.Fahrer)) });
             JsonSerializerSettings settings = new JsonSerializerSettings()
             {
-                ContractResolver = new BitbirdCorePropertyNamesContractResolver(),
                 Formatting = Formatting.Indented
             };
             string jsonString = JsonConvert.SerializeObject(testApiDocument, settings);
@@ -212,12 +210,10 @@ namespace Bitbird.Core.Tests
             var model = GetSomeData().FirstOrDefault();
             var testApiDocument = new JsonApiDocument<Firma>(model, new List<PropertyInfo>
             {
-                //model.GetType().GetProperty(nameof(model.FahrZeuge)),
                 model.GetType().GetProperty(nameof(model.Fahrer))
             });
             JsonSerializerSettings settings = new JsonSerializerSettings()
             {
-                ContractResolver = new BitbirdCorePropertyNamesContractResolver(),
                 Formatting = Formatting.Indented
             };
             string jsonString = JsonConvert.SerializeObject(testApiDocument, settings);
@@ -243,7 +239,6 @@ namespace Bitbird.Core.Tests
             var testApiDocument = new JsonApiDocument<Firma>(model);
             JsonSerializerSettings settings = new JsonSerializerSettings()
             {
-                ContractResolver = new BitbirdCorePropertyNamesContractResolver(),
                 Formatting = Formatting.Indented
             };
             string jsonString = JsonConvert.SerializeObject(testApiDocument, settings);
