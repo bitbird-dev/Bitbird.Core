@@ -16,7 +16,9 @@ namespace Bitbird.Core.Tests.Models
     {
         [JsonAccessRestricted]
         public string FirmenName { get; set; }
-        
+
+        [JsonApiRelationId(nameof(Fahrer))]
+        public int? FahrerId { get; set; }
         public Fahrer Fahrer { get; set; }
         
         public IEnumerable<Fahrzeug> FahrZeuge { get; set; }
@@ -31,21 +33,4 @@ namespace Bitbird.Core.Tests.Models
             return true;
         }
     }
-    
-
-    //public class JsonAccessRightRestricted : JsonAccessRestrictedAttribute
-    //{
-    //    private TestAccessGroup myVar;
-
-    //    public TestAccessGroup MyProperty
-    //    {
-    //        get { return myVar; }
-    //        set { myVar = value; }
-    //    }
-
-    //    public JsonAccessRightRestricted(TestAccessGroup level)
-    //    {
-    //        myVar = level;
-    //    }
-    //}
 }

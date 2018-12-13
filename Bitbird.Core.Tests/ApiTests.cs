@@ -86,7 +86,7 @@ namespace Bitbird.Core.Tests
                     }
                 }
             };
-            
+
             var doc = new JsonApiDocument<ClassA>(data);
             doc.Included.AddResource(new JsonApiResourceObject(data.BReference));
             doc.Included.AddResource(new JsonApiResourceObject(data.BReference.CReference));

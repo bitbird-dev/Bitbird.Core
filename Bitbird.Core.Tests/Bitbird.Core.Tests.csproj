@@ -58,9 +58,13 @@
     <Compile Include="DataAccess\JsonAccessBroker.cs" />
     <Compile Include="JsonApi\JsonApiLinkObjectTests.cs" />
     <Compile Include="JsonApi\JsonApiLinkTests.cs" />
+    <Compile Include="JsonApi\JsonApiResourceObjectTests.cs" />
     <Compile Include="Models\Fahrer.cs" />
     <Compile Include="Models\Fahrzeug.cs" />
     <Compile Include="Models\Firma.cs" />
+    <Compile Include="Models\ModelWithNoReferences.cs" />
+    <Compile Include="Models\ModelWithReferences.cs" />
+    <Compile Include="Models\ModelWithSelfReference.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
