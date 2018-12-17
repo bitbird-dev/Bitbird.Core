@@ -55,7 +55,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiTests.cs" />
-    <Compile Include="DataAccess\JsonAccessBroker.cs" />
     <Compile Include="JsonApi\JsonApiLinkObjectTests.cs" />
     <Compile Include="JsonApi\JsonApiLinkTests.cs" />
     <Compile Include="JsonApi\JsonApiResourceObjectTests.cs" />

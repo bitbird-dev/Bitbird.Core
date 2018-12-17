@@ -5,8 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Bitbird.Core.JsonApi;
-using Bitbird.Core.JsonApi.ResourceObjectDictionary;
-using Bitbird.Core.Tests.DataAccess;
+using Bitbird.Core.JsonApi.Dictionaries;
 using Bitbird.Core.Tests.Models;
 using Bitbird.Core.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -33,6 +32,7 @@ namespace Bitbird.Core.Tests
     {
         public string CName { get; set; }
     }
+
 
     [TestClass]
     public class ApiTests
@@ -64,6 +64,7 @@ namespace Bitbird.Core.Tests
             Assert.IsFalse(k1.GetHashCode() == k2.GetHashCode());
             Assert.IsTrue(k2.GetHashCode() == k3.GetHashCode());
         }
+        
 
         [TestMethod]
         public void JsonApiDocument_TestNestedIncludes()
@@ -114,7 +115,7 @@ namespace Bitbird.Core.Tests
 
             var result = JsonConvert.DeserializeObject<JsonApiDocument<Fahrer>>(jsonString);
             Assert.IsNotNull(result);
-            var deserialzedModel = result.ExtractData()?.FirstOrDefault();
+            var deserialzedModel = result.ToObject()?.FirstOrDefault();
             Assert.IsNotNull(deserialzedModel);
             Assert.AreEqual(list.Count, deserialzedModel.Keys.Count());
             for (int i = 0; i < list.Count; i++)
@@ -132,7 +133,7 @@ namespace Bitbird.Core.Tests
 
             var result = JsonConvert.DeserializeObject<JsonApiDocument<Firma>>(jsonString);
             Assert.IsNotNull(result);
-            var deserialzedModel = result.ExtractData();
+            var deserialzedModel = result.ToObject();
             Assert.IsNotNull(deserialzedModel);
             Assert.AreEqual(deserialzedModel.Count(), data.Count());
         }
@@ -152,7 +153,7 @@ namespace Bitbird.Core.Tests
             var jsonString = JsonConvert.SerializeObject(jsonDocument, Formatting.Indented);
             var result = JsonConvert.DeserializeObject<JsonApiDocument<Firma>>(jsonString);
             Assert.IsNotNull(result);
-            var deserialzedModel = result.ExtractData();
+            var deserialzedModel = result.ToObject();
             Assert.IsNotNull(deserialzedModel);
         }
 
@@ -171,7 +172,7 @@ namespace Bitbird.Core.Tests
 
             var result = JsonConvert.DeserializeObject<JsonApiDocument<Firma>>(jsonString, settings);
 
-            var deserialzedModel = result.ExtractData()?.FirstOrDefault();
+            var deserialzedModel = result.ToObject()?.FirstOrDefault();
 
             Assert.IsNotNull(deserialzedModel);
 
@@ -195,7 +196,7 @@ namespace Bitbird.Core.Tests
 
             var result = JsonConvert.DeserializeObject<JsonApiDocument<Firma>>(jsonString, settings);
 
-            var deserializedModel = result.ExtractData()?.FirstOrDefault();
+            var deserializedModel = result.ToObject()?.FirstOrDefault();
 
             Assert.IsNotNull(deserializedModel);
 
@@ -207,10 +208,17 @@ namespace Bitbird.Core.Tests
         [TestMethod]
         public void JsonApiDocument_TestIncludeToMany()
         {
-            var model = GetSomeData().FirstOrDefault();
+            //var model = GetSomeData().FirstOrDefault();
+            var model = new Firma
+            {
+                Id = Guid.NewGuid().ToString(),
+                FirmenName = "bitbird",
+                FahrZeuge = new List<Fahrzeug> { new Fahrzeug { Id = Guid.NewGuid().ToString(), Kilometerstand = 4000 }, new Fahrzeug { Id = Guid.NewGuid().ToString(), Kilometerstand = 10000 } },
+                Fahrer = new Fahrer { Id = Guid.NewGuid().ToString(), Name = "Christian", Keys = new List<string> { "key0", "key1", "key2" } }
+            };
             var testApiDocument = new JsonApiDocument<Firma>(model, new List<PropertyInfo>
             {
-                model.GetType().GetProperty(nameof(model.Fahrer))
+                model.GetType().GetProperty(nameof(model.Fahrer)),model.GetType().GetProperty(nameof(model.FahrZeuge))
             });
             JsonSerializerSettings settings = new JsonSerializerSettings()
             {
@@ -222,7 +230,7 @@ namespace Bitbird.Core.Tests
 
             var result = JsonConvert.DeserializeObject<JsonApiDocument<Firma>>(jsonString, settings);
 
-            var deserialzedModel = result.ExtractData()?.FirstOrDefault();
+            var deserialzedModel = result.ToObject()?.FirstOrDefault();
 
             Assert.IsNotNull(deserialzedModel);
 
@@ -230,32 +238,6 @@ namespace Bitbird.Core.Tests
 
             Assert.AreEqual(deserialzedModel.FahrZeuge.First().Id, model.FahrZeuge.First().Id);
         }
-
-        [TestMethod]
-        public void TestAccessRestriction()
-        {
-            TestAccessBroker.Instance.UserGroup = TestAccessGroup.FULL_ACCESS;
-            var model = GetSomeData().FirstOrDefault();
-            var testApiDocument = new JsonApiDocument<Firma>(model);
-            JsonSerializerSettings settings = new JsonSerializerSettings()
-            {
-                Formatting = Formatting.Indented
-            };
-            string jsonString = JsonConvert.SerializeObject(testApiDocument, settings);
-            var result = JsonConvert.DeserializeObject<JsonApiDocument<Firma>>(jsonString, settings);
-            var deserialzedModel1 = result.ExtractData()?.FirstOrDefault();
-
-            Assert.IsNotNull(deserialzedModel1.FirmenName);
-
-            TestAccessBroker.Instance.UserGroup = TestAccessGroup.LIMITED_ACCES;
-            var testApiDocument2 = new JsonApiDocument<Firma>(model);
-            string jsonString2 = JsonConvert.SerializeObject(testApiDocument2, settings);
-            var result2 = JsonConvert.DeserializeObject<JsonApiDocument<Firma>>(jsonString2, settings);
-            var deserialzedModel2 = result2.ExtractData()?.FirstOrDefault();
-
-            Assert.IsNull(deserialzedModel2.FirmenName);
-        }
-
 
         #region Data
 

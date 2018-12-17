@@ -1,4 +1,4 @@
-﻿using Bitbird.Core.JsonApi.ResourceObjectDictionary;
+﻿using Bitbird.Core.JsonApi.Dictionaries;
 using Bitbird.Core.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -252,7 +252,7 @@ namespace Bitbird.Core.JsonApi
         /// If any Includes are present the model instances with the respective attirbutes will being injected.
         /// </summary>
         /// <returns>An empty collection if no data exists</returns>
-        public IEnumerable<T> ExtractData()
+        public IEnumerable<T> ToObject()
         {
             List<T> results = new List<T>();
             if (Data == null || !Data.Any()) { return results; }
@@ -261,43 +261,36 @@ namespace Bitbird.Core.JsonApi
             foreach(var item in Data)
             {
                 T result = null;
-                // process attributes
-                if (item.Attributes == null)
-                {
-                    result = Activator.CreateInstance<T>();
-                }
-                else
-                {
-                    result = item.Attributes.ToObject<T>();
-                }
-                result.Id = item.Id;
+                result = item.ToObject<T>(true);
 
                 if (item.Relationships == null) { results.Add(result); continue; }
-
-                foreach(var propertyInfo in resultType.GetProperties())
+                
+                foreach(var property in resultType.GetProperties())
                 {
-                    // primitive data is already processed
-                    if (propertyInfo.PropertyType.IsPrimitive) continue;
-                    
-                    // process to-one relation
-                    if (propertyInfo.PropertyType.IsSubclassOf(typeof(JsonApiBaseModel)))
+                    if (typeof(JsonApiBaseModel).IsAssignableFrom(property.PropertyType))
                     {
-                        var relationshipBase = item.Relationships.Where(r => r.Key == StringUtils.GetRelationShipName(propertyInfo))?.FirstOrDefault().Value;
-                        var relatedResource = ParseToOneRelation(result, relationshipBase as JsonApiToOneRelationship, propertyInfo);
-                        if(relatedResource == null) { continue; }
-                        ParseToOneInclude(result, propertyInfo, relatedResource);
+                        var propertyValue = property.GetValueFast(result) as JsonApiBaseModel;
+                        if (propertyValue == null) { continue; }
+                        string typeString = propertyValue.GetJsonApiClassName();
+                        var includedResource = GetIncludedResource(new ResourceKey(propertyValue.Id, typeString));
+                        if (includedResource == null) { continue; }
+                        property.SetValue(result, includedResource.ToObject(property.PropertyType));
                     }
-                    // process to-many relation
-                    else if (propertyInfo.PropertyType.IsNonStringEnumerable())
+                    else if(property.PropertyType.IsNonStringEnumerable())
                     {
-                        var relationshipBase = item.Relationships.Where(r => r.Key == StringUtils.GetRelationShipName(propertyInfo))?.FirstOrDefault().Value;
-                        var relatedResources = ParseToManyRelation(result, relationshipBase as JsonApiToManyRelationship, propertyInfo);
-                        if(relatedResources != null)
+                        var innerType = property.PropertyType.GenericTypeArguments[0];
+                        var listInstance = Activator.CreateInstance(typeof(List<>).MakeGenericType(innerType)) as IList;
+                        var propertyValue = property.GetValueFast(result) as IEnumerable<JsonApiBaseModel>;
+                        if (propertyValue == null) { continue; }
+                        foreach (var reference in propertyValue)
                         {
-                            ParseToManyInclude(result, propertyInfo, relatedResources);
+                            string typeString = reference.GetJsonApiClassName();
+                            var includedResource = GetIncludedResource(new ResourceKey(reference.Id, typeString));
+                            if (includedResource == null) { listInstance.Add(reference); continue; }
+                            listInstance.Add(includedResource.ToObject(reference.GetType()));
                         }
+                        property.SetValue(result, listInstance);
                     }
-                    else continue;
                 }
                 results.Add(result);
             }
@@ -305,128 +298,19 @@ namespace Bitbird.Core.JsonApi
             return results;
         }
 
-        /// <summary>
-        /// Include referenced data from a collection property
-        /// </summary>
-        /// <param name="targetData"></param>
-        /// <param name="propertyInfo"></param>
-        /// <param name="resources"></param>
-        private void ParseToManyInclude(T targetData, PropertyInfo propertyInfo, IEnumerable<JsonApiResourceIdentifierObject> resources)
+        private JsonApiResourceObject GetIncludedResource(ResourceKey includedKey)
         {
-            var innerType = propertyInfo.PropertyType.GenericTypeArguments[0];
-            if(innerType == null) { return; }
-
-            var targetCollection = propertyInfo.GetValue(targetData) as IEnumerable<JsonApiBaseModel>;
-            var constructedListType = typeof(List<>).MakeGenericType(innerType);
-            var listInstance = Activator.CreateInstance(constructedListType) as IList;
-            
-            foreach (var resource in resources)
-            {
-                var targetResource = targetCollection.Where(x => x.Id == resource.Id)?.FirstOrDefault();
-                JsonApiResourceObject includedResource = Included.GetResource(resource.Id, resource.Type);
-                if (includedResource == null) { listInstance.Add(targetResource); continue; }
-                var includedData = includedResource.Attributes.ToObject(innerType) as JsonApiBaseModel;
-                if (includedData == null) { listInstance.Add(targetResource); continue; }
-                includedData.Id = resource.Id;
-                listInstance.Add(includedData);
-            }
-            propertyInfo.SetValue(targetData, listInstance);
+            JsonApiResourceObject includedResourceObject = null;
+            Included.ResourceObjectDictionary.TryGetValue(includedKey, out includedResourceObject);
+            return includedResourceObject;
         }
 
-
-        /// <summary>
-        /// Include referenced data from a property
-        /// </summary>
-        /// <param name="targetData"></param>
-        /// <param name="propertyInfo"></param>
-        /// <param name="resource"></param>
-        /// <returns></returns>
-        private JsonApiBaseModel ParseToOneInclude(T targetData, PropertyInfo propertyInfo, JsonApiResourceIdentifierObject resource)
+        private JsonApiResourceObject GetIncludedResource(JsonApiResourceIdentifierObject resource)
         {
-            //var IncludedResource = Included?.Where(x => (x.Id == resource.Id) && (x.Type == resource.Type))?.FirstOrDefault();
-            //if (IncludedResource == null) return null;
-            JsonApiResourceObject includedResource = Included.GetResource(resource.Id, resource.Type);
-            if (includedResource == null) { return null; }
-            var includedData = includedResource.Attributes.ToObject(propertyInfo.PropertyType) as JsonApiBaseModel;
-            if (includedData == null) return null;
-            includedData.Id = resource.Id;
-            propertyInfo.SetValue(targetData, includedData);
-            return includedData;
-        }
-
-        /// <summary>
-        /// try to parse relationship data into target data property.
-        /// </summary>
-        /// <param name="targetData"></param>
-        /// <param name="relationship"></param>
-        /// <param name="propertyInfo"></param>
-        private IEnumerable<JsonApiResourceIdentifierObject> ParseToManyRelation(JsonApiBaseModel targetData, JsonApiToManyRelationship relationship, PropertyInfo propertyInfo)
-        {
-            if (targetData == null || relationship?.Data == null || propertyInfo == null) return null;
-            Type innerType = propertyInfo.PropertyType.GenericTypeArguments[0];
-            if (innerType == null) return null;
-
-            var listType = typeof(List<>);
-            var constructedListType = listType.MakeGenericType(innerType);
-
-            var listInstance = Activator.CreateInstance(constructedListType);
-            List<JsonApiResourceIdentifierObject> result = new List<JsonApiResourceIdentifierObject>();
-            foreach(var resourceIdentifier in relationship.Data)
-            {
-                var propertyData = CreatePropertyResource(innerType, resourceIdentifier);
-                if (propertyData == null) continue;
-                (listInstance as IList).Add(Convert.ChangeType(propertyData, innerType));
-                result.Add(resourceIdentifier);
-            }
-            try
-            {
-                propertyInfo.SetValue(targetData, listInstance);
-            }
-            catch ( Exception e)
-            {
-                return null;
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// Creates a JsonApiBaseModel of a certain Type and sets its id to the supplied resource id.
-        /// returns null if something went wrong.
-        /// </summary>
-        /// <param name="propertyType"></param>
-        /// <param name="resource"></param>
-        /// <returns></returns>
-        private JsonApiBaseModel CreatePropertyResource( Type propertyType, JsonApiResourceIdentifierObject resource)
-        {
-            if (propertyType == null || resource == null) return null;
-            JsonApiBaseModel result = null;
-            try
-            {
-                result = Activator.CreateInstance(propertyType) as JsonApiBaseModel;
-                result.Id = resource.Id;
-            }
-            catch (Exception) { }
-            return result;
-        }
-
-
-        /// <summary>
-        /// returns parsed item on success, null otherwise
-        /// </summary>
-        /// <param name="targetData"></param>
-        /// <param name="relationship"></param>
-        /// <param name="propertyInfo"></param>
-        /// <returns></returns>
-        private JsonApiResourceIdentifierObject ParseToOneRelation(T targetData, JsonApiToOneRelationship relationship, PropertyInfo propertyInfo)
-        {
-            if (targetData == null || relationship?.Data == null || propertyInfo == null) return null;
-            JsonApiBaseModel result = CreatePropertyResource(propertyInfo.PropertyType, relationship.Data);
-            try
-            { 
-                propertyInfo.SetValue(targetData, result);
-            }
-            catch(Exception e) { return null; }
-            return relationship.Data;
+            var includedKey = new ResourceKey(resource.Id, resource.Type);
+            JsonApiResourceObject includedResourceObject = null;
+            Included.ResourceObjectDictionary.TryGetValue(includedKey, out includedResourceObject);
+            return includedResourceObject;
         }
 
         #endregion

@@ -159,6 +159,19 @@ namespace Bitbird.Core.Utils
 
         #endregion
 
+        public static object ConvertId(string id, Type propertyType)
+        {
+            if (propertyType == typeof(int?))
+            {
+                return int.TryParse(id, out var tempVal) ? tempVal : (int?)null;
+            }
+            else if (propertyType == typeof(string))
+            {
+                return id;
+            }
+            return null;
+        }
+
         public static string GetRelationShipName(PropertyInfo propertyInfo)
         {
             return ToSnakeCase(GetAttributeName(propertyInfo));

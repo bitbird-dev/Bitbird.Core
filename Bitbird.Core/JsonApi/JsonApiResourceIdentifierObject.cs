@@ -18,13 +18,15 @@ namespace Bitbird.Core.JsonApi
     public class JsonApiResourceIdentifierObject
     {
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]
-        public string Id { get; private set; }
+        public string Id { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]
-        public string Type { get; private set; }
+        public string Type { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public object Meta { get; private set; }
+        public object Meta { get; set; }
+
+        public JsonApiResourceIdentifierObject() { }
 
         public JsonApiResourceIdentifierObject(string id, string type, object meta = null)
         {
