@@ -1,4 +1,5 @@
 ﻿using Bitbird.Core.JsonApi;
+using Bitbird.Core.JsonApi.Converters;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using System;
@@ -12,6 +13,11 @@ namespace Bitbird.Core.Tests.JsonApi
     [TestClass]
     public class JsonApiRelationshipObjectBaseTests
     {
+        [ClassInitialize]
+        public static void SetupIdConverters(TestContext testContext)
+        {
+            BtbrdCoreIdConverters.AddConverter(new BtbrdCoreIdConverter<string>(toString => toString, toId => toId));
+        }
         [TestMethod]
         public void ToOneRelationship()
         {
@@ -54,6 +60,7 @@ namespace Bitbird.Core.Tests.JsonApi
         [TestMethod]
         public void ToOneRelationship_LinkOnly()
         {
+            var sw = new System.Diagnostics.Stopwatch();
             JsonApiRelationshipObjectBase relationship = new JsonApiToOneRelationshipObject
             {
                 Links = new JsonApiRelationshipLinksObject
@@ -62,7 +69,9 @@ namespace Bitbird.Core.Tests.JsonApi
                     Related = new JsonApiLink(@"http://test.pro/related")
                 }
             };
+            sw.Start();
             string json = JsonConvert.SerializeObject(relationship, Formatting.Indented);
+            sw.Stop();
         }
 
         [TestMethod]

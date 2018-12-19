@@ -82,7 +82,7 @@ namespace Bitbird.Core.JsonApi
     /// </summary>
 
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class JsonApiDocument<T> where T : JsonApiBaseModel
+    public class JsonApiDocument<T> where T : IJsonApiDataModel
     {
         #region Properties
 
@@ -214,17 +214,17 @@ namespace Bitbird.Core.JsonApi
                 {
                     if (includedProperties.Any(x=> x.Name == propertyInfo.Name))
                     {
-                        if (propertyInfo.PropertyType.IsSubclassOf(typeof(JsonApiBaseModel)))
+                        if (typeof(IJsonApiDataModel).IsAssignableFrom(propertyInfo.PropertyType))
                         {
-                            var rawdata = propertyInfo.GetValue(data) as JsonApiBaseModel;
+                            var rawdata = propertyInfo.GetValue(data) as IJsonApiDataModel;
                             Included.AddResource(new JsonApiResourceObject(rawdata, queryString, false));
                         }
                         else if (propertyInfo.PropertyType.IsNonStringEnumerable())
                         {
-                            var rawdata = propertyInfo.GetValue(data) as IEnumerable<JsonApiBaseModel>;
+                            var rawdata = propertyInfo.GetValue(data) as IEnumerable<IJsonApiDataModel>;
                             if (rawdata != null)
                             {
-                                foreach(var item in rawdata as IEnumerable<JsonApiBaseModel>)
+                                foreach(var item in rawdata as IEnumerable<IJsonApiDataModel>)
                                 {
                                     Included.AddResource(new JsonApiResourceObject(item,queryString, false));
                                 }
@@ -262,19 +262,19 @@ namespace Bitbird.Core.JsonApi
             Type resultType = typeof(T);
             foreach(var item in Data)
             {
-                T result = null;
+                T result = default(T);
                 result = item.ToObject<T>(true);
 
                 if (item.Relationships == null) { results.Add(result); continue; }
                 
                 foreach(var property in resultType.GetProperties())
                 {
-                    if (typeof(JsonApiBaseModel).IsAssignableFrom(property.PropertyType))
+                    if (typeof(IJsonApiDataModel).IsAssignableFrom(property.PropertyType))
                     {
-                        var propertyValue = property.GetValueFast(result) as JsonApiBaseModel;
+                        var propertyValue = property.GetValueFast(result) as IJsonApiDataModel;
                         if (propertyValue == null) { continue; }
                         string typeString = propertyValue.GetJsonApiClassName();
-                        var includedResource = GetIncludedResource(new ResourceKey(propertyValue.Id, typeString));
+                        var includedResource = GetIncludedResource(new ResourceKey(propertyValue.GetIdAsString(), typeString));
                         if (includedResource == null) { continue; }
                         property.SetValue(result, includedResource.ToObject(property.PropertyType));
                     }
@@ -282,12 +282,12 @@ namespace Bitbird.Core.JsonApi
                     {
                         var innerType = property.PropertyType.GenericTypeArguments[0];
                         var listInstance = Activator.CreateInstance(typeof(List<>).MakeGenericType(innerType)) as IList;
-                        var propertyValue = property.GetValueFast(result) as IEnumerable<JsonApiBaseModel>;
+                        var propertyValue = property.GetValueFast(result) as IEnumerable<IJsonApiDataModel>;
                         if (propertyValue == null) { continue; }
                         foreach (var reference in propertyValue)
                         {
                             string typeString = reference.GetJsonApiClassName();
-                            var includedResource = GetIncludedResource(new ResourceKey(reference.Id, typeString));
+                            var includedResource = GetIncludedResource(new ResourceKey(reference.GetIdAsString(), typeString));
                             if (includedResource == null) { listInstance.Add(reference); continue; }
                             listInstance.Add(includedResource.ToObject(reference.GetType()));
                         }

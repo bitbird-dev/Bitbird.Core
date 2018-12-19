@@ -14,5 +14,6 @@ namespace Bitbird.Core.Tests.Models
         public ModelWithNoReferences SingleReference { get; set; }
 
         public IEnumerable<ModelWithNoReferences> CollectionReference { get; set; }
+        
     }
 }

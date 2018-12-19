@@ -46,20 +46,20 @@ namespace Bitbird.Core.Utils
         private AttributeGroup GetAttributeGroup(PropertyInfo propertyInfo)
         {
             if (propertyInfo.GetCustomAttribute<JsonIgnoreAttribute>() != null) { return AttributeGroup.Ignored; }
-            
+            if (propertyInfo.Name.Equals("Id")) { return AttributeGroup.Ignored; }
             if (propertyInfo.PropertyType.IsPrimitiveOrString())
             {
                 if (propertyInfo.GetCustomAttribute<JsonApiRelationIdAttribute>() != null) { return AttributeGroup.PrimitiveId; }
                 else { return AttributeGroup.Primitive; }
             }
 
-            if (typeof(JsonApiBaseModel).IsAssignableFrom(propertyInfo.PropertyType)) { return AttributeGroup.Reference; }
+            if (typeof(IJsonApiDataModel).IsAssignableFrom(propertyInfo.PropertyType)) { return AttributeGroup.Reference; }
 
             if (propertyInfo.PropertyType.IsNonStringEnumerable())
             {
                 var innerType = propertyInfo.PropertyType.GenericTypeArguments[0];
                 if (innerType == null) { return AttributeGroup.Unknown; }
-                if (typeof(JsonApiBaseModel).IsAssignableFrom(innerType)) { return AttributeGroup.ReferenceCollection; }
+                if (typeof(IJsonApiDataModel).IsAssignableFrom(innerType)) { return AttributeGroup.ReferenceCollection; }
                 if (innerType.IsPrimitiveOrString())
                 {
                     if (propertyInfo.GetCustomAttribute<JsonApiRelationIdAttribute>() != null) { return AttributeGroup.PrimitiveIdCollection; }
@@ -74,13 +74,13 @@ namespace Bitbird.Core.Utils
 
         #region SetupData
 
-        public JsonApiResourceObject Build(JsonApiBaseModel data, bool processRelations)
+        public JsonApiResourceObject Build(IJsonApiDataModel data, bool processRelations)
         {
             if (data == null) { throw new Exception("data is null"); }
 
             JsonApiResourceObject result = new JsonApiResourceObject();
 
-            result.Id = data.Id;
+            result.Id = data.GetIdAsString();
             result.Type = data.GetJsonApiClassName();
 
             var classType = data.GetType();
@@ -109,29 +109,31 @@ namespace Bitbird.Core.Utils
 
             if(!processRelations ) { return result; }
 
+            
+
             Dictionary<string, RelationShipInfo> relationships = new Dictionary<string, RelationShipInfo>();
 
             foreach (var item in propoertyInfoLookup[AttributeGroup.Reference])
             {
-                var value = item.GetValueFast(data) as JsonApiBaseModel;
+                var value = item.GetValueFast(data) as IJsonApiDataModel;
                 var info = new RelationShipInfo { RelationshipKey = StringUtils.GetRelationShipName(item), RelationshipType = value.GetJsonApiClassName() };
-                if (value != null) { info.RelationshipIds.Add(value.Id); }
+                if (value != null) { info.RelationshipIds.Add(value.GetIdAsString()); }
                 relationships.Add(item.Name, info);
             }
 
             foreach (var item in propoertyInfoLookup[AttributeGroup.ReferenceCollection])
             {
-                var value = item.GetValueFast(data) as IEnumerable<JsonApiBaseModel>;
+                var value = item.GetValueFast(data) as IEnumerable<IJsonApiDataModel>;
                 var info = new RelationShipInfo
                 {
                     RelationshipKey = StringUtils.GetRelationShipName(item),
-                    RelationshipType = JsonApiBaseModel.GetJsonApiClassName(item.PropertyType.GetGenericArguments()[0])
+                    RelationshipType = item.PropertyType.GetGenericArguments()[0].GetJsonApiClassName()
                 };
                 if (value != null)
                 {
                     foreach (var relation in value)
                     {
-                        info.RelationshipIds.Add(relation.Id);
+                        info.RelationshipIds.Add(relation.GetIdAsString());
                     }
                 }
                 relationships.Add(item.Name, info);
@@ -165,6 +167,8 @@ namespace Bitbird.Core.Utils
                     info.RelationshipIds.Add(val.ToString());
                 }
             }
+
+            result.Relationships = new Dictionary<string, JsonApiRelationshipObjectBase>();
 
             foreach (var r in relationships)
             {

@@ -8,9 +8,14 @@ namespace Bitbird.Core.Extensions
 {
     public static class PropertyInfoExtensions
     {
-        public static object GetValueFast(this PropertyInfo propertyInfo, object data)
+        public static object GetValueFast(this PropertyInfo propertyInfo, object obj)
         {
-            return propertyInfo.GetValue(data);
+            return propertyInfo.GetValue(obj);
+        }
+
+        public static void SetValueFast(this PropertyInfo propertyInfo, object obj, object value)
+        {
+            propertyInfo.SetValue(obj, value);
         }
 
         public static bool JsonIsIgnoredIfNull(this PropertyInfo propertyInfo)

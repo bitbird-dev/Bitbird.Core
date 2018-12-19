@@ -14,10 +14,10 @@ namespace Bitbird.Core.JsonApi.UrlBuilder
         string BuildCanonicalPath(Type resources);
 
         // individual resource, e.g. /people/1/
-        string BuildCanonicalPath(JsonApiBaseModel resource);
+        string BuildCanonicalPath(IJsonApiDataModel resource);
 
         // related resource, e.g. /people/1/employer
-        string BuildRelationshipPath(JsonApiBaseModel resource, PropertyInfo relatedProperty);
+        string BuildRelationshipPath(IJsonApiDataModel resource, PropertyInfo relatedProperty);
     }
 
 }

@@ -59,6 +59,7 @@
     <Compile Include="JsonApi\JsonApiLinkTests.cs" />
     <Compile Include="JsonApi\JsonApiRelationshipObjectBaseTests.cs" />
     <Compile Include="JsonApi\JsonApiResourceObjectTests.cs" />
+    <Compile Include="Models\BaseModel.cs" />
     <Compile Include="Models\Fahrer.cs" />
     <Compile Include="Models\Fahrzeug.cs" />
     <Compile Include="Models\Firma.cs" />

@@ -1,4 +1,5 @@
 ﻿using Bitbird.Core.JsonApi;
+using Bitbird.Core.JsonApi.Converters;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -15,6 +16,12 @@ namespace Bitbird.Core.Tests.JsonApi
     {
         private string testUrl = @"http://test.url";
         private string meta = @"muh";
+
+        [ClassInitialize]
+        public static void SetupTests(TestContext testContext)
+        {
+            BtbrdCoreIdConverters.AddConverter(new BtbrdCoreIdConverter<string>(toString => toString, toId => toId));
+        }
 
         [TestMethod]
         public void TestLinkObjectSerialization()

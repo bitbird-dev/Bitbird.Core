@@ -1,4 +1,5 @@
-﻿using Bitbird.Core.Utils;
+﻿using Bitbird.Core.Extensions;
+using Bitbird.Core.Utils;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -26,21 +27,21 @@ namespace Bitbird.Core.JsonApi.UrlBuilder
 
         public virtual string BuildCanonicalPath(Type resources)
         {
-            return '/'.TrimJoin(_prefix, JsonApiBaseModel.GetJsonApiClassName(resources))
+            return '/'.TrimJoin(_prefix, resources.GetJsonApiClassName())
                 .EnsureStartsWith("/")
                 .EnsureEndsWith("/");
         }
 
-        public virtual string BuildCanonicalPath(JsonApiBaseModel resource)
+        public virtual string BuildCanonicalPath(IJsonApiDataModel resource)
         {
-            return '/'.TrimJoin(_prefix, resource.GetJsonApiClassName(), resource.Id)
+            return '/'.TrimJoin(_prefix, resource.GetJsonApiClassName(), resource.GetIdAsString())
                 .EnsureStartsWith("/")
                 .EnsureEndsWith("/");
         }
 
-        public virtual string BuildRelationshipPath(JsonApiBaseModel resource, PropertyInfo relatedProperty)
+        public virtual string BuildRelationshipPath(IJsonApiDataModel resource, PropertyInfo relatedProperty)
         {
-            return '/'.TrimJoin(_prefix, resource.GetJsonApiClassName(), resource.Id, relatedProperty.Name)
+            return '/'.TrimJoin(_prefix, resource.GetJsonApiClassName(), resource.GetIdAsString(), relatedProperty.Name)
                 .EnsureStartsWith("/")
                 .EnsureEndsWith("/");
         }

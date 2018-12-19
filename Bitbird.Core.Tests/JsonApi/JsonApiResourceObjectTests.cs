@@ -13,6 +13,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Bitbird.Core.JsonApi.Converters;
+using Newtonsoft.Json.Linq;
 
 namespace Bitbird.Core.Tests.JsonApi
 {
@@ -21,6 +23,11 @@ namespace Bitbird.Core.Tests.JsonApi
     [TestClass]
     public class JsonApiResourceObjectTests
     {
+        [ClassInitialize]
+        public static void SetupTests(TestContext testContext)
+        {
+            BtbrdCoreIdConverters.AddConverter(new BtbrdCoreIdConverter<string>(toString => toString, toId => toId));
+        }
 
         [TestMethod]
         public void JsonApiResourceObject_ManuallyAddRelations()
@@ -36,6 +43,7 @@ namespace Bitbird.Core.Tests.JsonApi
                 }
             };
             var resourceObject = new JsonApiResourceObject(data, false);
+            resourceObject.Relationships = new Dictionary<string, JsonApiRelationshipObjectBase>();
             resourceObject.Relationships.Add("single-reference", new JsonApiToOneRelationshipObject{ Data =  new JsonApiResourceIdentifierObject(data.SingleReference.Id, data.SingleReference.GetType().GetJsonApiClassName()) });
             resourceObject.Relationships.Add("collection-reference", new JsonApiToManyRelationshipObject { Data = data.CollectionReference.Select(i => new JsonApiResourceIdentifierObject(i.Id, i.GetType().GetJsonApiClassName())).ToList() });
             
@@ -63,6 +71,7 @@ namespace Bitbird.Core.Tests.JsonApi
         public void JsonApiResourceObject_AutoAddAttributes()
         {
             var data = new ModelWithReferences { Id = Guid.NewGuid().ToString(), SingleReference = new ModelWithNoReferences { Id = Guid.NewGuid().ToString() } };
+            
             var resourceObject = new JsonApiResourceObject(data, null, false);
             var json = JsonConvert.SerializeObject(resourceObject, Formatting.Indented);
             var deserialized = JsonConvert.DeserializeObject<JsonApiResourceObject>(json);

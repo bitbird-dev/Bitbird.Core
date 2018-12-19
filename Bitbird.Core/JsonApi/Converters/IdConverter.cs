@@ -53,17 +53,20 @@ namespace Bitbird.Core.JsonApi.Converters
     public static class BtbrdCoreIdConverters
     {
         private static ConcurrentDictionary<Type, BtbrdCoreIdConverter> Converters { get; } = new ConcurrentDictionary<Type, BtbrdCoreIdConverter>();
-
+        
         public static void AddConverter(BtbrdCoreIdConverter converter)
         {
-            if(!Converters.TryAdd(converter.IdType, converter))
+            if (!Converters.TryAdd(converter.IdType, converter))
             {
-                throw new ArgumentException("converter already exists!");
+                BtbrdCoreIdConverter oldConverter = null;
+                Converters.TryRemove(converter.IdType, out oldConverter);
+                Converters.TryAdd(converter.IdType, converter);
             }
         }
 
         public static string ConvertToString(object obj)
         {
+            
             return Converters[obj.GetType()].ConvertToString(obj);
         }
         

@@ -25,30 +25,31 @@ namespace Bitbird.Core.JsonApi
             throw new NotImplementedException();
         }
     }
-
+    
     public class JsonApiResourceObject
     {
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
         public string Id { get; set; }
 
+        [JsonProperty("type", NullValueHandling = NullValueHandling.Include)]
         public string Type { get; set; }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("attributes", NullValueHandling = NullValueHandling.Ignore)]
         public Dictionary<string, object> Attributes { get; set; }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public Dictionary<string, JsonApiRelationshipObjectBase> Relationships { get; set; } = new Dictionary<string, JsonApiRelationshipObjectBase>();
+        [JsonProperty("relationships", NullValueHandling = NullValueHandling.Ignore)]
+        public Dictionary<string, JsonApiRelationshipObjectBase> Relationships { get; set; }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("links", NullValueHandling = NullValueHandling.Ignore)]
         public JsonApiLinksObject Links { get; set; }
 
         #region Constructor
 
         public JsonApiResourceObject() { }
 
-        public JsonApiResourceObject(JsonApiBaseModel data, bool AutoProcessRelationships) : this(data, null, AutoProcessRelationships) { }
+        public JsonApiResourceObject(IJsonApiDataModel data, bool AutoProcessRelationships) : this(data, null, AutoProcessRelationships) { }
         
-        public JsonApiResourceObject(JsonApiBaseModel data, Uri queryUri = null, bool AutoProcessRelationships = true)
+        public JsonApiResourceObject(IJsonApiDataModel data, Uri queryUri = null, bool AutoProcessRelationships = true)
         {
             var builder = new JsonApiResourceBuilder();
             var res = builder.Build(data, AutoProcessRelationships);
@@ -73,9 +74,9 @@ namespace Bitbird.Core.JsonApi
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public T ToObject<T>(bool processRelations = true) where T : JsonApiBaseModel
+        public T ToObject<T>(bool processRelations = true) where T : IJsonApiDataModel
         {
-            return ToObject(typeof(T), processRelations) as T;
+            return (T)ToObject(typeof(T), processRelations);
         }
 
         /// <summary>
@@ -83,17 +84,17 @@ namespace Bitbird.Core.JsonApi
         /// </summary>
         /// <typeparam name="t"></typeparam>
         /// <returns></returns>
-        public JsonApiBaseModel ToObject(Type t, bool processRelations = true)
+        public IJsonApiDataModel ToObject(Type t, bool processRelations = true)
         {
 
-            JsonApiBaseModel result = null;
+            IJsonApiDataModel result = null;
 
             // try to create object from attributes
             try
             {
-                if (Attributes == null) { result = Activator.CreateInstance(t) as JsonApiBaseModel; }
-                else { result = JObject.FromObject(Attributes).ToObject(t) as JsonApiBaseModel; }
-                result.Id = Id;
+                if (Attributes == null) { result = Activator.CreateInstance(t) as IJsonApiDataModel; }
+                else { result = JObject.FromObject(Attributes).ToObject(t) as IJsonApiDataModel; }
+                result.SetIdFromString(Id);
             }
             catch { }
             if (!processRelations || result == null || Relationships == null || Relationships.Count < 1) { return result; }
@@ -102,7 +103,7 @@ namespace Bitbird.Core.JsonApi
             Dictionary<string, PropertyInfo> refPropertyDict = null;
             Dictionary<string, string> refKeyToName = null;
             {
-                var refProperties = t.GetProperties().Where(p => typeof(JsonApiBaseModel).IsAssignableFrom(p.PropertyType) || typeof(IEnumerable<JsonApiBaseModel>).IsAssignableFrom(p.PropertyType));
+                var refProperties = t.GetProperties().Where(p => typeof(IJsonApiDataModel).IsAssignableFrom(p.PropertyType) || typeof(IEnumerable<IJsonApiDataModel>).IsAssignableFrom(p.PropertyType));
                 refPropertyDict = refProperties.ToDictionary(k => StringUtils.GetRelationShipName(k), v => v);
                 refKeyToName = refProperties.ToDictionary(k => StringUtils.GetRelationShipName(k), v => v.Name);
             }
@@ -145,8 +146,8 @@ namespace Bitbird.Core.JsonApi
                         var relationConcrete = relation.Value as JsonApiToManyRelationshipObject;
                         foreach (var r in relationConcrete.Data)
                         {
-                            var item = Activator.CreateInstance(innerType) as JsonApiBaseModel;
-                            item.Id = r?.Id;
+                            var item = Activator.CreateInstance(innerType) as IJsonApiDataModel;
+                            item.SetIdFromString(r?.Id);
                             collection.Add(item);
                         }
                         refInfo.SetValue(result, collection);
@@ -154,8 +155,8 @@ namespace Bitbird.Core.JsonApi
                     else
                     {
                         var relationConcrete = relation.Value as JsonApiToOneRelationshipObject;
-                        var item = Activator.CreateInstance(refInfo.PropertyType) as JsonApiBaseModel;
-                        item.Id = relationConcrete.Data.Id;
+                        var item = Activator.CreateInstance(refInfo.PropertyType) as IJsonApiDataModel;
+                        item.SetIdFromString(relationConcrete.Data.Id);
                         refInfo.SetValue(result, item);
                     }
                 }

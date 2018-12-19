@@ -16,11 +16,13 @@ namespace Bitbird.Core.JsonApi
         /// <summary>
         /// a JSON Pointer [RFC6901] to the associated entity in the request document [e.g. "/data" for a primary data object, or "/data/attributes/title" for a specific attribute].
         /// </summary>
+        [JsonProperty("pointer")]
         public string Pointer { get; set; }
 
         /// <summary>
         /// a string indicating which URI query parameter caused the error.
         /// </summary>
+        [JsonProperty("parameter")]
         public string Parameter { get; set; }
     }
 

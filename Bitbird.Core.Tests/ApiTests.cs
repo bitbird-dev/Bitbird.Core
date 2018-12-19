@@ -12,6 +12,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using Bitbird.Core.JsonApi.Converters;
 
 namespace Bitbird.Core.Tests
 {
@@ -37,6 +38,12 @@ namespace Bitbird.Core.Tests
     [TestClass]
     public class ApiTests
     {
+        [ClassInitialize]
+        public static void SetupTests(TestContext testContext)
+        {
+            BtbrdCoreIdConverters.AddConverter(new BtbrdCoreIdConverter<string>(toString => toString, toId => toId));
+        }
+
 
         #region TypeUtils
 
