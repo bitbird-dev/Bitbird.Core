@@ -1,4 +1,5 @@
-﻿using Bitbird.Core.JsonApi;
+﻿using Bitbird.Core.Extensions;
+using Bitbird.Core.JsonApi;
 using Bitbird.Core.JsonApi.Attributes;
 using Newtonsoft.Json;
 using System;
@@ -165,9 +166,22 @@ namespace Bitbird.Core.Utils
                 }
             }
 
-            result.Relationships = relationships.Where(r => r.Value.RelationshipIds.Count > 0).ToDictionary(
-                i => i.Value.RelationshipKey,
-                v => v.Value.RelationshipIds.Select(id => new JsonApiResourceIdentifierObject(id, v.Value.RelationshipType)));
+            foreach (var r in relationships)
+            {
+                if(r.Value.RelationshipIds.Count < 1) { continue; }
+                if (r.Value.RelationshipIds.Count == 1)
+                {
+                    var relO = new JsonApiToOneRelationshipObject();
+                    relO.Data = new JsonApiResourceIdentifierObject { Id = r.Value.RelationshipIds.First(), Type = r.Value.RelationshipType };
+                    result.Relationships.Add(r.Value.RelationshipKey, relO);
+                }
+                else
+                {
+                    var relO = new JsonApiToManyRelationshipObject();
+                    relO.Data = r.Value.RelationshipIds.Select(i => new JsonApiResourceIdentifierObject { Id = i, Type = r.Value.RelationshipType }).ToList();
+                    result.Relationships.Add(r.Value.RelationshipKey, relO);
+                }
+            }
             if (result.Relationships.Count < 1) { result.Relationships = null; }
 
             return result;

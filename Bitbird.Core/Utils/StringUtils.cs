@@ -169,7 +169,7 @@ namespace Bitbird.Core.Utils
             {
                 return id;
             }
-            return null;
+            throw new Exception($"Unsupported: Cannot convert {id} to id of type {propertyType.Name}");
         }
 
         public static string GetRelationShipName(PropertyInfo propertyInfo)

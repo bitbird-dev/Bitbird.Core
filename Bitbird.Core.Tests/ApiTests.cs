@@ -7,7 +7,7 @@ using System.Text;
 using Bitbird.Core.JsonApi;
 using Bitbird.Core.JsonApi.Dictionaries;
 using Bitbird.Core.Tests.Models;
-using Bitbird.Core.Utils;
+using Bitbird.Core.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

@@ -1,5 +1,5 @@
 ﻿using Bitbird.Core.JsonApi;
-using Bitbird.Core.JsonApi.Attributes;
+using Bitbird.Core.Extensions;
 using Bitbird.Core.JsonApi.Dictionaries;
 using Bitbird.Core.Tests.Models;
 using Bitbird.Core.Utils;
@@ -23,31 +23,28 @@ namespace Bitbird.Core.Tests.JsonApi
     {
 
         [TestMethod]
-        public void JsonApiResourceObject_ManuallyAddAttributesAndRelations()
+        public void JsonApiResourceObject_ManuallyAddRelations()
         {
-            //var data = new ModelWithReferences {
-            //    Id = Guid.NewGuid().ToString(),
-            //    SingleReference = new ModelWithNoReferences { Id = Guid.NewGuid().ToString()},
-            //    CollectionReference = new List<ModelWithNoReferences>
-            //    {
-            //        new ModelWithNoReferences { Id = Guid.NewGuid().ToString()},
-            //        new ModelWithNoReferences { Id = Guid.NewGuid().ToString()}
-            //    }
-            //};
-            //var resourceObject = new JsonApiResourceObject();
+            var data = new ModelWithReferences
+            {
+                Id = Guid.NewGuid().ToString(),
+                SingleReference = new ModelWithNoReferences { Id = Guid.NewGuid().ToString() },
+                CollectionReference = new List<ModelWithNoReferences>
+                {
+                    new ModelWithNoReferences { Id = Guid.NewGuid().ToString()},
+                    new ModelWithNoReferences { Id = Guid.NewGuid().ToString()}
+                }
+            };
+            var resourceObject = new JsonApiResourceObject(data, false);
+            resourceObject.Relationships.Add("single-reference", new JsonApiToOneRelationshipObject{ Data =  new JsonApiResourceIdentifierObject(data.SingleReference.Id, data.SingleReference.GetType().GetJsonApiClassName()) });
+            resourceObject.Relationships.Add("collection-reference", new JsonApiToManyRelationshipObject { Data = data.CollectionReference.Select(i => new JsonApiResourceIdentifierObject(i.Id, i.GetType().GetJsonApiClassName())).ToList() });
+            
             //resourceObject.Attributes = (data, false, x => x.SingleReference);
-            //var json = JsonConvert.SerializeObject(resourceObject, Formatting.Indented);
-            //var deserialized = JsonConvert.DeserializeObject<JsonApiResourceObject>(json);
-            //var result = deserialized.ToObject<ModelWithReferences>();
-            //Assert.IsTrue(result.SingleReference.Id == data.SingleReference.Id);
-
-            //resourceObject = new JsonApiResourceObject(data);
-            //json = JsonConvert.SerializeObject(resourceObject, Formatting.Indented);
-            //deserialized = JsonConvert.DeserializeObject<JsonApiResourceObject>(json);
-            //result = deserialized.ToObject<ModelWithReferences>();
-            //Assert.IsTrue(result.Id == data.Id);
-            //Assert.IsTrue(result.SingleReference.Id == data.SingleReference.Id);
-            //Assert.Fail("TODO: JsonApiResourceObject.ToObject does not deal with collections");
+            var json = JsonConvert.SerializeObject(resourceObject, Formatting.Indented);
+            var deserialized = JsonConvert.DeserializeObject<JsonApiResourceObject>(json);
+            var result = deserialized.ToObject<ModelWithReferences>();
+            Assert.IsTrue(result.SingleReference.Id == data.SingleReference.Id);
+            Assert.IsTrue(result.CollectionReference.Count() == data.CollectionReference.Count());
         }
 
         [TestMethod]

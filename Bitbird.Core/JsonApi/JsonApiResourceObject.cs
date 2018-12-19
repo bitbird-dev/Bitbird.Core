@@ -13,6 +13,19 @@ using System.Text;
 
 namespace Bitbird.Core.JsonApi
 {
+    public class JsonApiResourceObjectConverter : JsonConverter<JsonApiResourceObject>
+    {
+        public override JsonApiResourceObject ReadJson(JsonReader reader, Type objectType, JsonApiResourceObject existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void WriteJson(JsonWriter writer, JsonApiResourceObject value, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class JsonApiResourceObject
     {
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
@@ -24,7 +37,7 @@ namespace Bitbird.Core.JsonApi
         public Dictionary<string, object> Attributes { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public Dictionary<string, IEnumerable<JsonApiResourceIdentifierObject>> Relationships { get; set; }
+        public Dictionary<string, JsonApiRelationshipObjectBase> Relationships { get; set; } = new Dictionary<string, JsonApiRelationshipObjectBase>();
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public JsonApiLinksObject Links { get; set; }
@@ -104,11 +117,19 @@ namespace Bitbird.Core.JsonApi
                     {
                         if(propertyInfo.PropertyType is IEnumerable)
                         {
-                            propertyInfo.SetValue(result, relation.Value.Select(r => StringUtils.ConvertId(r.Id, propertyInfo.PropertyType)));
+                            var relationConcrete = relation.Value as JsonApiToManyRelationshipObject;
+                            if (relationConcrete.Data != null)
+                            {
+                                propertyInfo.SetValue(result, relationConcrete.Data.Select(r => StringUtils.ConvertId(r.Id, propertyInfo.PropertyType)));
+                            }
                         }
                         else
                         {
-                            propertyInfo.SetValue(result, StringUtils.ConvertId(relation.Value.FirstOrDefault().Id, propertyInfo.PropertyType));
+                            var relationConcrete = relation.Value as JsonApiToOneRelationshipObject;
+                            if(relationConcrete.Data != null)
+                            { 
+                                propertyInfo.SetValue(result, StringUtils.ConvertId(relationConcrete.Data.Id, propertyInfo.PropertyType));
+                            }
                         }
                     }
                 }
@@ -121,8 +142,8 @@ namespace Bitbird.Core.JsonApi
                         var innerType = refInfo.PropertyType.GenericTypeArguments[0];
                         var constructedListType = typeof(List<>).MakeGenericType(innerType);
                         var collection = Activator.CreateInstance(constructedListType) as IList;
-                        
-                        foreach(var r in relation.Value)
+                        var relationConcrete = relation.Value as JsonApiToManyRelationshipObject;
+                        foreach (var r in relationConcrete.Data)
                         {
                             var item = Activator.CreateInstance(innerType) as JsonApiBaseModel;
                             item.Id = r?.Id;
@@ -132,8 +153,9 @@ namespace Bitbird.Core.JsonApi
                     }
                     else
                     {
+                        var relationConcrete = relation.Value as JsonApiToOneRelationshipObject;
                         var item = Activator.CreateInstance(refInfo.PropertyType) as JsonApiBaseModel;
-                        item.Id = relation.Value.FirstOrDefault()?.Id;
+                        item.Id = relationConcrete.Data.Id;
                         refInfo.SetValue(result, item);
                     }
                 }
