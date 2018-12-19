@@ -16,7 +16,7 @@ namespace Bitbird.Core.Tests.JsonApi
         [ClassInitialize]
         public static void SetupIdConverters(TestContext testContext)
         {
-            BtbrdCoreIdConverters.AddConverter(new BtbrdCoreIdConverter<string>(toString => toString, toId => toId));
+            ApiTests.SetupTests(testContext);
         }
         [TestMethod]
         public void ToOneRelationship()

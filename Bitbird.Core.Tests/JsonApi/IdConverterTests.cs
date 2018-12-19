@@ -1,0 +1,38 @@
+﻿using System;
+using Bitbird.Core.JsonApi;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
+
+namespace Bitbird.Core.Tests.JsonApi
+{
+    [TestClass]
+    public class IdConverterTests
+    {
+        [ClassInitialize]
+        public static void SetupTests(TestContext testContext)
+        {
+            ApiTests.SetupTests(testContext);
+        }
+
+        class arr : IJsonApiIdModel<int?>
+        {
+            public string MyProperty { get; set; }
+            public int? Id { get ; set ; }
+        }
+
+        [TestMethod]
+        public void TestMethod1()
+        {
+            var modelIdNull = new arr();
+            var modelIdNotNull = new arr { Id = 112314, MyProperty = "muh" };
+            var docIdNull = new JsonApiDocument<arr>(modelIdNull);
+            var docIdNotNull = new JsonApiDocument<arr>(modelIdNotNull);
+
+            var jsonIdNull = JsonConvert.SerializeObject(docIdNull);
+            var jsonIdNotNull = JsonConvert.SerializeObject(docIdNotNull);
+
+            var resultIdNull = JsonConvert.DeserializeObject<arr>(jsonIdNull);
+            var resultIdNotNull = JsonConvert.DeserializeObject<arr>(jsonIdNotNull);
+        }
+    }
+}

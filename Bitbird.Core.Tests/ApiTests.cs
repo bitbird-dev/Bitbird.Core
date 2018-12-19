@@ -42,6 +42,9 @@ namespace Bitbird.Core.Tests
         public static void SetupTests(TestContext testContext)
         {
             BtbrdCoreIdConverters.AddConverter(new BtbrdCoreIdConverter<string>(toString => toString, toId => toId));
+            BtbrdCoreIdConverters.AddConverter(new BtbrdCoreIdConverter<Guid>(toString => toString.ToString(), toId => Guid.Parse(toId)));
+            BtbrdCoreIdConverters.AddConverter(new BtbrdCoreIdConverter<int?>(toString => toString.ToString(), stringVal => int.TryParse(stringVal, out var tempVal) ? tempVal : (int?)null));
+            BtbrdCoreIdConverters.AddConverter(new BtbrdCoreIdConverter<int>(toString => toString.ToString(), stringVal => int.TryParse(stringVal, out var tempVal) ? tempVal : int.MinValue));
         }
 
 

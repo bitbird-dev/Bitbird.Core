@@ -66,7 +66,7 @@ namespace Bitbird.Core.JsonApi.Converters
 
         public static string ConvertToString(object obj)
         {
-            
+            if(obj == null) { return null; }
             return Converters[obj.GetType()].ConvertToString(obj);
         }
         
