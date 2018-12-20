@@ -8,6 +8,8 @@ using System.Text;
 
 namespace Bitbird.Core.Json.Helpers.ApiResource
 {
+
+
     /// <summary>
     /// Represents a resource that can be consumed by clients.
     /// </summary>
@@ -159,46 +161,35 @@ namespace Bitbird.Core.Json.Helpers.ApiResource
         /// Specify a to-one relationship of this resource.
         /// </summary>
         /// <param name="name">The name of the relationship.</param>
-        /// <typeparam name="T">The api resource type of the relationship.</typeparam>
-        /// <returns>The <see cref="ResourceRelationship"/>.</returns>
-        protected ResourceRelationship BelongsTo<T>(string name)
-                    where T : JsonApiResource, new()
-        {
-            return BelongsTo<T>(name, name);
-        }
-
-        /// <summary>
-        /// Specify a to-one relationship of this resource.
-        /// </summary>
-        /// <param name="name">The name of the relationship.</param>
         /// <param name="path">The url pathspec of this relationship (default
         /// is the name)</param>
         /// <typeparam name="T">The api resource type of the relationship.</typeparam>
         /// <returns>The <see cref="ResourceRelationship"/>.</returns>
-        protected ResourceRelationship BelongsTo<T>(string name, string path)
+        protected ResourceRelationship BelongsTo<T>(string name, string idPropertyName = null, string path = null)
                     where T : JsonApiResource, new()
         {
-            return BelongsTo<T>(name, path, LinkType.All);
+            return BelongsTo<T>(name, idPropertyName, path ?? name, LinkType.All);
         }
 
         /// <summary>
         /// Specify a to-one relationship of this resource.
         /// </summary>
         /// <typeparam name="T">The api resource type of the relationship.</typeparam>
-        /// <param name="name">The name of the relationship.</param>
+        /// <param name="name">The name of the relationship reference property.</param>
+        /// <param name="idPropertyName">The name of the relationship id property.</param>
         /// <param name="path">The url pathspec of this relationship (default
         /// is the name)</param>
         /// <param name="withLinks">The defined <see cref="LinkType" /> to be generated for this relationship.</param>
         /// <returns>
         /// The <see cref="ResourceRelationship" />.
         /// </returns>
-        protected ResourceRelationship BelongsTo<T>(string name, string path, LinkType withLinks)
+        protected ResourceRelationship BelongsTo<T>(string name, string idPropertyName, string path, LinkType withLinks)
                     where T : JsonApiResource, new()
         {
             VerifyPropertyName(name);
 
             var resource = GetUniqueResource<T>();
-            var result = new ResourceRelationship<T>(name, path, RelationshipKind.BelongsTo, resource, withLinks);
+            var result = new ResourceRelationship<T>(name, idPropertyName, path, RelationshipKind.BelongsTo, resource, withLinks);
 
             _relationships.Add(result);
 
@@ -209,44 +200,33 @@ namespace Bitbird.Core.Json.Helpers.ApiResource
         /// Specify a to-many relationship of this resource.
         /// </summary>
         /// <param name="name">The name of the relationship.</param>
-        /// <typeparam name="T">The api resource type of the relationship.</typeparam>
-        /// <returns>The <see cref="ResourceRelationship"/>.</returns>
-        protected ResourceRelationship HasMany<T>(string name)
-                    where T : JsonApiResource, new()
-        {
-            return HasMany<T>(name, name);
-        }
-
-        /// <summary>
-        /// Specify a to-many relationship of this resource.
-        /// </summary>
-        /// <param name="name">The name of the relationship.</param>
         /// <param name="path">The url pathspec of this relationship (default is the name).</param>
         /// <typeparam name="T">The api resource type of the relationship.</typeparam>
         /// <returns>The <see cref="ResourceRelationship"/>.</returns>
-        protected ResourceRelationship HasMany<T>(string name, string path)
+        protected ResourceRelationship HasMany<T>(string name, string idPropertyName = null, string path = null)
                     where T : JsonApiResource, new()
         {
-            return HasMany<T>(name, path, LinkType.All);
+            return HasMany<T>(name, idPropertyName, path ?? name, LinkType.All);
         }
 
         /// <summary>
         /// Specify a to-many relationship of this resource.
         /// </summary>
         /// <typeparam name="T">The api resource type of the relationship.</typeparam>
-        /// <param name="name">The name of the relationship.</param>
+        /// <param name="name">The name of the relationship reference property.</param>
+        /// <param name="idPropertyName">The name of the relationship id property.</param>
         /// <param name="path">The url pathspec of this relationship (default is the name).</param>
         /// <param name="withLinks">The defined <see cref="LinkType" /> to be generated for this relationship.</param>
         /// <returns>
         /// The <see cref="ResourceRelationship" />.
         /// </returns>
-        protected ResourceRelationship HasMany<T>(string name, string path, LinkType withLinks)
+        protected ResourceRelationship HasMany<T>(string name, string idPropertyName, string path, LinkType withLinks)
                     where T : JsonApiResource, new()
         {
             VerifyPropertyName(name);
 
             var resource = GetUniqueResource<T>();
-            var result = new ResourceRelationship<T>(name, path, RelationshipKind.HasMany, resource, withLinks);
+            var result = new ResourceRelationship<T>(name, idPropertyName, path, RelationshipKind.HasMany, resource, withLinks);
 
             _relationships.Add(result);
 

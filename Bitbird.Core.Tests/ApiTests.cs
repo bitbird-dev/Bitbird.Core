@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using Bitbird.Core.Json.JsonApi;
 using Bitbird.Core.Json.JsonApi.Dictionaries;
 using Bitbird.Core.Json.Tests.Models;
 using Bitbird.Core.Json.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
-using Bitbird.Core.Json.JsonApi.Converters;
+using Bitbird.Core.Json.Helpers.JsonDataModel.Converters;
+using Bitbird.Core.Json.Helpers.JsonDataModel;
+using Bitbird.Core.Json.Helpers.JsonDataModel.Extensions;
+using Bitbird.Core.Json.Helpers.JsonDataModel.Utils;
 
 namespace Bitbird.Core.Json.Tests
 {
@@ -49,6 +48,7 @@ namespace Bitbird.Core.Json.Tests
 
 
         #region TypeUtils
+        
 
         [TestMethod]
         public void IsNonStringEnumerable_Test()
@@ -100,8 +100,8 @@ namespace Bitbird.Core.Json.Tests
 
             var doc = new JsonApiDocument<ClassA>(data);
             doc.Included = new JsonApiResourceObjectDictionary();
-            doc.Included.AddResource(new JsonApiResourceObject(data.BReference));
-            doc.Included.AddResource(new JsonApiResourceObject(data.BReference.CReference));
+            doc.Included.AddResource(new JsonApiResourceObject().FromObject(data.BReference));
+            doc.Included.AddResource(new JsonApiResourceObject().FromObject(data.BReference.CReference));
             string jsonString = JsonConvert.SerializeObject(doc, Formatting.Indented);
             var deserializedDocument = JsonConvert.DeserializeObject<JsonApiDocument<ClassA>>(jsonString);
 

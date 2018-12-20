@@ -12,8 +12,8 @@ namespace Bitbird.Core.Json.Helpers.ApiResource
     internal class ResourceRelationship<T> : ResourceRelationship
             where T : JsonApiResource, new()
     {
-        internal ResourceRelationship(string name, string urlPath, RelationshipKind kind, T resource, LinkType withLinks)
-            : base(name, urlPath, kind, resource, withLinks)
+        internal ResourceRelationship(string name, string idPropertyName, string urlPath, RelationshipKind kind, T resource, LinkType withLinks)
+            : base(name, idPropertyName, urlPath, kind, resource, withLinks)
         {
         }
     }

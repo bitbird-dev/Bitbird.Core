@@ -9,6 +9,21 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 {
     public static class JsonApiDocumentExtensions
     {
+        #region CreateDocumentFromApiResource
+
+        public static JsonApiDocument CreateDocumentFromApiResource<T>(object data) where T : JsonApiResource
+        {
+            T apiResource = Activator.CreateInstance<T>();
+            JsonApiDocument document = null;
+            document = new JsonApiDocument();
+            document.FromApiResource(data, apiResource);
+            return document;
+        }
+
+        #endregion
+
+        #region FromApiResource
+
         public static void FromApiResource(this JsonApiDocument document, object data, JsonApiResource apiResource)
         {
             if(data == null) { return; }
@@ -33,12 +48,20 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             
         }
 
+        #endregion
+
+        #region IncludeRelation
+
         public static void IncludeRelation(this JsonApiDocument document, object data, JsonApiResource apiResource, string propertyName)
         {
             var relation = apiResource.Relationships.Where(r => string.Equals(r.PropertyName, propertyName, StringComparison.CurrentCultureIgnoreCase)).FirstOrDefault();
             if(relation == null) { return; }
             document.IncludeRelation(data, relation);
         }
+
+        #endregion
+
+        #region IncludeRelation
 
         internal static void IncludeRelation(this JsonApiDocument document, object data, ResourceRelationship relationship)
         {
@@ -71,5 +94,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             }
             
         }
+
+        #endregion
     }
 }

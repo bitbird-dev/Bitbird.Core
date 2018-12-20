@@ -1,7 +1,11 @@
 ﻿using Bitbird.Core.Json.Extensions;
+using Bitbird.Core.Json.Helpers.ApiResource;
+using Bitbird.Core.Json.Helpers.JsonDataModel.Converters;
 using Bitbird.Core.Json.JsonApi;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
@@ -67,22 +71,31 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
         internal static void AddToOneRelationship(this JsonApiResourceObject resourceObject, object data, ResourceRelationship relationship)
         {
-            var dataType = data.GetType();
-            var propertyInfo = dataType.GetProperty(relationship.PropertyName);
-            var key = relationship.Name;
-            var value = propertyInfo.GetValueFast(data);
+            string id = null;
+            if (string.IsNullOrWhiteSpace(relationship.IdPropertyName))
+            {
+                var propertyInfo = data.GetType().GetProperty(relationship.PropertyName);
+                var value = propertyInfo.GetValueFast(data);
+                id = BtbrdCoreIdConverters.ConvertToString(GetApiResourceId(value, relationship.RelatedResource));
+            }
+            else
+            {
+                var idPropertyInfo = data.GetType().GetProperty(relationship.IdPropertyName);
+                id = BtbrdCoreIdConverters.ConvertToString(idPropertyInfo?.GetValueFast(data));
+            }
+
             if (resourceObject.Relationships == null) { resourceObject.Relationships = new Dictionary<string, JsonApiRelationshipObjectBase>(); }
             JsonApiToOneRelationshipObject relation = new JsonApiToOneRelationshipObject();
-            if (value != null)
+            if (id != null)
             {
                 relation.Data = new JsonApiResourceIdentifierObject
                 {
-                    Id = GetApiResourceId(value, relationship.RelatedResource)?.ToString(),
+                    Id = id,
                     Type = relationship.RelatedResource.ResourceType
                 };
             }
 
-            resourceObject.Relationships.Add(key, relation);
+            resourceObject.Relationships.Add(relationship.Name, relation);
         }
 
         #endregion
@@ -91,25 +104,38 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
         internal static void AddToManyRelationship(this JsonApiResourceObject resourceObject, object data, ResourceRelationship relationship)
         {
-            var dataType = data.GetType();
-            var propertyInfo = dataType.GetProperty(relationship.PropertyName);
-            var key = relationship.Name;
-            var value = propertyInfo.GetValueFast(data) as IEnumerable<object>;
+            IEnumerable<string> ids = null;
+            if (string.IsNullOrWhiteSpace(relationship.IdPropertyName))
+            {
+                var propertyInfo = data.GetType().GetProperty(relationship.PropertyName);
+                var values = propertyInfo.GetValueFast(data) as IEnumerable<object>;
+                ids = values?.Select(x=> BtbrdCoreIdConverters.ConvertToString(GetApiResourceId(x, relationship.RelatedResource)));
+            }
+            else
+            {
+                var idPropertyInfo = data.GetType().GetProperty(relationship.IdPropertyName);
+
+                var values = idPropertyInfo?.GetValueFast(data) as IEnumerable;
+                var list = new List<string>();
+                foreach(var id in values) { list.Add(BtbrdCoreIdConverters.ConvertToString(id)); }
+                ids = list.AsEnumerable();
+            }
+            
             if (resourceObject.Relationships == null) { resourceObject.Relationships = new Dictionary<string, JsonApiRelationshipObjectBase>(); }
             JsonApiToManyRelationshipObject relationshipCollection = new JsonApiToManyRelationshipObject();
-            if (value != null)
+            if (ids != null)
             {
-                foreach (var referencedData in value)
+                foreach (var id in ids)
                 {
                     relationshipCollection.Data.Add(new JsonApiResourceIdentifierObject
                     {
-                        Id = GetApiResourceId(referencedData, relationship.RelatedResource)?.ToString(),
+                        Id = id,
                         Type = relationship.RelatedResource.ResourceType
                     });
                 }
             }
 
-            resourceObject.Relationships.Add(key, relationshipCollection);
+            resourceObject.Relationships.Add(relationship.Name, relationshipCollection);
         }
 
         #endregion

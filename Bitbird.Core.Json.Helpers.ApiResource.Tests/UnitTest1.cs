@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using Bitbird.Core.Json.JsonApi;
 using Bitbird.Core.Json.Helpers.ApiResource.Extensions;
 using Newtonsoft.Json;
+using System.Linq;
+using Bitbird.Core.Json.Helpers.JsonDataModel.Converters;
 
 namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
 {
@@ -44,7 +46,9 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
             public int? AttributeOne { get; set; }
 
             public ClassWithoutRelations ToOneRelation { get; set; }
+
             public IEnumerable<ClassWithoutRelations> ToManyRelation { get; set; }
+
             public Guid Id { get; set; }
         }
 
@@ -53,19 +57,190 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
         [ClassInitialize]
         public static void InitializeTests(TestContext testContext)
         {
+            BtbrdCoreIdConverters.AddConverter(new BtbrdCoreIdConverter<long?>(toString => toString.ToString(), stringVal => long.TryParse(stringVal, out var tempVal) ? tempVal : (long?)null));
+            BtbrdCoreIdConverters.AddConverter(new BtbrdCoreIdConverter<long>(toString => toString.ToString(), stringVal => long.TryParse(stringVal, out var tempVal) ? tempVal : long.MinValue));
         }
 
-        [TestMethod]
-        public void TestMethod1()
+        public class Model1Resource : JsonApiResource
         {
-            var data = GetAResource();
-            var apiResource = new ResourceWithToNRelations();
-            var doc = new JsonApiDocument();
-            doc.FromApiResource(data, apiResource);
-            doc.IncludeRelation(data, apiResource, nameof(data.ToOneRelation));
-            doc.IncludeRelation(data, apiResource, nameof(data.ToManyRelation));
-            var jsonString = JsonConvert.SerializeObject(doc, Formatting.Indented);
+            public Model1Resource()
+            {
+                WithId(nameof(Model1.Id));
+                Attribute(nameof(Model1.Home));
+                BelongsTo<Model2Resource>(nameof(Model1.Model2), nameof(Model1.Model2Id));
+                HasMany<Model2Resource>(nameof(Model1.MoreModel2), nameof(Model1.MoreModel2Id));
+            }
         }
+        public class Model1
+        {
+            public long Id { get; set; }
+            public string Home { get; set; }
+            /// <summary>
+            /// Deserialize: Model2 is always null. Model2Id is null or a value, based on the data in the json-string
+            /// Serialize: Model2Id is no attribute, but identifies the "BelongsTo"-relation-id.
+            /// if it is null, the relation is not set. if it has a value, the relation shoudl be provided (id and type). 
+            /// ONLY if the settings tell the system to "include" the relation Model2, the property Model2 is read and serialized (as included).
+            /// </summary>
+            public Model2 Model2 { get; set; }
+            public long? Model2Id { get; set; }
+            public IEnumerable<Model2> MoreModel2 { get; set; }
+            public IEnumerable<long?> MoreModel2Id { get; set; }
+        }
+        public class Model2Resource : JsonApiResource
+        {
+            public Model2Resource()
+            {
+                WithId(nameof(Model2.Id));
+                Attribute(nameof(Model2.Name));
+            }
+        }
+        public class Model2
+        {
+            public long Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        [TestMethod] public void floTest()
+        {
+            var data = new Model1
+            {
+                Id = 1232385789,
+                Home = "myhome",
+                Model2Id = 987654321,
+                Model2 = new Model2
+                {
+                    Id = 55555555,
+                    Name = "myName"
+                },
+                MoreModel2Id = new List<long?> {1,2,3},
+                MoreModel2 = new List<Model2>
+                {
+                    new Model2
+                    {
+                        Id = 4,
+                        Name = "arr"
+                    },
+                    new Model2
+                    {
+                        Id = 5,
+                        Name = "arrr"
+                    },
+                    new Model2
+                    {
+                        Id = 6,
+                        Name = "arrr"
+                    },
+                }
+            };
+
+            var doc = JsonApiDocumentExtensions.CreateDocumentFromApiResource<Model1Resource>(data);
+            var jsonString = JsonConvert.SerializeObject(doc, Formatting.Indented);
+            var deserialized = JsonConvert.DeserializeObject<JsonApiDocument>(jsonString);
+
+        }
+
+        //[TestMethod]
+        //public void DeserializeRelationsTest()
+        //{
+        //    var data = GetAResource();
+        //    var apiResource = new ResourceWithToNRelations();
+        //    var doc = new JsonApiDocument();
+        //    doc.FromApiResource(data, apiResource);
+        //    doc.IncludeRelation(data, apiResource, nameof(data.ToOneRelation));
+        //    doc.IncludeRelation(data, apiResource, nameof(data.ToManyRelation));
+        //    var jsonString = JsonConvert.SerializeObject(doc, Formatting.Indented);
+        //    var deserialized = JsonConvert.DeserializeObject<JsonApiDocument>(jsonString);
+
+            //ClassWithoutRelations o = deserialized.ToObject<ClassWithoutRelations>(typeof(ResourceWithoutRelations), out Func<string, bool> foundAttributes);
+
+            //if (foundAttributes(nameof(ClassWithoutRelations.AttributeThree)))
+            //{
+            //    bla
+            //}
+
+
+            //IEnumerable<ClassWithoutRelations> os = deserialized.ToObjectCollection<ClassWithoutRelations>(typeof(ResourceWithoutRelations), out Func<int, string, bool> foundAttributes);
+
+            //if (foundAttributes(0 /* = idx */, nameof(ClassWithoutRelations.AttributeThree) /* = property name */))
+            //{
+            //    bla
+            //}
+
+        //}
+
+        //class FloClass
+        //{
+        //    public int? Id { get; set; }
+        //    public FloClass Flo { get; set; }
+        //    public FloClass Flo1 { get; set; }
+        //}
+
+        //[TestMethod]
+        //public void flo()
+        //{
+        //    var data = new FloClass()
+        //    {
+        //        Id = 12124314,
+        //        FloId = 85683645,
+        //        Flo = new FloClass
+        //        {
+        //            Id = 85683645,
+        //            FloId = 85683645,
+        //            Flo = new FloClass
+        //            {
+        //                Id = 85683645
+        //            },
+        //        },
+        //        Flo1Id = 85683645,
+        //        Flo1 = new FloClass
+        //        {
+        //            Id = 85683645,
+        //            FloId = 85683645,
+        //            Flo = new FloClass
+        //            {
+        //                Id = 85683645
+        //            },
+        //            Flo1Id = 85683645,
+        //            Flo1 = new FloClass
+        //            {
+        //                Id = 85683645
+        //            }
+        //        }
+        //    };
+        //    var doc = new JsonApiDocument<FloClass, FloClassResource>(data, includes);
+        //    var json = JsonConvert.SerializeObject(doc, Formatting.Indented);
+        //    var deserialized = JsonConvert.DeserializeObject<JsonApiDocument<FloClass>>(json);
+        //    //var obj = deserialized.ToObject<FloClass>();
+        //}
+
+        //[TestMethod]
+        //public void TestMethod1()
+        //{
+        //    var data = GetAResource();
+        //    var apiResource = new ResourceWithToNRelations();
+        //    var doc = new JsonApiDocument();
+        //    doc.FromApiResource(data, apiResource);
+        //    doc.IncludeRelation(data, apiResource, nameof(data.ToOneRelation));
+        //    doc.IncludeRelation(data, apiResource, nameof(data.ToManyRelation));
+        //    var jsonString = JsonConvert.SerializeObject(doc, Formatting.Indented);
+        //    var deserialized = JsonConvert.DeserializeObject<JsonApiDocument>(jsonString);
+
+        //    ClassWithoutRelations o = deserialized.ToObject<ClassWithoutRelations>(typeof(ResourceWithoutRelations), out Func<string, bool> foundAttributes);
+
+        //    if (foundAttributes(nameof(ClassWithoutRelations.AttributeThree)))
+        //    {
+        //        bla
+        //    }
+
+
+        //    IEnumerable<ClassWithoutRelations> os = deserialized.ToObjectCollection<ClassWithoutRelations>(typeof(ResourceWithoutRelations), out Func<int, string, bool> foundAttributes);
+
+        //    if (foundAttributes(0 /* = idx */, nameof(ClassWithoutRelations.AttributeThree) /* = property name */))
+        //    {
+        //        bla
+        //    }
+
+        //}
 
         private ClassWithToNRelations GetAResource()
         {

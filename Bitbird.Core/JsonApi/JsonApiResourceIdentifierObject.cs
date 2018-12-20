@@ -63,18 +63,6 @@ namespace Bitbird.Core.Json.JsonApi
             Meta = meta;
         }
 
-        public IJsonApiDataModel ToObject(Type type)
-        {
-            IJsonApiDataModel result = null;
-
-            try
-            {
-                result = Activator.CreateInstance(type) as IJsonApiDataModel;
-                result.SetIdFromString(Id);
-            }
-            catch { }
-
-            return result;
-        }
+        
     }
 }

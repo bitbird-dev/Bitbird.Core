@@ -21,6 +21,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource
         /// <param name="withLinks">The defined <see cref="LinkType" /> to be generated for this relationship.</param>
         protected ResourceRelationship(
             string name,
+            string idPropertyName,
             string urlPath,
             RelationshipKind kind,
             JsonApiResource relationshipResource,
@@ -28,6 +29,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource
         {
             Name = name.ToDashed();
             PropertyName = name.ToPascalCase();
+            IdPropertyName = idPropertyName?.ToPascalCase();
             UrlPath = urlPath.ToDashed();
             RelatedResource = relationshipResource;
             Kind = kind;
@@ -43,6 +45,11 @@ namespace Bitbird.Core.Json.Helpers.ApiResource
         /// Gets the name of the relationship in PascalCase.
         /// </summary>
         public string PropertyName { get; }
+
+        /// <summary>
+        /// Gets the name of the Id property relationship in PascalCase.
+        /// </summary>
+        public string IdPropertyName { get; }
 
         /// <summary>
         /// Gets the definition of the related resource

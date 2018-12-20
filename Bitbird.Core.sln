@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitbird.Core.Json.Helpers.A
 		{C225F77B-C2FD-4BAD-978F-2E2BD3B5DE0F} = {C225F77B-C2FD-4BAD-978F-2E2BD3B5DE0F}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitbird.Core.Json.Helpers.JsonDataModel", "Bitbird.Core.Json.Helpers.JsonDataModel\Bitbird.Core.Json.Helpers.JsonDataModel.csproj", "{54CC940B-60AF-4D88-8691-B5CDC309C72E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -112,6 +114,26 @@ Global
 		{D0CB91C1-EDDA-42C8-BF1C-AD07ABD91F92}.Release|x64.Build.0 = Release|Any CPU
 		{D0CB91C1-EDDA-42C8-BF1C-AD07ABD91F92}.Release|x86.ActiveCfg = Release|Any CPU
 		{D0CB91C1-EDDA-42C8-BF1C-AD07ABD91F92}.Release|x86.Build.0 = Release|Any CPU
+		{54CC940B-60AF-4D88-8691-B5CDC309C72E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54CC940B-60AF-4D88-8691-B5CDC309C72E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54CC940B-60AF-4D88-8691-B5CDC309C72E}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{54CC940B-60AF-4D88-8691-B5CDC309C72E}.Debug|ARM.Build.0 = Debug|Any CPU
+		{54CC940B-60AF-4D88-8691-B5CDC309C72E}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{54CC940B-60AF-4D88-8691-B5CDC309C72E}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{54CC940B-60AF-4D88-8691-B5CDC309C72E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{54CC940B-60AF-4D88-8691-B5CDC309C72E}.Debug|x64.Build.0 = Debug|Any CPU
+		{54CC940B-60AF-4D88-8691-B5CDC309C72E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{54CC940B-60AF-4D88-8691-B5CDC309C72E}.Debug|x86.Build.0 = Debug|Any CPU
+		{54CC940B-60AF-4D88-8691-B5CDC309C72E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54CC940B-60AF-4D88-8691-B5CDC309C72E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54CC940B-60AF-4D88-8691-B5CDC309C72E}.Release|ARM.ActiveCfg = Release|Any CPU
+		{54CC940B-60AF-4D88-8691-B5CDC309C72E}.Release|ARM.Build.0 = Release|Any CPU
+		{54CC940B-60AF-4D88-8691-B5CDC309C72E}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{54CC940B-60AF-4D88-8691-B5CDC309C72E}.Release|ARM64.Build.0 = Release|Any CPU
+		{54CC940B-60AF-4D88-8691-B5CDC309C72E}.Release|x64.ActiveCfg = Release|Any CPU
+		{54CC940B-60AF-4D88-8691-B5CDC309C72E}.Release|x64.Build.0 = Release|Any CPU
+		{54CC940B-60AF-4D88-8691-B5CDC309C72E}.Release|x86.ActiveCfg = Release|Any CPU
+		{54CC940B-60AF-4D88-8691-B5CDC309C72E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

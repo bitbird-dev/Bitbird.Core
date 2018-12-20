@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
-namespace Bitbird.Core.Json.JsonApi.Converters
+namespace Bitbird.Core.Json.Helpers.JsonDataModel.Converters
 {
     public abstract class BtbrdCoreIdConverter
     {
@@ -53,7 +52,7 @@ namespace Bitbird.Core.Json.JsonApi.Converters
     public static class BtbrdCoreIdConverters
     {
         private static ConcurrentDictionary<Type, BtbrdCoreIdConverter> Converters { get; } = new ConcurrentDictionary<Type, BtbrdCoreIdConverter>();
-        
+
         public static void AddConverter(BtbrdCoreIdConverter converter)
         {
             if (!Converters.TryAdd(converter.IdType, converter))
@@ -66,19 +65,30 @@ namespace Bitbird.Core.Json.JsonApi.Converters
 
         public static string ConvertToString(object obj)
         {
-            if(obj == null) { return null; }
-            return Converters[obj.GetType()].ConvertToString(obj);
+            if (obj == null) { return null; }
+            if(Converters.TryGetValue(obj.GetType(), out var converter))
+            {
+                return converter.ConvertToString(obj);
+            }
+            throw new Exception($"Error While converting an object of type {obj.GetType().Name} to string. Please register a converter to BtbrdCoreIdConverters during startup of your application.");
         }
-        
+
         public static T ConvertFromString<T>(string obj)
         {
-            return (T)Converters[typeof(T)].ConvertFromString(obj);
+            if (Converters.TryGetValue(typeof(T), out var converter))
+            {
+                return (T)converter.ConvertFromString(obj);
+            }
+            throw new Exception($"Error While converting an object of type {typeof(T).Name} to string. Please register a converter to BtbrdCoreIdConverters during startup of your application.");
         }
 
         public static object ConvertFromString(string obj, Type t)
         {
-            return (object)Converters[t].ConvertFromString(obj);
+            if (Converters.TryGetValue(t, out var converter))
+            {
+                return converter.ConvertFromString(obj);
+            }
+            throw new Exception($"Error While converting an object of type {t.Name} to string. Please register a converter to BtbrdCoreIdConverters during startup of your application.");
         }
     }
-    
 }

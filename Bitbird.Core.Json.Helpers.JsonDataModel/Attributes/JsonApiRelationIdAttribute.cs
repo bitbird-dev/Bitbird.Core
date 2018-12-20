@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Bitbird.Core.Json.JsonApi.Attributes
+namespace Bitbird.Core.Json.Helpers.JsonDataModel.Attributes
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class JsonApiRelationIdAttribute : Attribute

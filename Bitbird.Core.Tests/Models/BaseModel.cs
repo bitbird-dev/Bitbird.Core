@@ -1,4 +1,5 @@
-﻿using Bitbird.Core.Json.JsonApi;
+﻿using Bitbird.Core.Json.Helpers.JsonDataModel;
+using Bitbird.Core.Json.JsonApi;
 using System;
 using System.Collections.Generic;
 using System.Linq;

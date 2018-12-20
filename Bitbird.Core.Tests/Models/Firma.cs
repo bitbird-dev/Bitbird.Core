@@ -1,4 +1,5 @@
-﻿using Bitbird.Core.Json.JsonApi;
+﻿using Bitbird.Core.Json.Helpers.JsonDataModel.Attributes;
+using Bitbird.Core.Json.JsonApi;
 using Bitbird.Core.Json.JsonApi.Attributes;
 using Newtonsoft.Json;
 using System;

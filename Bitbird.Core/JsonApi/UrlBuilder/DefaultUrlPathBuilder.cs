@@ -32,18 +32,18 @@ namespace Bitbird.Core.Json.JsonApi.UrlBuilder
                 .EnsureEndsWith("/");
         }
 
-        public virtual string BuildCanonicalPath(IJsonApiDataModel resource)
-        {
-            return '/'.TrimJoin(_prefix, resource.GetJsonApiClassName(), resource.GetIdAsString())
-                .EnsureStartsWith("/")
-                .EnsureEndsWith("/");
-        }
+        //public virtual string BuildCanonicalPath(IJsonApiDataModel resource)
+        //{
+        //    return '/'.TrimJoin(_prefix, resource.GetJsonApiClassName(), resource.GetIdAsString())
+        //        .EnsureStartsWith("/")
+        //        .EnsureEndsWith("/");
+        //}
 
-        public virtual string BuildRelationshipPath(IJsonApiDataModel resource, PropertyInfo relatedProperty)
-        {
-            return '/'.TrimJoin(_prefix, resource.GetJsonApiClassName(), resource.GetIdAsString(), relatedProperty.Name)
-                .EnsureStartsWith("/")
-                .EnsureEndsWith("/");
-        }
+        //public virtual string BuildRelationshipPath(IJsonApiDataModel resource, PropertyInfo relatedProperty)
+        //{
+        //    return '/'.TrimJoin(_prefix, resource.GetJsonApiClassName(), resource.GetIdAsString(), relatedProperty.Name)
+        //        .EnsureStartsWith("/")
+        //        .EnsureEndsWith("/");
+        //}
     }
 }

@@ -1,24 +1,17 @@
-﻿using Bitbird.Core.Json.JsonApi;
-using Bitbird.Core.Json.Extensions;
-using Bitbird.Core.Json.JsonApi.Dictionaries;
+﻿using Bitbird.Core.Json.Extensions;
+using Bitbird.Core.Json.Helpers.JsonDataModel.Extensions;
+using Bitbird.Core.Json.Helpers.JsonDataModel.Utils;
+using Bitbird.Core.Json.JsonApi;
 using Bitbird.Core.Json.Tests.Models;
-using Bitbird.Core.Json.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Bitbird.Core.Json.JsonApi.Converters;
-using Newtonsoft.Json.Linq;
 
 namespace Bitbird.Core.Json.Tests.JsonApi
 {
-    
+
 
     [TestClass]
     public class JsonApiResourceObjectTests
@@ -42,7 +35,8 @@ namespace Bitbird.Core.Json.Tests.JsonApi
                     new ModelWithNoReferences { Id = Guid.NewGuid().ToString()}
                 }
             };
-            var resourceObject = new JsonApiResourceObject(data, false);
+            var resourceObject = new JsonApiResourceObject();
+            resourceObject.FromObject(data, false);
             resourceObject.Relationships = new Dictionary<string, JsonApiRelationshipObjectBase>();
             resourceObject.Relationships.Add("single-reference", new JsonApiToOneRelationshipObject{ Data =  new JsonApiResourceIdentifierObject(data.SingleReference.Id, data.SingleReference.GetType().GetJsonApiClassName()) });
             resourceObject.Relationships.Add("collection-reference", new JsonApiToManyRelationshipObject { Data = data.CollectionReference.Select(i => new JsonApiResourceIdentifierObject(i.Id, i.GetType().GetJsonApiClassName())).ToList() });
@@ -59,7 +53,7 @@ namespace Bitbird.Core.Json.Tests.JsonApi
         public void JsonApiResourceObject_AutoAddAttributesAndRelations()
         {
             var data = new ModelWithReferences { Id = Guid.NewGuid().ToString(), SingleReference = new ModelWithNoReferences { Id = Guid.NewGuid().ToString() } };
-            var resourceObject = new JsonApiResourceObject(data);
+            var resourceObject = JsonApiResourceBuilder.Build(data, true);
             var json = JsonConvert.SerializeObject(resourceObject, Formatting.Indented);
             var deserialized = JsonConvert.DeserializeObject<JsonApiResourceObject>(json);
             var result = deserialized.ToObject<ModelWithReferences>();
@@ -72,7 +66,7 @@ namespace Bitbird.Core.Json.Tests.JsonApi
         {
             var data = new ModelWithReferences { Id = Guid.NewGuid().ToString(), SingleReference = new ModelWithNoReferences { Id = Guid.NewGuid().ToString() } };
             
-            var resourceObject = new JsonApiResourceObject(data, null, false);
+            var resourceObject = JsonApiResourceBuilder.Build(data, false);
             var json = JsonConvert.SerializeObject(resourceObject, Formatting.Indented);
             var deserialized = JsonConvert.DeserializeObject<JsonApiResourceObject>(json);
             var result = deserialized.ToObject<ModelWithReferences>();

@@ -1,6 +1,7 @@
 ﻿using Bitbird.Core.Json.Extensions;
+using Bitbird.Core.Json.Helpers.JsonDataModel.Attributes;
 using Bitbird.Core.Json.JsonApi;
-using Bitbird.Core.Json.JsonApi.Attributes;
+using Bitbird.Core.Json.Utils;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
@@ -9,9 +10,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Bitbird.Core.Json.Utils
+namespace Bitbird.Core.Json.Helpers.JsonDataModel.Utils
 {
-    public class JsonApiResourceBuilder
+    public static class JsonApiResourceBuilder
     {
         #region AttributeGroup Enum
 
@@ -43,7 +44,7 @@ namespace Bitbird.Core.Json.Utils
 
         #region GetAttributeGroup
 
-        private AttributeGroup GetAttributeGroup(PropertyInfo propertyInfo)
+        private static AttributeGroup GetAttributeGroup(PropertyInfo propertyInfo)
         {
             if (propertyInfo.GetCustomAttribute<JsonIgnoreAttribute>() != null) { return AttributeGroup.Ignored; }
             if (propertyInfo.Name.Equals("Id")) { return AttributeGroup.Ignored; }
@@ -74,7 +75,7 @@ namespace Bitbird.Core.Json.Utils
 
         #region SetupData
 
-        public JsonApiResourceObject Build(IJsonApiDataModel data, bool processRelations)
+        public static JsonApiResourceObject Build(IJsonApiDataModel data, bool processRelations)
         {
             if (data == null) { throw new Exception("data is null"); }
 
@@ -107,9 +108,9 @@ namespace Bitbird.Core.Json.Utils
             if (result.Attributes.Count < 1) { result.Attributes = null; }
 
 
-            if(!processRelations ) { return result; }
+            if (!processRelations) { return result; }
 
-            
+
 
             Dictionary<string, RelationShipInfo> relationships = new Dictionary<string, RelationShipInfo>();
 
@@ -172,7 +173,7 @@ namespace Bitbird.Core.Json.Utils
 
             foreach (var r in relationships)
             {
-                if(r.Value.RelationshipIds.Count < 1) { continue; }
+                if (r.Value.RelationshipIds.Count < 1) { continue; }
                 if (r.Value.RelationshipIds.Count == 1)
                 {
                     var relO = new JsonApiToOneRelationshipObject();

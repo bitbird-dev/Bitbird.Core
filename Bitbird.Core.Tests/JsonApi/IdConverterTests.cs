@@ -1,4 +1,5 @@
 ﻿using System;
+using Bitbird.Core.Json.Helpers.JsonDataModel;
 using Bitbird.Core.Json.JsonApi;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
