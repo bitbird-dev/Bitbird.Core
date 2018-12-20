@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Bitbird.Core.Extensions
+namespace Bitbird.Core.Json.Extensions
 {
     internal static class UriExtensions
     {

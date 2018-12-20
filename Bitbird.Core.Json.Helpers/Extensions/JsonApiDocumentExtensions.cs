@@ -1,9 +1,9 @@
-﻿using Bitbird.Core.JsonApi;
+﻿using Bitbird.Core.Json.JsonApi;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
-using Bitbird.Core.Extensions;
+using Bitbird.Core.Json.Extensions;
 
 namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 {

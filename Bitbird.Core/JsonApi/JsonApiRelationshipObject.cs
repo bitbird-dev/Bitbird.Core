@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Bitbird.Core.JsonApi
+namespace Bitbird.Core.Json.JsonApi
 {
 
     public class JsonApiRelationshipObjectConverter : JsonConverter<JsonApiRelationshipObjectBase>

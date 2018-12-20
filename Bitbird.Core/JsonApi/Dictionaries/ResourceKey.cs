@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Bitbird.Core.JsonApi.Dictionaries
+namespace Bitbird.Core.Json.JsonApi.Dictionaries
 {
     public class ResourceKey
     {

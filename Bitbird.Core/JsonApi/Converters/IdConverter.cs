@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Bitbird.Core.JsonApi.Converters
+namespace Bitbird.Core.Json.JsonApi.Converters
 {
     public abstract class BtbrdCoreIdConverter
     {

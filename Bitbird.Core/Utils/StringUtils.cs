@@ -1,4 +1,4 @@
-﻿using Bitbird.Core.JsonApi.Attributes;
+﻿using Bitbird.Core.Json.JsonApi.Attributes;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Bitbird.Core.Utils
+namespace Bitbird.Core.Json.Utils
 {
     public static class StringUtils
     {

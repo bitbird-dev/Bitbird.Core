@@ -1,11 +1,11 @@
-﻿using Bitbird.Core.Extensions;
-using Bitbird.Core.Utils;
+﻿using Bitbird.Core.Json.Extensions;
+using Bitbird.Core.Json.Utils;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 
-namespace Bitbird.Core.JsonApi.UrlBuilder
+namespace Bitbird.Core.Json.JsonApi.UrlBuilder
 {
     public class DefaultUrlPathBuilder : IUrlPathBuilder
     {

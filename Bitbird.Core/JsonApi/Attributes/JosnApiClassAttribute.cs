@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Bitbird.Core.JsonApi.Attributes
+namespace Bitbird.Core.Json.JsonApi.Attributes
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class JsonApiClassAttribute : Attribute

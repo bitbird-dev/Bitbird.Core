@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Bitbird.Core.JsonApi.Attributes
+namespace Bitbird.Core.Json.JsonApi.Attributes
 {
     /// <summary>
     /// Instructs the <see cref="JsonSerializer"/> how to serialize the collection.

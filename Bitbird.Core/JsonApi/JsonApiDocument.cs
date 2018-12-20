@@ -1,6 +1,6 @@
-﻿using Bitbird.Core.Extensions;
-using Bitbird.Core.JsonApi.Dictionaries;
-using Bitbird.Core.Utils;
+﻿using Bitbird.Core.Json.Extensions;
+using Bitbird.Core.Json.JsonApi.Dictionaries;
+using Bitbird.Core.Json.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
@@ -11,7 +11,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Bitbird.Core.JsonApi
+namespace Bitbird.Core.Json.JsonApi
 {
     public class JsonDocumentDataConverter : JsonConverter
     {
@@ -54,6 +54,9 @@ namespace Bitbird.Core.JsonApi
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class JsonApiDocument
     {
+        //[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        //public JObject JsonApi => new JObject(new JProperty("version", "1.0"));
+
         [JsonConverter(typeof(JsonDocumentDataConverter))]
         [JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<JsonApiResourceObject> Data { get; set; }
@@ -102,34 +105,12 @@ namespace Bitbird.Core.JsonApi
     /// </summary>
     public class JsonApiDocument<T> : JsonApiDocument where T : IJsonApiDataModel
     {
-        #region Properties
-
-        //[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        //public JObject JsonApi => new JObject(new JProperty("version", "1.0"));
-
-        [JsonConverter(typeof(JsonDocumentDataConverter))]
-        [JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)]
-        public IEnumerable<JsonApiResourceObject> Data { get; set; }
-
-        [JsonProperty("errors", NullValueHandling = NullValueHandling.Ignore)]
-        public IEnumerable<JsonApiErrorObject> Errors { get; set; }
-
-        [JsonProperty("meta", NullValueHandling = NullValueHandling.Ignore)]
-        public object Meta { get; set; }
-
-        [JsonProperty("links", NullValueHandling = NullValueHandling.Ignore)]
-        public JsonApiLinksObject Links { get; set; }
-
-        [JsonProperty("included", NullValueHandling = NullValueHandling.Ignore)]
-        public JsonApiResourceObjectDictionary Included { get; set; } = new JsonApiResourceObjectDictionary();
-        
-
-
-        #endregion
 
         #region Constructor
 
-        public JsonApiDocument() {}
+        public JsonApiDocument()
+        {
+        }
 
         public JsonApiDocument(IEnumerable<T> data)
         {
@@ -323,7 +304,7 @@ namespace Bitbird.Core.JsonApi
         private JsonApiResourceObject GetIncludedResource(ResourceKey includedKey)
         {
             JsonApiResourceObject includedResourceObject = null;
-            Included.ResourceObjectDictionary.TryGetValue(includedKey, out includedResourceObject);
+            Included?.ResourceObjectDictionary.TryGetValue(includedKey, out includedResourceObject);
             return includedResourceObject;
         }
 
@@ -331,7 +312,7 @@ namespace Bitbird.Core.JsonApi
         {
             var includedKey = new ResourceKey(resource.Id, resource.Type);
             JsonApiResourceObject includedResourceObject = null;
-            Included.ResourceObjectDictionary.TryGetValue(includedKey, out includedResourceObject);
+            Included?.ResourceObjectDictionary.TryGetValue(includedKey, out includedResourceObject);
             return includedResourceObject;
         }
 

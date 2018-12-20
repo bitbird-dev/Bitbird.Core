@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Bitbird.Core.JsonApi.Dictionaries
+namespace Bitbird.Core.Json.JsonApi.Dictionaries
 {
     public class JsonApiResourceObjectDictionaryConverter : JsonConverter
     {
@@ -15,7 +15,7 @@ namespace Bitbird.Core.JsonApi.Dictionaries
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            var dictionary = existingValue as JsonApiResourceObjectDictionary;
+            var dictionary = existingValue as JsonApiResourceObjectDictionary ?? new JsonApiResourceObjectDictionary();
             var jArray = JArray.Load(reader);
             foreach (var resourceJObject in jArray)
             {

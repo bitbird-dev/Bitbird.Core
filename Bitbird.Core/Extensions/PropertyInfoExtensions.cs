@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 
-namespace Bitbird.Core.Extensions
+namespace Bitbird.Core.Json.Extensions
 {
     public static class PropertyInfoExtensions
     {

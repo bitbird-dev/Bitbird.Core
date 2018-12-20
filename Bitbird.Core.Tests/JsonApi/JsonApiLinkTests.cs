@@ -1,5 +1,5 @@
-﻿using Bitbird.Core.JsonApi;
-using Bitbird.Core.JsonApi.Converters;
+﻿using Bitbird.Core.Json.JsonApi;
+using Bitbird.Core.Json.JsonApi.Converters;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bitbird.Core.Tests.JsonApi
+namespace Bitbird.Core.Json.Tests.JsonApi
 {
     [TestClass]
     public class JsonApiLinkTests

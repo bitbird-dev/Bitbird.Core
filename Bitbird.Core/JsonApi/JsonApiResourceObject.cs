@@ -1,7 +1,7 @@
-﻿using Bitbird.Core.Extensions;
-using Bitbird.Core.JsonApi.Attributes;
-using Bitbird.Core.JsonApi.UrlBuilder;
-using Bitbird.Core.Utils;
+﻿using Bitbird.Core.Json.Extensions;
+using Bitbird.Core.Json.JsonApi.Attributes;
+using Bitbird.Core.Json.JsonApi.UrlBuilder;
+using Bitbird.Core.Json.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -11,7 +11,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Bitbird.Core.JsonApi
+namespace Bitbird.Core.Json.JsonApi
 {
     public class JsonApiResourceObjectConverter : JsonConverter<JsonApiResourceObject>
     {

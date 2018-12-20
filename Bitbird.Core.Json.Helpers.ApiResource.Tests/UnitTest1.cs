@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using Bitbird.Core.JsonApi;
-using Bitbird.Core.Json.Helpers.ApiResource.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
+using Bitbird.Core.Json.JsonApi;
+using Bitbird.Core.Json.Helpers.ApiResource.Extensions;
 using Newtonsoft.Json;
 
 namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
@@ -48,7 +48,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
             public Guid Id { get; set; }
         }
 
-        
+
 
         [ClassInitialize]
         public static void InitializeTests(TestContext testContext)

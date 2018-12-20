@@ -1,8 +1,8 @@
-﻿using Bitbird.Core.JsonApi;
-using Bitbird.Core.Extensions;
-using Bitbird.Core.JsonApi.Dictionaries;
-using Bitbird.Core.Tests.Models;
-using Bitbird.Core.Utils;
+﻿using Bitbird.Core.Json.JsonApi;
+using Bitbird.Core.Json.Extensions;
+using Bitbird.Core.Json.JsonApi.Dictionaries;
+using Bitbird.Core.Json.Tests.Models;
+using Bitbird.Core.Json.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using System;
@@ -13,10 +13,10 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Bitbird.Core.JsonApi.Converters;
+using Bitbird.Core.Json.JsonApi.Converters;
 using Newtonsoft.Json.Linq;
 
-namespace Bitbird.Core.Tests.JsonApi
+namespace Bitbird.Core.Json.Tests.JsonApi
 {
     
 

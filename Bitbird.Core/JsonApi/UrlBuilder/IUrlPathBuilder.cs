@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 
-namespace Bitbird.Core.JsonApi.UrlBuilder
+namespace Bitbird.Core.Json.JsonApi.UrlBuilder
 {
     /// <summary>
     /// Interface for building UrlBuilders´.

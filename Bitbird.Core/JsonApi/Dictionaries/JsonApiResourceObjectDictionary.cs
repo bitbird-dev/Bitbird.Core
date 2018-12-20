@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Bitbird.Core.JsonApi.Dictionaries
+namespace Bitbird.Core.Json.JsonApi.Dictionaries
 {
     [JsonConverter(typeof(JsonApiResourceObjectDictionaryConverter))]
     public class JsonApiResourceObjectDictionary

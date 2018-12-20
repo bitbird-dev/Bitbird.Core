@@ -1,7 +1,7 @@
-﻿using Bitbird.Core.JsonApi;
-using Bitbird.Core.JsonApi.Attributes;
+﻿using Bitbird.Core.Json.JsonApi;
+using Bitbird.Core.Json.JsonApi.Attributes;
 
-namespace Bitbird.Core.Tests.Models
+namespace Bitbird.Core.Json.Tests.Models
 {
     [JsonApiClass("fahrzeuCustomTypeName")]
     public class Fahrzeug : JsonApiBaseModel

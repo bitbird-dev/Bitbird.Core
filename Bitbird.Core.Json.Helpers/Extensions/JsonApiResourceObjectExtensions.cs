@@ -1,5 +1,5 @@
-﻿using Bitbird.Core.Extensions;
-using Bitbird.Core.JsonApi;
+﻿using Bitbird.Core.Json.Extensions;
+using Bitbird.Core.Json.JsonApi;
 using System;
 using System.Collections.Generic;
 using System.Text;

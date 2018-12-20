@@ -1,9 +1,9 @@
 ﻿using System;
-using Bitbird.Core.JsonApi;
+using Bitbird.Core.Json.JsonApi;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 
-namespace Bitbird.Core.Tests.JsonApi
+namespace Bitbird.Core.Json.Tests.JsonApi
 {
     [TestClass]
     public class IdConverterTests

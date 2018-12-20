@@ -1,6 +1,6 @@
-﻿using Bitbird.Core.Extensions;
-using Bitbird.Core.JsonApi;
-using Bitbird.Core.JsonApi.Attributes;
+﻿using Bitbird.Core.Json.Extensions;
+using Bitbird.Core.Json.JsonApi;
+using Bitbird.Core.Json.JsonApi.Attributes;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Bitbird.Core.Utils
+namespace Bitbird.Core.Json.Utils
 {
     public class JsonApiResourceBuilder
     {
