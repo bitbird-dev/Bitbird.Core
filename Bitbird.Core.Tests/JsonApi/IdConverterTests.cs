@@ -14,7 +14,7 @@ namespace Bitbird.Core.Tests.JsonApi
             ApiTests.SetupTests(testContext);
         }
 
-        class arr : IJsonApiIdModel<int?>
+        class arr : IJsonApiDataModel<int?>
         {
             public string MyProperty { get; set; }
             public int? Id { get ; set ; }

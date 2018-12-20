@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Bitbird.Core.Tests.Models
 {
-    public abstract class JsonApiBaseModel : IJsonApiIdModel<string>
+    public abstract class JsonApiBaseModel : IJsonApiDataModel<string>
     {
         public string Id { get; set; }
     }

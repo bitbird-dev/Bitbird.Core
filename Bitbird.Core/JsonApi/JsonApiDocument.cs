@@ -51,6 +51,26 @@ namespace Bitbird.Core.JsonApi
         }
     }
 
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+    public class JsonApiDocument
+    {
+        [JsonConverter(typeof(JsonDocumentDataConverter))]
+        [JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)]
+        public IEnumerable<JsonApiResourceObject> Data { get; set; }
+        
+        [JsonProperty("errors", NullValueHandling = NullValueHandling.Ignore)]
+        public IEnumerable<JsonApiErrorObject> Errors { get; set; }
+
+        [JsonProperty("meta", NullValueHandling = NullValueHandling.Ignore)]
+        public object Meta { get; set; }
+
+        [JsonProperty("links", NullValueHandling = NullValueHandling.Ignore)]
+        public JsonApiLinksObject Links { get; set; }
+
+        [JsonProperty("included", NullValueHandling = NullValueHandling.Ignore)]
+        public JsonApiResourceObjectDictionary Included { get; set; }
+    }
+
     /// <summary>
     /// A document MUST contain at least one of the following top-level members:
     ///
@@ -80,9 +100,7 @@ namespace Bitbird.Core.JsonApi
     ///     an array of resource objects, an array of resource identifier objects, or an empty array([]), for requests that target resource collections
     /// 
     /// </summary>
-
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class JsonApiDocument<T> where T : IJsonApiDataModel
+    public class JsonApiDocument<T> : JsonApiDocument where T : IJsonApiDataModel
     {
         #region Properties
 
@@ -205,6 +223,7 @@ namespace Bitbird.Core.JsonApi
             // ignore if no data is present
             if (!includedProperties.Any()) return;
             
+            if(Included == null) { Included = new JsonApiResourceObjectDictionary(); }
             // process each item in data
             foreach(var data in dataSet)
             {
@@ -233,6 +252,7 @@ namespace Bitbird.Core.JsonApi
                     }
                 }
             }
+            if(Included.ResourceObjectDictionary.Count < 1) { Included = null; }
         }
 
         public void SetupLinks(Uri queryString)
@@ -316,5 +336,10 @@ namespace Bitbird.Core.JsonApi
         }
 
         #endregion
+    }
+
+    public static class JsonApiDocumentExtensions
+    {
+        
     }
 }

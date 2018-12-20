@@ -13,7 +13,7 @@ namespace Bitbird.Core.JsonApi
     {
     }
 
-    public interface IJsonApiIdModel<T> : IJsonApiDataModel
+    public interface IJsonApiDataModel<T> : IJsonApiDataModel
     {
         T Id { get; set; }
     }
