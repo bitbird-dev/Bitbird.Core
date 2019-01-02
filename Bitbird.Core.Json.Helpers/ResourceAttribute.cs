@@ -17,7 +17,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource
         public ResourceAttribute(string name)
         {
             InternalName = name;
-            Name = name.ToDashed();
+            Name = name.ToCamelCase();
             PropertyName = name.ToPascalCase();
         }
 
