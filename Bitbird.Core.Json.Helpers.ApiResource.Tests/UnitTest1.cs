@@ -12,35 +12,6 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
     [TestClass]
     public class UnitTest1
     {
-        class ResourceWithoutRelations : JsonApiResource
-        {
-            public ResourceWithoutRelations()
-            {
-                Attribute(nameof(ClassWithoutRelations.AttributeOne));
-                Attribute(nameof(ClassWithoutRelations.AttributeTwo));
-                Attribute(nameof(ClassWithoutRelations.AttributeThree));
-            }
-        }
-
-        class ClassWithoutRelations
-        {
-            public string AttributeOne { get; set; }
-            public string AttributeTwo { get; set; }
-            public string AttributeThree { get; set; }
-            public Guid Id { get; set; }
-        }
-        
-
-        class ClassWithToNRelations
-        {
-            public int? AttributeOne { get; set; }
-
-            public ClassWithoutRelations ToOneRelation { get; set; }
-
-            public IEnumerable<ClassWithoutRelations> ToManyRelation { get; set; }
-
-            public Guid Id { get; set; }
-        }
         
         [ClassInitialize]
         public static void InitializeTests(TestContext testContext)
@@ -48,6 +19,8 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
             BtbrdCoreIdConverters.AddConverter(new BtbrdCoreIdConverter<long?>(toString => toString.ToString(), stringVal => long.TryParse(stringVal, out var tempVal) ? tempVal : (long?)null));
             BtbrdCoreIdConverters.AddConverter(new BtbrdCoreIdConverter<long>(toString => toString.ToString(), stringVal => long.TryParse(stringVal, out var tempVal) ? tempVal : long.MinValue));
         }
+
+        #region Test Models
 
         public class Model1Resource : JsonApiResource
         {
@@ -106,6 +79,8 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
 
             public Model3 NestedReference { get; set; }
         }
+
+        #endregion
 
         [TestMethod]
         public void Test_NestedIncludes()
@@ -182,141 +157,5 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
             resultData.MoreModel2 = resultData.MoreModel2Id?.Select(x => deserialized.Included.GetResource(x, typeof(Model2))?.ToObject<Model2, Model2Resource>());
             Assert.IsTrue(foundAttributes(nameof(data.HomeAttribute)));
         }
-
-        //[TestMethod]
-        //public void DeserializeRelationsTest()
-        //{
-        //    var data = GetAResource();
-        //    var apiResource = new ResourceWithToNRelations();
-        //    var doc = new JsonApiDocument();
-        //    doc.FromApiResource(data, apiResource);
-        //    doc.IncludeRelation(data, apiResource, nameof(data.ToOneRelation));
-        //    doc.IncludeRelation(data, apiResource, nameof(data.ToManyRelation));
-        //    var jsonString = JsonConvert.SerializeObject(doc, Formatting.Indented);
-        //    var deserialized = JsonConvert.DeserializeObject<JsonApiDocument>(jsonString);
-
-        //ClassWithoutRelations o = deserialized.ToObject<ClassWithoutRelations>(typeof(ResourceWithoutRelations), out Func<string, bool> foundAttributes);
-
-        //if (foundAttributes(nameof(ClassWithoutRelations.AttributeThree)))
-        //{
-        //    bla
-        //}
-
-
-        //IEnumerable<ClassWithoutRelations> os = deserialized.ToObjectCollection<ClassWithoutRelations>(typeof(ResourceWithoutRelations), out Func<int, string, bool> foundAttributes);
-
-        //if (foundAttributes(0 /* = idx */, nameof(ClassWithoutRelations.AttributeThree) /* = property name */))
-        //{
-        //    bla
-        //}
-
-        //}
-
-        //class FloClass
-        //{
-        //    public int? Id { get; set; }
-        //    public FloClass Flo { get; set; }
-        //    public FloClass Flo1 { get; set; }
-        //}
-
-        //[TestMethod]
-        //public void flo()
-        //{
-        //    var data = new FloClass()
-        //    {
-        //        Id = 12124314,
-        //        FloId = 85683645,
-        //        Flo = new FloClass
-        //        {
-        //            Id = 85683645,
-        //            FloId = 85683645,
-        //            Flo = new FloClass
-        //            {
-        //                Id = 85683645
-        //            },
-        //        },
-        //        Flo1Id = 85683645,
-        //        Flo1 = new FloClass
-        //        {
-        //            Id = 85683645,
-        //            FloId = 85683645,
-        //            Flo = new FloClass
-        //            {
-        //                Id = 85683645
-        //            },
-        //            Flo1Id = 85683645,
-        //            Flo1 = new FloClass
-        //            {
-        //                Id = 85683645
-        //            }
-        //        }
-        //    };
-        //    var doc = new JsonApiDocument<FloClass, FloClassResource>(data, includes);
-        //    var json = JsonConvert.SerializeObject(doc, Formatting.Indented);
-        //    var deserialized = JsonConvert.DeserializeObject<JsonApiDocument<FloClass>>(json);
-        //    //var obj = deserialized.ToObject<FloClass>();
-        //}
-
-        //[TestMethod]
-        //public void TestMethod1()
-        //{
-        //    var data = GetAResource();
-        //    var apiResource = new ResourceWithToNRelations();
-        //    var doc = new JsonApiDocument();
-        //    doc.FromApiResource(data, apiResource);
-        //    doc.IncludeRelation(data, apiResource, nameof(data.ToOneRelation));
-        //    doc.IncludeRelation(data, apiResource, nameof(data.ToManyRelation));
-        //    var jsonString = JsonConvert.SerializeObject(doc, Formatting.Indented);
-        //    var deserialized = JsonConvert.DeserializeObject<JsonApiDocument>(jsonString);
-
-        //    ClassWithoutRelations o = deserialized.ToObject<ClassWithoutRelations>(typeof(ResourceWithoutRelations), out Func<string, bool> foundAttributes);
-
-        //    if (foundAttributes(nameof(ClassWithoutRelations.AttributeThree)))
-        //    {
-        //        bla
-        //    }
-
-
-        //    IEnumerable<ClassWithoutRelations> os = deserialized.ToObjectCollection<ClassWithoutRelations>(typeof(ResourceWithoutRelations), out Func<int, string, bool> foundAttributes);
-
-        //    if (foundAttributes(0 /* = idx */, nameof(ClassWithoutRelations.AttributeThree) /* = property name */))
-        //    {
-        //        bla
-        //    }
-
-        //}
-
-        private ClassWithToNRelations GetAResource()
-        {
-            return new ClassWithToNRelations
-            {
-                Id = Guid.NewGuid(),
-                AttributeOne = 12345,
-                ToOneRelation = new ClassWithoutRelations
-                {
-                    Id = Guid.NewGuid(),
-                    AttributeOne = "muh",
-                    AttributeTwo = "mäh",
-                    AttributeThree = "meh"
-                },
-                ToManyRelation = new List<ClassWithoutRelations>{
-                    new ClassWithoutRelations
-                    {
-                        Id = Guid.NewGuid(),
-                        AttributeOne = "arr",
-                        AttributeTwo = "arrr",
-                        AttributeThree = "arrrr"
-                    },
-                    new ClassWithoutRelations
-                    {
-                        Id = Guid.NewGuid(),
-                        AttributeOne = "brr",
-                        AttributeTwo = "brrr",
-                        AttributeThree = "brrrr"
-                    }
-                }
-            };
-        }
-
     }
 }
