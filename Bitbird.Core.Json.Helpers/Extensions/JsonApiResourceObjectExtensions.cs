@@ -86,7 +86,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
                     if (relationResource.Kind == RelationshipKind.BelongsTo)
                     {
                         var relationshipObject = relationship.Value as JsonApiToOneRelationshipObject;
-                        if (!string.IsNullOrWhiteSpace(relationshipObject.Data.Id)) // this must not be null
+                        if (!string.IsNullOrWhiteSpace(relationshipObject.Data?.Id))
                         {
                             var idProp = targetType.GetProperty(relationResource.IdPropertyName);
                             if (idProp != null)
@@ -162,12 +162,19 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             {
                 var propertyInfo = data.GetType().GetProperty(relationship.PropertyName);
                 var value = propertyInfo.GetValueFast(data);
-                id = BtbrdCoreIdConverters.ConvertToString(GetApiResourceId(value, relationship.RelatedResource));
+                if (value != null)
+                {
+                    id = BtbrdCoreIdConverters.ConvertToString(GetApiResourceId(value, relationship.RelatedResource));
+                }
             }
             else
             {
                 var idPropertyInfo = data.GetType().GetProperty(relationship.IdPropertyName);
-                id = BtbrdCoreIdConverters.ConvertToString(idPropertyInfo?.GetValueFast(data));
+                var value = idPropertyInfo?.GetValueFast(data);
+                if (value != null)
+                {
+                    id = BtbrdCoreIdConverters.ConvertToString(value);
+                }
             }
 
             if (resourceObject.Relationships == null) { resourceObject.Relationships = new Dictionary<string, JsonApiRelationshipObjectBase>(); }

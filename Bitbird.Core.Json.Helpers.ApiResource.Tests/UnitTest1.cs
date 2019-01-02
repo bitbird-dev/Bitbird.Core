@@ -29,17 +29,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
             public string AttributeThree { get; set; }
             public Guid Id { get; set; }
         }
-
-        class ResourceWithToNRelations : JsonApiResource
-        {
-            public ResourceWithToNRelations()
-            {
-                Attribute(nameof(ClassWithToNRelations.AttributeOne));
-
-                BelongsTo<ResourceWithoutRelations>(nameof(ClassWithToNRelations.ToOneRelation));
-                HasMany<ResourceWithoutRelations>(nameof(ClassWithToNRelations.ToManyRelation));
-            }
-        }
+        
 
         class ClassWithToNRelations
         {
@@ -96,6 +86,54 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
         {
             public long Id { get; set; }
             public string Name { get; set; }
+        }
+
+        public class Model3Resource : JsonApiResource
+        {
+            public Model3Resource()
+            {
+                WithId(nameof(Model3.Id));
+                BelongsTo<Model2Resource>(nameof(Model3.ModelReference), nameof(Model3.ModelReferenceId));
+                BelongsTo<Model3Resource>(nameof(Model3.NestedReference), nameof(Model3.NestedReferenceId));
+            }
+        }
+        public class Model3
+        {
+            public long Id { get; set; }
+            public long? ModelReferenceId { get; set; }
+            public Model2 ModelReference { get; set; }
+            public long? NestedReferenceId { get; set; }
+
+            public Model3 NestedReference { get; set; }
+        }
+
+        [TestMethod]
+        public void Test_NestedIncludes()
+        {
+            var data = new Model3
+            {
+                Id = 1,
+                NestedReference = new Model3
+                {
+                    Id = 11,
+                    ModelReference = new Model2
+                    {
+                        Id = 111,
+                        Name = "test name"
+                    },
+                    ModelReferenceId = 111
+                },
+                NestedReferenceId = 11
+            };
+            var doc = JsonApiDocumentExtensions.CreateDocumentFromApiResource<Model3Resource>(data);
+            doc.IncludeRelation<Model3Resource>(data, nameof(data.NestedReference));
+            doc.IncludeRelation<Model3Resource>(data.NestedReference, nameof(data.NestedReference.ModelReference));
+            var jsonString = JsonConvert.SerializeObject(doc, Formatting.Indented);
+            var deserialized = JsonConvert.DeserializeObject<JsonApiDocument>(jsonString);
+            var resultData = deserialized.ToObject<Model3, Model3Resource>();
+            resultData.NestedReference = deserialized.Included.GetResource(resultData.NestedReferenceId, typeof(Model3))?.ToObject<Model3, Model3Resource>();
+            resultData.NestedReference.ModelReference = deserialized.Included.GetResource(resultData.NestedReference.ModelReferenceId, typeof(Model2))?.ToObject<Model2, Model2Resource>();
+            Assert.AreEqual(resultData.NestedReference.ModelReference.Name, data.NestedReference.ModelReference.Name);
         }
 
         [TestMethod] public void floTest()
