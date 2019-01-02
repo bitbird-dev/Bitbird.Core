@@ -51,9 +51,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
 
             public Guid Id { get; set; }
         }
-
-
-
+        
         [ClassInitialize]
         public static void InitializeTests(TestContext testContext)
         {
@@ -106,7 +104,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
             {
                 Id = 1232385789,
                 Home = "myhome",
-                Model2Id = 987654321,
+                Model2Id = 55555555,
                 Model2 = new Model2
                 {
                     Id = 55555555,
@@ -117,26 +115,34 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
                 {
                     new Model2
                     {
-                        Id = 4,
+                        Id = 1,
                         Name = "arr"
                     },
                     new Model2
                     {
-                        Id = 5,
+                        Id = 2,
                         Name = "arrr"
                     },
                     new Model2
                     {
-                        Id = 6,
+                        Id = 3,
                         Name = "arrr"
                     },
                 }
             };
 
             var doc = JsonApiDocumentExtensions.CreateDocumentFromApiResource<Model1Resource>(data);
+            doc.IncludeRelation<Model1Resource>(data, nameof(data.Model2));
+            doc.IncludeRelation<Model1Resource>(data, nameof(data.MoreModel2));
+
             var jsonString = JsonConvert.SerializeObject(doc, Formatting.Indented);
             var deserialized = JsonConvert.DeserializeObject<JsonApiDocument>(jsonString);
+            Func<string, bool> foundAttributes;
+            var resultData = deserialized.ToObject<Model1, Model1Resource>(out foundAttributes);
 
+            resultData.Model2 = deserialized.Included.GetResource(resultData.Model2Id, typeof(Model2))?.ToObject<Model2, Model2Resource>();
+            resultData.MoreModel2 = resultData.MoreModel2Id?.Select(x => deserialized.Included.GetResource(x, typeof(Model2))?.ToObject<Model2, Model2Resource>());
+            Assert.IsTrue(foundAttributes(nameof(data.Home)));
         }
 
         //[TestMethod]
@@ -151,20 +157,20 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
         //    var jsonString = JsonConvert.SerializeObject(doc, Formatting.Indented);
         //    var deserialized = JsonConvert.DeserializeObject<JsonApiDocument>(jsonString);
 
-            //ClassWithoutRelations o = deserialized.ToObject<ClassWithoutRelations>(typeof(ResourceWithoutRelations), out Func<string, bool> foundAttributes);
+        //ClassWithoutRelations o = deserialized.ToObject<ClassWithoutRelations>(typeof(ResourceWithoutRelations), out Func<string, bool> foundAttributes);
 
-            //if (foundAttributes(nameof(ClassWithoutRelations.AttributeThree)))
-            //{
-            //    bla
-            //}
+        //if (foundAttributes(nameof(ClassWithoutRelations.AttributeThree)))
+        //{
+        //    bla
+        //}
 
 
-            //IEnumerable<ClassWithoutRelations> os = deserialized.ToObjectCollection<ClassWithoutRelations>(typeof(ResourceWithoutRelations), out Func<int, string, bool> foundAttributes);
+        //IEnumerable<ClassWithoutRelations> os = deserialized.ToObjectCollection<ClassWithoutRelations>(typeof(ResourceWithoutRelations), out Func<int, string, bool> foundAttributes);
 
-            //if (foundAttributes(0 /* = idx */, nameof(ClassWithoutRelations.AttributeThree) /* = property name */))
-            //{
-            //    bla
-            //}
+        //if (foundAttributes(0 /* = idx */, nameof(ClassWithoutRelations.AttributeThree) /* = property name */))
+        //{
+        //    bla
+        //}
 
         //}
 
