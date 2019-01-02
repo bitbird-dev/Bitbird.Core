@@ -62,6 +62,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Bitbird.Core.Json.Helpers.Base\Bitbird.Core.Json.Helpers.Base.csproj">
+      <Project>{B02865FD-35CA-4B48-88F4-0032A499A57D}</Project>
+      <Name>Bitbird.Core.Json.Helpers.Base</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Bitbird.Core.Json.Helpers.JsonDataModel\Bitbird.Core.Json.Helpers.JsonDataModel.csproj">
       <Project>{54CC940B-60AF-4D88-8691-B5CDC309C72E}</Project>
       <Name>Bitbird.Core.Json.Helpers.JsonDataModel</Name>

@@ -1,4 +1,5 @@
-﻿using Bitbird.Core.Json.Helpers.ApiResource.Extensions;
+﻿using Bitbird.Core.Json.Extensions;
+using Bitbird.Core.Json.Helpers.ApiResource.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -27,7 +28,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource
             JsonApiResource relationshipResource,
             LinkType withLinks)
         {
-            Name = name.ToDashed();
+            Name = name.ToJsonRelationshipName();
             PropertyName = name.ToPascalCase();
             IdPropertyName = idPropertyName?.ToPascalCase();
             UrlPath = urlPath.ToDashed();

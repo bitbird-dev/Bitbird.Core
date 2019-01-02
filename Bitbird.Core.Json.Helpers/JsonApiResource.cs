@@ -165,7 +165,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource
         /// is the name)</param>
         /// <typeparam name="T">The api resource type of the relationship.</typeparam>
         /// <returns>The <see cref="ResourceRelationship"/>.</returns>
-        protected ResourceRelationship BelongsTo<T>(string name, string idPropertyName = null, string path = null)
+        protected ResourceRelationship BelongsTo<T>(string name, string idPropertyName, string path = null)
                     where T : JsonApiResource, new()
         {
             return BelongsTo<T>(name, idPropertyName, path ?? name, LinkType.All);
@@ -203,7 +203,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource
         /// <param name="path">The url pathspec of this relationship (default is the name).</param>
         /// <typeparam name="T">The api resource type of the relationship.</typeparam>
         /// <returns>The <see cref="ResourceRelationship"/>.</returns>
-        protected ResourceRelationship HasMany<T>(string name, string idPropertyName = null, string path = null)
+        protected ResourceRelationship HasMany<T>(string name, string idPropertyName, string path = null)
                     where T : JsonApiResource, new()
         {
             return HasMany<T>(name, idPropertyName, path ?? name, LinkType.All);

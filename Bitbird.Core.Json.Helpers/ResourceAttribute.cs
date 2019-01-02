@@ -1,4 +1,5 @@
-﻿using Bitbird.Core.Json.Helpers.ApiResource.Extensions;
+﻿using Bitbird.Core.Json.Extensions;
+using Bitbird.Core.Json.Helpers.ApiResource.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,7 +18,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource
         public ResourceAttribute(string name)
         {
             InternalName = name;
-            Name = name.ToDashed();
+            Name = name.ToJsonAttributeName();
             PropertyName = name.ToPascalCase();
         }
 
