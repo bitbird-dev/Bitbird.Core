@@ -5,7 +5,7 @@ using Bitbird.Core.Json.JsonApi;
 using Bitbird.Core.Json.Helpers.ApiResource.Extensions;
 using Newtonsoft.Json;
 using System.Linq;
-using Bitbird.Core.Json.Helpers.JsonDataModel.Converters;
+using Bitbird.Core.Json.Helpers.Base.Converters;
 
 namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
 {
@@ -64,7 +64,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
             public Model1Resource()
             {
                 WithId(nameof(Model1.Id));
-                Attribute(nameof(Model1.Home));
+                Attribute(nameof(Model1.HomeAttribute));
                 BelongsTo<Model2Resource>(nameof(Model1.Model2), nameof(Model1.Model2Id));
                 HasMany<Model2Resource>(nameof(Model1.MoreModel2), nameof(Model1.MoreModel2Id));
             }
@@ -72,7 +72,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
         public class Model1
         {
             public long Id { get; set; }
-            public string Home { get; set; }
+            public string HomeAttribute { get; set; }
             /// <summary>
             /// Deserialize: Model2 is always null. Model2Id is null or a value, based on the data in the json-string
             /// Serialize: Model2Id is no attribute, but identifies the "BelongsTo"-relation-id.
@@ -103,7 +103,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
             var data = new Model1
             {
                 Id = 1232385789,
-                Home = "myhome",
+                HomeAttribute = "myhome",
                 Model2Id = 55555555,
                 Model2 = new Model2
                 {
@@ -142,7 +142,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
 
             resultData.Model2 = deserialized.Included.GetResource(resultData.Model2Id, typeof(Model2))?.ToObject<Model2, Model2Resource>();
             resultData.MoreModel2 = resultData.MoreModel2Id?.Select(x => deserialized.Included.GetResource(x, typeof(Model2))?.ToObject<Model2, Model2Resource>());
-            Assert.IsTrue(foundAttributes(nameof(data.Home)));
+            Assert.IsTrue(foundAttributes(nameof(data.HomeAttribute)));
         }
 
         //[TestMethod]

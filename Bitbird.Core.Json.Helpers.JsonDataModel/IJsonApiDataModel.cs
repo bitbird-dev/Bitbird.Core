@@ -1,5 +1,5 @@
 ﻿using Bitbird.Core.Json.Extensions;
-using Bitbird.Core.Json.Helpers.JsonDataModel.Converters;
+using Bitbird.Core.Json.Helpers.Base.Converters;
 using System;
 using System.Collections.Generic;
 using System.Text;

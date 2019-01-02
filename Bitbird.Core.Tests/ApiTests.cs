@@ -8,10 +8,10 @@ using Bitbird.Core.Json.Tests.Models;
 using Bitbird.Core.Json.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
-using Bitbird.Core.Json.Helpers.JsonDataModel.Converters;
 using Bitbird.Core.Json.Helpers.JsonDataModel;
 using Bitbird.Core.Json.Helpers.JsonDataModel.Extensions;
 using Bitbird.Core.Json.Helpers.JsonDataModel.Utils;
+using Bitbird.Core.Json.Helpers.Base.Converters;
 
 namespace Bitbird.Core.Json.Tests
 {

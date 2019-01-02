@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Bitbird.Core.Json.Helpers.JsonDataModel\Bitbird.Core.Json.Helpers.JsonDataModel.csproj" />
+    <ProjectReference Include="..\Bitbird.Core.Json.Helpers.Base\Bitbird.Core.Json.Helpers.Base.csproj" />
     <ProjectReference Include="..\Bitbird.Core\Bitbird.Core.Json.csproj" />
   </ItemGroup>
 

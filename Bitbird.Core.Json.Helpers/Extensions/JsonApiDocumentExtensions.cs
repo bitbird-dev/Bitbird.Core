@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using Bitbird.Core.Json.Extensions;
-using Bitbird.Core.Json.Helpers.JsonDataModel.Converters;
+using Bitbird.Core.Json.Helpers.Base.Converters;
 
 namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 {
@@ -120,7 +120,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         public static T_Result ToObject<T_Result, T_Resource>(this JsonApiDocument document, out Func<string, bool> foundAttributes) where T_Resource : JsonApiResource
         {
             var attrs = document.Data.FirstOrDefault()?.Attributes;
-            foundAttributes = (attrName) => attrs != null ? attrs.ContainsKey(attrName.ToLowerInvariant()) : false;
+            foundAttributes = (attrName) => attrs != null ? attrs.ContainsKey(attrName.ToJsonAttributeName()) : false;
             return document.ToObject<T_Result, T_Resource>();
         }
 
@@ -137,7 +137,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
         public static IEnumerable<T_Result> ToObjectCollection<T_Result, T_Resource>(this JsonApiDocument document, out Func<int, string, bool> foundAttributes) where T_Resource : JsonApiResource
         {
-            foundAttributes = (idx, attrName) => (document.Data.ElementAt(idx)?.Attributes?.ContainsKey(attrName.ToLowerInvariant())).Value;
+            foundAttributes = (idx, attrName) => (document.Data.ElementAt(idx)?.Attributes?.ContainsKey(attrName.ToJsonAttributeName())).Value;
             return document.ToObjectCollection<T_Result, T_Resource>();
         }
 
