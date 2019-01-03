@@ -1,6 +1,8 @@
 ﻿using Bitbird.Core.Json.Extensions;
+using Bitbird.Core.Json.Helpers.ApiResource.UrlPathBuilder;
 using Bitbird.Core.Json.Helpers.Base.Converters;
 using Bitbird.Core.Json.JsonApi;
+using Humanizer;
 using System;
 using System.Collections;
 using System.Collections.Generic;

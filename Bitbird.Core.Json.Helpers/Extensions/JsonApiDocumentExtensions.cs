@@ -62,27 +62,36 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         
         public static void IncludeRelation<T_Resource>(this JsonApiDocument document, object data, string path) where T_Resource : JsonApiResource
         {
-            // parse paths
-            var subpaths = path.Split(new char[] { ',' });
-            foreach(var includePath in subpaths)
-            {
-                // generate tree
-                var includePathTree = GenerateIncludeTree(Activator.CreateInstance<T_Resource>(), includePath);
-                // process tree
-                ProcessIncludeTree(document, includePathTree, data);
-            }
+            document.IncludeRelation(Activator.CreateInstance<T_Resource>(), data, path);
         }
 
         public static void IncludeRelation(this JsonApiDocument document, JsonApiResource dataApiResource, object data, string path)
         {
             // parse paths
             var subpaths = path.Split(new char[] { ',' });
-            foreach (var includePath in subpaths)
+            var collection = data as IEnumerable<object>;
+            if (collection != null)
             {
-                // generate tree
-                var includePathTree = GenerateIncludeTree(dataApiResource, includePath);
-                // process tree
-                ProcessIncludeTree(document, includePathTree, data);
+                foreach (var item in collection)
+                {
+                    foreach (var includePath in subpaths)
+                    {
+                        // generate tree
+                        var includePathTree = GenerateIncludeTree(dataApiResource, includePath);
+                        // process tree
+                        ProcessIncludeTree(document, includePathTree, item);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var includePath in subpaths)
+                {
+                    // generate tree
+                    var includePathTree = GenerateIncludeTree(dataApiResource, includePath);
+                    // process tree
+                    ProcessIncludeTree(document, includePathTree, data);
+                }
             }
         }
 
