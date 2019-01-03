@@ -38,7 +38,9 @@ namespace Bitbird.Core.Json.JsonApi
             var resourceCollection = value as IEnumerable<JsonApiResourceObject>;
             if(resourceCollection != null)
             {
-                if(resourceCollection.Count() < 2)
+                var count = resourceCollection.Count();
+                
+                if (count == 1)
                 {
                     var singleResource = resourceCollection.FirstOrDefault();
                     serializer.Serialize(writer, singleResource);
@@ -47,6 +49,10 @@ namespace Bitbird.Core.Json.JsonApi
                 {
                     serializer.Serialize(writer, resourceCollection);
                 }
+            }
+            else
+            {
+                writer.WriteNull();
             }
         }
     }
