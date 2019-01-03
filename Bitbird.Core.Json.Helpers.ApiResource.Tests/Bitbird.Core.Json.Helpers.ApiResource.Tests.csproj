@@ -55,6 +55,12 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InclusionOfRelatedResourcesTests.cs" />
+    <Compile Include="TestModel\TestModelBase.cs" />
+    <Compile Include="TestModel\TestModelCompound.cs" />
+    <Compile Include="TestModel\TestModelRepository.cs" />
+    <Compile Include="TestModel\TestModelToN.cs" />
+    <Compile Include="TestModel\TestModelToOne.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

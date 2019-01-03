@@ -4,10 +4,17 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using Bitbird.Core.Json.Extensions;
-using Bitbird.Core.Json.Helpers.Base.Converters;
+using Bitbird.Core.Json.Helpers.Base.Extensions;
 
 namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 {
+    internal class IncludePathNode
+    {
+        public string PropertyPath { get; set; }
+        public ResourceRelationship IncludeApiResourceRelationship {get; set;}
+        public IncludePathNode Child { get; set; }
+    }
+
     public static class JsonApiDocumentExtensions
     {
         #region CreateDocumentFromApiResource
@@ -52,44 +59,58 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         #endregion
 
         #region IncludeRelation
-
-        public static void IncludeRelation(this JsonApiDocument document, object data, JsonApiResource apiResource, string propertyName)
+        
+        public static void IncludeRelation<T_Resource>(this JsonApiDocument document, object data, string path) where T_Resource : JsonApiResource
         {
-            var relation = apiResource.Relationships.Where(r => string.Equals(r.PropertyName, propertyName, StringComparison.CurrentCultureIgnoreCase)).FirstOrDefault();
-            if(relation == null) { return; }
-            document.IncludeRelation(data, relation);
+            // parse paths
+            var subpaths = path.Split(new char[] { ',' });
+            foreach(var includePath in subpaths)
+            {
+                // generate tree
+                var includePathTree = GenerateIncludeTree(Activator.CreateInstance<T_Resource>(), includePath);
+                // process tree
+                ProcessIncludeTree(document, includePathTree, data);
+            }
         }
 
-        public static void IncludeRelation<T_Resource>(this JsonApiDocument document, object data, string propertyName) where T_Resource : JsonApiResource
+        public static void IncludeRelation(this JsonApiDocument document, JsonApiResource dataApiResource, object data, string path)
         {
-            T_Resource apiResource = Activator.CreateInstance<T_Resource>();
-            var relation = apiResource.Relationships.Where(r => string.Equals(r.PropertyName, propertyName, StringComparison.CurrentCultureIgnoreCase)).FirstOrDefault();
-            if (relation == null) { return; }
-            document.IncludeRelation(data, relation);
+            // parse paths
+            var subpaths = path.Split(new char[] { ',' });
+            foreach (var includePath in subpaths)
+            {
+                // generate tree
+                var includePathTree = GenerateIncludeTree(dataApiResource, includePath);
+                // process tree
+                ProcessIncludeTree(document, includePathTree, data);
+            }
         }
 
-        #endregion
-
-        #region IncludeRelation
-
-        internal static void IncludeRelation(this JsonApiDocument document, object data, ResourceRelationship relationship)
+        private static void ProcessIncludeTree(JsonApiDocument document, IncludePathNode includePathTree, object data)
         {
+            var relationship = includePathTree.IncludeApiResourceRelationship;
             var dataType = data.GetType();
             var propertyInfo = dataType.GetProperty(relationship.PropertyName);
-            if(propertyInfo == null) { throw new Exception($"Property {relationship.PropertyName} does not exist for type {dataType.Name}."); }
+            if (propertyInfo == null) { throw new Exception($"Property {relationship.PropertyName} does not exist for type {dataType.Name}."); }
             var value = propertyInfo.GetValueFast(data);
             if (value == null) { return; }
-            if(relationship.Kind == RelationshipKind.BelongsTo)
+            if (relationship.Kind == RelationshipKind.BelongsTo)
             {
                 var jsonResourceObject = new JsonApiResourceObject();
                 jsonResourceObject.FromApiResource(value, relationship.RelatedResource);
                 if (document.Included == null) { document.Included = new JsonApi.Dictionaries.JsonApiResourceObjectDictionary(); }
                 document.Included.AddResource(jsonResourceObject);
+                if(includePathTree.Child != null)
+                {
+                    // jump down the rabbit hole
+                    ProcessIncludeTree(document, includePathTree.Child, value);
+                }
+                
             }
             else
             {
                 var collection = value as IEnumerable<object>;
-                if(collection != null && collection.Count() > 0)
+                if (collection != null && collection.Count() > 0)
                 {
                     if (document.Included == null) { document.Included = new JsonApi.Dictionaries.JsonApiResourceObjectDictionary(); }
                     foreach (var item in collection)
@@ -97,11 +118,33 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
                         var jsonResourceObject = new JsonApiResourceObject();
                         jsonResourceObject.FromApiResource(item, relationship.RelatedResource);
                         document.Included.AddResource(jsonResourceObject);
+                        if (includePathTree.Child != null)
+                        {
+                            // jump down the rabbit hole
+                            ProcessIncludeTree(document, includePathTree.Child, item);
+                        }
                     }
                 }
-                
+
             }
-            
+
+        }
+
+        internal static IncludePathNode GenerateIncludeTree(JsonApiResource apiResource, string path)
+        {
+            if (string.IsNullOrWhiteSpace(path)) { return null; }
+            var subpaths = path.Split(new char[] { '.' }, 2);
+
+            var relationshipName = subpaths[0].ToJsonRelationshipName();
+            var relationshipResource = apiResource.Relationships.Where(x => x.Name == relationshipName).FirstOrDefault();
+            if(relationshipResource == null) { throw new Exception($"Cannot include resource {path}: Path does not exist."); }
+            var resultNode = new IncludePathNode
+            {
+                PropertyPath = relationshipName,
+                IncludeApiResourceRelationship = relationshipResource,
+            };
+            resultNode.Child = (subpaths.Count() > 1) ? GenerateIncludeTree(relationshipResource.RelatedResource, subpaths[1]) : null;
+            return resultNode;
         }
 
         #endregion
@@ -143,9 +186,9 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
         #endregion
 
-        public static JsonApiResourceObject GetResource(this JsonApi.Dictionaries.JsonApiResourceObjectDictionary resourceDictionary, object id, Type type)
+        public static T_Result GetIncludedResource<T_Result,T_ResultApiResource>(this JsonApiDocument document, object id) where T_ResultApiResource : JsonApiResource where T_Result : class
         {
-            return resourceDictionary.GetResource(BtbrdCoreIdConverters.ConvertToString(id), type.GetJsonApiClassName());
+            return document.Included?.GetResource(id, typeof(T_Result))?.ToObject<T_Result, T_ResultApiResource>();
         }
     }
 }

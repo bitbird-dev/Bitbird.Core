@@ -29,9 +29,22 @@ namespace Bitbird.Core.Json.Helpers.ApiResource
             var type = GetType();
 
             var name = type.Name;
-            OfType(name.ToUpperInvariant().EndsWith("RESOURCE")
-                ? name.Remove(name.Length - "RESOURCE".Length)
-                : name);
+            {
+                var uppercaseName = name.ToUpperInvariant();
+                var typename = name;
+                if (uppercaseName.EndsWith("APIRESOURCE"))
+                {
+                    OfType(name.Remove(name.Length - "APIRESOURCE".Length));
+                }
+                else if(uppercaseName.EndsWith("RESOURCE"))
+                {
+                    OfType(name.Remove(name.Length - "RESOURCE".Length));
+                }
+                else
+                {
+                    OfType(name);
+                }
+            }
 
             WithId("Id");
 
@@ -109,7 +122,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource
         /// pluralized version of the type name)</param>
         protected void OfType(string value, string path)
         {
-            ResourceType = value.ToDashed();
+            ResourceType = value.ToLowerInvariant();
             UrlPath = path.ToDashed().EnsureStartsWith("/");
         }
 

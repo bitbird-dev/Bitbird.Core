@@ -1,11 +1,12 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using Bitbird.Core.Json.JsonApi;
-using Bitbird.Core.Json.Helpers.ApiResource.Extensions;
 using Newtonsoft.Json;
 using System.Linq;
+using Bitbird.Core.Json.JsonApi;
 using Bitbird.Core.Json.Helpers.Base.Converters;
+using Bitbird.Core.Json.Helpers.Base.Extensions;
+using Bitbird.Core.Json.Helpers.ApiResource.Extensions;
 
 namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
 {
@@ -81,36 +82,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
         }
 
         #endregion
-
-        [TestMethod]
-        public void Test_NestedIncludes()
-        {
-            var data = new Model3
-            {
-                Id = 1,
-                NestedReference = new Model3
-                {
-                    Id = 11,
-                    ModelReference = new Model2
-                    {
-                        Id = 111,
-                        Name = "test name"
-                    },
-                    ModelReferenceId = 111
-                },
-                NestedReferenceId = 11
-            };
-            var doc = JsonApiDocumentExtensions.CreateDocumentFromApiResource<Model3Resource>(data);
-            doc.IncludeRelation<Model3Resource>(data, nameof(data.NestedReference));
-            doc.IncludeRelation<Model3Resource>(data.NestedReference, nameof(data.NestedReference.ModelReference));
-            var jsonString = JsonConvert.SerializeObject(doc, Formatting.Indented);
-            var deserialized = JsonConvert.DeserializeObject<JsonApiDocument>(jsonString);
-            var resultData = deserialized.ToObject<Model3, Model3Resource>();
-            resultData.NestedReference = deserialized.Included.GetResource(resultData.NestedReferenceId, typeof(Model3))?.ToObject<Model3, Model3Resource>();
-            resultData.NestedReference.ModelReference = deserialized.Included.GetResource(resultData.NestedReference.ModelReferenceId, typeof(Model2))?.ToObject<Model2, Model2Resource>();
-            Assert.AreEqual(resultData.NestedReference.ModelReference.Name, data.NestedReference.ModelReference.Name);
-        }
-
+        
         [TestMethod] public void floTest()
         {
             var data = new Model1
@@ -145,8 +117,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
             };
 
             var doc = JsonApiDocumentExtensions.CreateDocumentFromApiResource<Model1Resource>(data);
-            doc.IncludeRelation<Model1Resource>(data, nameof(data.Model2));
-            doc.IncludeRelation<Model1Resource>(data, nameof(data.MoreModel2));
+            doc.IncludeRelation<Model1Resource>(data, $"{nameof(Model1.MoreModel2)},{nameof(Model1.Model2)}");
 
             var jsonString = JsonConvert.SerializeObject(doc, Formatting.Indented);
             var deserialized = JsonConvert.DeserializeObject<JsonApiDocument>(jsonString);

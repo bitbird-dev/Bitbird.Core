@@ -202,16 +202,22 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             {
                 var propertyInfo = data.GetType().GetProperty(relationship.PropertyName);
                 var values = propertyInfo.GetValueFast(data) as IEnumerable<object>;
-                ids = values?.Select(x=> BtbrdCoreIdConverters.ConvertToString(GetApiResourceId(x, relationship.RelatedResource)));
+                if(values != null)
+                {
+                    ids = values?.Select(x=> BtbrdCoreIdConverters.ConvertToString(GetApiResourceId(x, relationship.RelatedResource)));
+                }
             }
             else
             {
                 var idPropertyInfo = data.GetType().GetProperty(relationship.IdPropertyName);
 
                 var values = idPropertyInfo?.GetValueFast(data) as IEnumerable;
-                var list = new List<string>();
-                foreach(var id in values) { list.Add(BtbrdCoreIdConverters.ConvertToString(id)); }
-                ids = list.AsEnumerable();
+                if (values != null)
+                {
+                    var list = new List<string>();
+                    foreach (var id in values) { list.Add(BtbrdCoreIdConverters.ConvertToString(id)); }
+                    ids = list.AsEnumerable();
+                }
             }
             
             if (resourceObject.Relationships == null) { resourceObject.Relationships = new Dictionary<string, JsonApiRelationshipObjectBase>(); }
