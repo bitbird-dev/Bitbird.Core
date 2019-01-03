@@ -69,12 +69,29 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         {
             // parse paths
             var subpaths = path.Split(new char[] { ',' });
-            foreach (var includePath in subpaths)
+            var collection = data as IEnumerable<object>;
+            if (collection != null)
             {
-                // generate tree
-                var includePathTree = GenerateIncludeTree(dataApiResource, includePath);
-                // process tree
-                ProcessIncludeTree(document, includePathTree, data);
+                foreach (var item in collection)
+                {
+                    foreach (var includePath in subpaths)
+                    {
+                        // generate tree
+                        var includePathTree = GenerateIncludeTree(dataApiResource, includePath);
+                        // process tree
+                        ProcessIncludeTree(document, includePathTree, item);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var includePath in subpaths)
+                {
+                    // generate tree
+                    var includePathTree = GenerateIncludeTree(dataApiResource, includePath);
+                    // process tree
+                    ProcessIncludeTree(document, includePathTree, data);
+                }
             }
         }
 
