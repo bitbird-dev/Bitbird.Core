@@ -21,6 +21,8 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
             BtbrdCoreIdConverters.AddConverter(new BtbrdCoreIdConverter<Guid>(g => g.ToString(), gs => Guid.Parse(gs??string.Empty)));
         }
         
+
+
         [TestMethod]
         public void IncludeDeeplyNestedResourceTest()
         {

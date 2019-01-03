@@ -42,7 +42,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
                 foreach (var item in collection)
                 {
                     var rObject = new JsonApiResourceObject();
-                    rObject.FromApiResource(data, apiResource);
+                    rObject.FromApiResource(item, apiResource);
                     resourceObjects.Add(rObject);
                 }
                 document.Data = resourceObjects;
@@ -53,7 +53,6 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
                 rObject.FromApiResource(data, apiResource);
                 document.Data = new List<JsonApiResourceObject> { rObject };
             }
-            
         }
 
         #endregion

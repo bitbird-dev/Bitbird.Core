@@ -82,6 +82,24 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
         }
 
         #endregion
+
+
+        [TestMethod] public void AddCollectionsToDocument()
+        {
+            var data = new List<Model1>
+            {
+                new Model1
+                {
+                    HomeAttribute = "whatever"
+                },
+                new Model1
+                {
+                    HomeAttribute = "whatever2"
+                }
+            };
+            var doc = JsonApiDocumentExtensions.CreateDocumentFromApiResource<Model1Resource>(data);
+            var jsonString = JsonConvert.SerializeObject(doc, Formatting.Indented);
+        }
         
         [TestMethod] public void floTest()
         {
