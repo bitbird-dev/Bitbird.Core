@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Bitbird.Core\Bitbird.Core.Json.csproj" />
+    <ProjectReference Include="..\Bitbird.Core.Json\Bitbird.Core.Json.csproj" />
   </ItemGroup>
 
 </Project>

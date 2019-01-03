@@ -82,7 +82,7 @@
       <Project>{54CC940B-60AF-4D88-8691-B5CDC309C72E}</Project>
       <Name>Bitbird.Core.Json.Helpers.JsonDataModel</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Bitbird.Core\Bitbird.Core.Json.csproj">
+    <ProjectReference Include="..\Bitbird.Core.Json\Bitbird.Core.Json.csproj">
       <Project>{C225F77B-C2FD-4BAD-978F-2E2BD3B5DE0F}</Project>
       <Name>Bitbird.Core.Json</Name>
     </ProjectReference>

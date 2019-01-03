@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2026
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitbird.Core.Json", "Bitbird.Core\Bitbird.Core.Json.csproj", "{C225F77B-C2FD-4BAD-978F-2E2BD3B5DE0F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitbird.Core.Json", "Bitbird.Core.Json\Bitbird.Core.Json.csproj", "{C225F77B-C2FD-4BAD-978F-2E2BD3B5DE0F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitbird.Core.Json.Tests", "Bitbird.Core.Tests\Bitbird.Core.Json.Tests.csproj", "{D9D27DD1-72DC-42F8-9B7D-3D2A1A4C4D1D}"
 EndProject

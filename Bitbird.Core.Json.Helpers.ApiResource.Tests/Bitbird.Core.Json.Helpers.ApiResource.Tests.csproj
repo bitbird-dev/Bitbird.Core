@@ -80,7 +80,7 @@
       <Project>{e5012a70-9ed8-4b14-af5e-ec83db50c607}</Project>
       <Name>Bitbird.Core.Json.Helpers.ApiResource</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Bitbird.Core\Bitbird.Core.Json.csproj">
+    <ProjectReference Include="..\Bitbird.Core.Json\Bitbird.Core.Json.csproj">
       <Project>{c225f77b-c2fd-4bad-978f-2e2bd3b5de0f}</Project>
       <Name>Bitbird.Core.Json</Name>
     </ProjectReference>
