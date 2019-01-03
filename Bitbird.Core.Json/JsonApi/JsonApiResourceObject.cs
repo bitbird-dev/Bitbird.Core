@@ -1,6 +1,5 @@
 ﻿using Bitbird.Core.Json.Extensions;
 using Bitbird.Core.Json.JsonApi.Attributes;
-using Bitbird.Core.Json.JsonApi.UrlBuilder;
 using Bitbird.Core.Json.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
