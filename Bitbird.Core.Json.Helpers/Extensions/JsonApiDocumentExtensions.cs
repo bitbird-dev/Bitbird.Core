@@ -17,6 +17,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
     public static class JsonApiDocumentExtensions
     {
+
         #region CreateDocumentFromApiResource
 
         public static JsonApiDocument CreateDocumentFromApiResource<T>(object data) where T : JsonApiResource
@@ -164,6 +165,22 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             var attrs = document.Data.FirstOrDefault()?.Attributes;
             foundAttributes = (attrName) => attrs != null ? attrs.ContainsKey(attrName.ToJsonAttributeName()) : false;
             return document.ToObject<T_Result, T_Resource>();
+        }
+
+        public static object ToObject(this JsonApiDocument document, JsonApiResource apiResource, Type targetType)
+        {
+            var primaryResourceObject = document.Data.FirstOrDefault();
+            if (primaryResourceObject == null) throw new Exception("Json document contains no data.");
+
+            // extract primary data
+            return primaryResourceObject.ToObject(apiResource, targetType);
+        }
+
+        public static object ToObject(this JsonApiDocument document, JsonApiResource apiResource, Type targetType, out Func<string, bool> foundAttributes)
+        {
+            var attrs = document.Data.FirstOrDefault()?.Attributes;
+            foundAttributes = (attrName) => attrs != null ? attrs.ContainsKey(attrName.ToJsonAttributeName()) : false;
+            return document.ToObject(apiResource, targetType);
         }
 
         #endregion
