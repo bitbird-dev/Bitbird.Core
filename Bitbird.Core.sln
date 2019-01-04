@@ -22,13 +22,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitbird.Core.Json.Helpers.J
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitbird.Core.Json.Helpers.Base", "Bitbird.Core.Json.Helpers.Base\Bitbird.Core.Json.Helpers.Base.csproj", "{B02865FD-35CA-4B48-88F4-0032A499A57D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitbird.Core", "Bitbird.Core\Bitbird.Core.csproj", "{B882B7FF-75E0-4A51-91E0-D67F4D01211C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitbird.Core", "Bitbird.Core\Bitbird.Core.csproj", "{B882B7FF-75E0-4A51-91E0-D67F4D01211C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitbird.Core.Api.Net", "Bitbird.Core.Api.net\Bitbird.Core.Api.Net.csproj", "{5DEC161E-0E45-4186-AE5F-9656AE2FABB2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitbird.Core.Api.Net", "Bitbird.Core.Api.Net\Bitbird.Core.Api.Net.csproj", "{5DEC161E-0E45-4186-AE5F-9656AE2FABB2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitbird.Core.WebApi.Net", "Bitbird.Core.WebApi.Net\Bitbird.Core.WebApi.Net.csproj", "{C65267F8-C53B-4008-8094-853479AFFD2C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitbird.Core.Data.Net", "Bitbird.Core.Data.Net\Bitbird.Core.Data.Net.csproj", "{4AE82B23-34A5-47FD-BFBA-5BC50210CC5E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitbird.Core.Export.Xlsx", "Bitbird.Core.Export.Xlsx\Bitbird.Core.Export.Xlsx.csproj", "{DB7EBA25-711B-4DB4-9380-18DD245052E6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -244,6 +246,26 @@ Global
 		{4AE82B23-34A5-47FD-BFBA-5BC50210CC5E}.Release|x64.Build.0 = Release|Any CPU
 		{4AE82B23-34A5-47FD-BFBA-5BC50210CC5E}.Release|x86.ActiveCfg = Release|Any CPU
 		{4AE82B23-34A5-47FD-BFBA-5BC50210CC5E}.Release|x86.Build.0 = Release|Any CPU
+		{DB7EBA25-711B-4DB4-9380-18DD245052E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB7EBA25-711B-4DB4-9380-18DD245052E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB7EBA25-711B-4DB4-9380-18DD245052E6}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{DB7EBA25-711B-4DB4-9380-18DD245052E6}.Debug|ARM.Build.0 = Debug|Any CPU
+		{DB7EBA25-711B-4DB4-9380-18DD245052E6}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{DB7EBA25-711B-4DB4-9380-18DD245052E6}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{DB7EBA25-711B-4DB4-9380-18DD245052E6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DB7EBA25-711B-4DB4-9380-18DD245052E6}.Debug|x64.Build.0 = Debug|Any CPU
+		{DB7EBA25-711B-4DB4-9380-18DD245052E6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DB7EBA25-711B-4DB4-9380-18DD245052E6}.Debug|x86.Build.0 = Debug|Any CPU
+		{DB7EBA25-711B-4DB4-9380-18DD245052E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB7EBA25-711B-4DB4-9380-18DD245052E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB7EBA25-711B-4DB4-9380-18DD245052E6}.Release|ARM.ActiveCfg = Release|Any CPU
+		{DB7EBA25-711B-4DB4-9380-18DD245052E6}.Release|ARM.Build.0 = Release|Any CPU
+		{DB7EBA25-711B-4DB4-9380-18DD245052E6}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{DB7EBA25-711B-4DB4-9380-18DD245052E6}.Release|ARM64.Build.0 = Release|Any CPU
+		{DB7EBA25-711B-4DB4-9380-18DD245052E6}.Release|x64.ActiveCfg = Release|Any CPU
+		{DB7EBA25-711B-4DB4-9380-18DD245052E6}.Release|x64.Build.0 = Release|Any CPU
+		{DB7EBA25-711B-4DB4-9380-18DD245052E6}.Release|x86.ActiveCfg = Release|Any CPU
+		{DB7EBA25-711B-4DB4-9380-18DD245052E6}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
