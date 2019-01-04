@@ -8,7 +8,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests.TestModel
 {
     internal class TestModelToOne : TestModelBase
     {
-        public Guid ToOneId { get; set; }
+        public int? ToOneId { get; set; }
         public TestModelBase ToOne { get; set; }
     }
 
@@ -16,6 +16,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests.TestModel
     {
         public TestModelToOneApiResource() : base()
         {
+            OfType("toOneData", "/toone");
             BelongsTo<TestModelApiResource>(nameof(TestModelToOne.ToOne), nameof(TestModelToOne.ToOneId));
         }
     }

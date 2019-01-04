@@ -8,9 +8,9 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests.TestModel
 {
     internal class TestModelCompound : TestModelBase
     {
-        public Guid BigDataId { get; set; }
+        public int? BigDataId { get; set; }
         public TestModelToN BigData { get; set; }
-        public Guid SmallDataId { get; set; }
+        public int? SmallDataId { get; set; }
         public TestModelToOne SmallData { get; set; }
     }
 
@@ -18,6 +18,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests.TestModel
     {
         public TestModelCompoundApiResource() : base()
         {
+            OfType("compoundData", "/compound");
             BelongsTo<TestModelToNApiResource>(nameof(TestModelCompound.BigData), nameof(TestModelCompound.BigDataId));
             BelongsTo<TestModelToOneApiResource>(nameof(TestModelCompound.SmallData), nameof(TestModelCompound.SmallDataId));
         }

@@ -18,20 +18,20 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
         [ClassInitialize]
         public static void InitializeTests(TestContext testContext)
         {
-            BtbrdCoreIdConverters.AddConverter(new BtbrdCoreIdConverter<Guid>(g => g.ToString(), gs => Guid.Parse(gs??string.Empty)));
+            //BtbrdCoreIdConverters.AddConverter(new BtbrdCoreIdConverter<Guid>(g => g.ToString(), gs => Guid.Parse(gs??string.Empty)));
+            BtbrdCoreIdConverters.AddConverter(new BtbrdCoreIdConverter<int?>(i => i.ToString(), s => int.TryParse(s, out var parsed)?(int?)parsed:null));
+            BtbrdCoreIdConverters.AddConverter(new BtbrdCoreIdConverter<int>(i => i.ToString(), s => int.TryParse(s, out var parsed) ? parsed : -1));
         }
-        
-
 
         [TestMethod]
         public void IncludeDeeplyNestedResourceTest()
         {
             // Setup
             var data = TestModelRepository.GetIncludeDeeplyNestedResourceTestData();
-            var jsonDocument = JsonApiDocumentExtensions.CreateDocumentFromApiResource<TestModelCompoundApiResource>(data);
+            var jsonDocument = JsonApiDocumentExtensions.CreateDocumentFromApiResource<TestModelCompoundApiResource>(data, @"http://test.com");
 
             // add includes
-            jsonDocument.IncludeRelation<TestModelCompoundApiResource>(data,"bigData.children.toOne"); // nicht generisch
+            jsonDocument.IncludeRelation<TestModelCompoundApiResource>(data,"bigData.children.toOne", @"http://test.com");
 
             // Serialize
             var jsonString = JsonConvert.SerializeObject(jsonDocument, Formatting.Indented);

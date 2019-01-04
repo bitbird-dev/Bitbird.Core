@@ -8,13 +8,14 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests.TestModel
 {
     internal class TestModelBase
     {
-        public Guid MyIdProperty { get; set; }
+        public int? MyIdProperty { get; set; }
     }
 
     internal class TestModelApiResource : JsonApiResource
     {
         public TestModelApiResource()
         {
+            OfType("singleData", "/singledata");
             WithId(nameof(TestModelBase.MyIdProperty));
         }
     }

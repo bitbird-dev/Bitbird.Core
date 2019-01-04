@@ -20,12 +20,12 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
         #region CreateDocumentFromApiResource
 
-        public static JsonApiDocument CreateDocumentFromApiResource<T>(object data) where T : JsonApiResource
+        public static JsonApiDocument CreateDocumentFromApiResource<T>(object data, string baseUrl = null) where T : JsonApiResource
         {
             T apiResource = Activator.CreateInstance<T>();
             JsonApiDocument document = null;
             document = new JsonApiDocument();
-            document.FromApiResource(data, apiResource);
+            document.FromApiResource(data, apiResource, baseUrl);
             return document;
         }
 
@@ -33,7 +33,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
         #region FromApiResource
 
-        public static void FromApiResource(this JsonApiDocument document, object data, JsonApiResource apiResource)
+        public static void FromApiResource(this JsonApiDocument document, object data, JsonApiResource apiResource, string baseUrl = null)
         {
             if(data == null) { return; }
             var collection = data as IEnumerable<object>;
@@ -43,16 +43,37 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
                 foreach (var item in collection)
                 {
                     var rObject = new JsonApiResourceObject();
-                    rObject.FromApiResource(item, apiResource);
+                    rObject.FromApiResource(item, apiResource, baseUrl);
                     resourceObjects.Add(rObject);
                 }
                 document.Data = resourceObjects;
+                if(!string.IsNullOrWhiteSpace(baseUrl))
+                {
+                    document.Links = new JsonApiLinksObject
+                    {
+                        Self = new JsonApiLink
+                        {
+                            Href = $"{baseUrl}{apiResource.UrlPath}"
+                        }
+                    };
+                }
+                
             }
             else
             {
                 var rObject = new JsonApiResourceObject();
-                rObject.FromApiResource(data, apiResource);
+                rObject.FromApiResource(data, apiResource, baseUrl);
                 document.Data = new List<JsonApiResourceObject> { rObject };
+                if (!string.IsNullOrWhiteSpace(baseUrl))
+                {
+                    document.Links = new JsonApiLinksObject
+                    {
+                        Self = new JsonApiLink
+                        {
+                            Href = $"{baseUrl}{apiResource.UrlPath}/{rObject.Id}"
+                        }
+                    };
+                }
             }
         }
 
@@ -60,12 +81,12 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
         #region IncludeRelation
         
-        public static void IncludeRelation<T_Resource>(this JsonApiDocument document, object data, string path) where T_Resource : JsonApiResource
+        public static void IncludeRelation<T_Resource>(this JsonApiDocument document, object data, string path, string baseUrl = null) where T_Resource : JsonApiResource
         {
-            document.IncludeRelation(Activator.CreateInstance<T_Resource>(), data, path);
+            document.IncludeRelation(Activator.CreateInstance<T_Resource>(), data, path, baseUrl);
         }
 
-        public static void IncludeRelation(this JsonApiDocument document, JsonApiResource dataApiResource, object data, string path)
+        public static void IncludeRelation(this JsonApiDocument document, JsonApiResource dataApiResource, object data, string path, string baseUrl = null)
         {
             // parse paths
             var subpaths = path.Split(new char[] { ',' });
@@ -79,7 +100,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
                         // generate tree
                         var includePathTree = GenerateIncludeTree(dataApiResource, includePath);
                         // process tree
-                        ProcessIncludeTree(document, includePathTree, item);
+                        ProcessIncludeTree(document, includePathTree, item, baseUrl);
                     }
                 }
             }
@@ -90,12 +111,12 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
                     // generate tree
                     var includePathTree = GenerateIncludeTree(dataApiResource, includePath);
                     // process tree
-                    ProcessIncludeTree(document, includePathTree, data);
+                    ProcessIncludeTree(document, includePathTree, data, baseUrl);
                 }
             }
         }
 
-        private static void ProcessIncludeTree(JsonApiDocument document, IncludePathNode includePathTree, object data)
+        private static void ProcessIncludeTree(JsonApiDocument document, IncludePathNode includePathTree, object data, string baseUrl)
         {
             var relationship = includePathTree.IncludeApiResourceRelationship;
             var dataType = data.GetType();
@@ -106,13 +127,13 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             if (relationship.Kind == RelationshipKind.BelongsTo)
             {
                 var jsonResourceObject = new JsonApiResourceObject();
-                jsonResourceObject.FromApiResource(value, relationship.RelatedResource);
+                jsonResourceObject.FromApiResource(value, relationship.RelatedResource, baseUrl);
                 if (document.Included == null) { document.Included = new JsonApi.Dictionaries.JsonApiResourceObjectDictionary(); }
                 document.Included.AddResource(jsonResourceObject);
                 if(includePathTree.Child != null)
                 {
                     // jump down the rabbit hole
-                    ProcessIncludeTree(document, includePathTree.Child, value);
+                    ProcessIncludeTree(document, includePathTree.Child, value, baseUrl);
                 }
                 
             }
@@ -125,12 +146,12 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
                     foreach (var item in collection)
                     {
                         var jsonResourceObject = new JsonApiResourceObject();
-                        jsonResourceObject.FromApiResource(item, relationship.RelatedResource);
+                        jsonResourceObject.FromApiResource(item, relationship.RelatedResource, baseUrl);
                         document.Included.AddResource(jsonResourceObject);
                         if (includePathTree.Child != null)
                         {
                             // jump down the rabbit hole
-                            ProcessIncludeTree(document, includePathTree.Child, item);
+                            ProcessIncludeTree(document, includePathTree.Child, item, baseUrl);
                         }
                     }
                 }
@@ -213,7 +234,17 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
         public static T_Result GetIncludedResource<T_Result,T_ResultApiResource>(this JsonApiDocument document, object id) where T_ResultApiResource : JsonApiResource where T_Result : class
         {
-            return document.Included?.GetResource(id, typeof(T_Result))?.ToObject<T_Result, T_ResultApiResource>();
+            return (T_Result)document.GetIncludedResource(id, typeof(T_Result), Activator.CreateInstance<T_ResultApiResource>());
+        }
+
+        public static T_Result GetIncludedResource<T_Result>(this JsonApiDocument document, object id, JsonApiResource apiResource) where T_Result : class
+        {
+            return (T_Result)document.GetIncludedResource(id, typeof(T_Result), apiResource);
+        }
+
+        public static object GetIncludedResource(this JsonApiDocument document, object id, Type type,JsonApiResource apiResource)
+        {
+            return document.Included?.GetResource(id, apiResource)?.ToObject(apiResource, type);
         }
     }
 }

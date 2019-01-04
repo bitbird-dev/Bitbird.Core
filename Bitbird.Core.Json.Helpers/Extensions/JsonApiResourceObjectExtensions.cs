@@ -13,7 +13,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 {
     public static class JsonApiResourceObjectExtensions
     {
-        internal static void FromApiResource(this JsonApiResourceObject resourceObject, object data, JsonApiResource apiResource)
+        internal static void FromApiResource(this JsonApiResourceObject resourceObject, object data, JsonApiResource apiResource, string baseUrl)
         {
             resourceObject.SetIdAndType(data, apiResource);
             foreach (var attr in apiResource.Attributes)
@@ -24,12 +24,22 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             {
                 if (realtionship.Kind == RelationshipKind.BelongsTo)
                 {
-                    resourceObject.AddToOneRelationship(data, realtionship);
+                    resourceObject.AddToOneRelationship(data, apiResource, realtionship, baseUrl);
                 }
                 else
                 {
-                    resourceObject.AddToManyRelationship(data, realtionship);
+                    resourceObject.AddToManyRelationship(data, apiResource, realtionship, baseUrl);
                 }
+            }
+            if (!string.IsNullOrWhiteSpace(baseUrl))
+            {
+                resourceObject.Links = new JsonApiLinksObject
+                {
+                    Self = new JsonApiLink
+                    {
+                        Href = $"{baseUrl}{apiResource.UrlPath}/{resourceObject.Id}"
+                    }
+                };
             }
         }
 
@@ -157,7 +167,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
         #region AddToOneRelationship
 
-        internal static void AddToOneRelationship(this JsonApiResourceObject resourceObject, object data, ResourceRelationship relationship)
+        internal static void AddToOneRelationship(this JsonApiResourceObject resourceObject, object data, JsonApiResource parentResource, ResourceRelationship relationship, string baseUrl)
         {
             string id = null;
             if (string.IsNullOrWhiteSpace(relationship.IdPropertyName))
@@ -178,9 +188,22 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
                     id = BtbrdCoreIdConverters.ConvertToString(value);
                 }
             }
-
-            if (resourceObject.Relationships == null) { resourceObject.Relationships = new Dictionary<string, JsonApiRelationshipObjectBase>(); }
+            
+            if (resourceObject.Relationships == null)
+            {
+                resourceObject.Relationships = new Dictionary<string, JsonApiRelationshipObjectBase>();
+            }
             JsonApiToOneRelationshipObject relation = new JsonApiToOneRelationshipObject();
+            if (!string.IsNullOrWhiteSpace(baseUrl))
+            {
+                relation.Links = new JsonApiRelationshipLinksObject
+                {
+                    Self = new JsonApiLink
+                    {
+                        Href = $"{baseUrl}{parentResource.UrlPath}/{resourceObject.Id}/relationships/{relationship.UrlPath}"
+                    }
+                };
+            }
             if (id != null)
             {
                 relation.Data = new JsonApiResourceIdentifierObject
@@ -188,6 +211,10 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
                     Id = id,
                     Type = relationship.RelatedResource.ResourceType
                 };
+                //relation.Links.Related = new JsonApiLink
+                //{
+                //    Href = $"<BASE>{relationship.RelatedResource.UrlPath}/{id}"
+                //};
             }
 
             resourceObject.Relationships.Add(relationship.Name, relation);
@@ -197,7 +224,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
         #region AddToManyRelationship
 
-        internal static void AddToManyRelationship(this JsonApiResourceObject resourceObject, object data, ResourceRelationship relationship)
+        internal static void AddToManyRelationship(this JsonApiResourceObject resourceObject, object data, JsonApiResource parentResource, ResourceRelationship relationship, string baseUrl)
         {
             IEnumerable<string> ids = null;
             if (string.IsNullOrWhiteSpace(relationship.IdPropertyName))
@@ -224,6 +251,16 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             
             if (resourceObject.Relationships == null) { resourceObject.Relationships = new Dictionary<string, JsonApiRelationshipObjectBase>(); }
             JsonApiToManyRelationshipObject relationshipCollection = new JsonApiToManyRelationshipObject();
+            if (!string.IsNullOrWhiteSpace(baseUrl))
+            {
+                relationshipCollection.Links = new JsonApiRelationshipLinksObject
+                {
+                    Self = new JsonApiLink
+                    {
+                        Href = $"{baseUrl}{parentResource.UrlPath}/{resourceObject.Id}/relationships/{relationship.UrlPath}"
+                    }
+                };
+            }
             if (ids != null)
             {
                 foreach (var id in ids)

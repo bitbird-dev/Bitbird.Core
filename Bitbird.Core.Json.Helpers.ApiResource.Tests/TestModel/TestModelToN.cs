@@ -8,7 +8,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests.TestModel
 {
     internal class TestModelToN : TestModelBase
     {
-        public IEnumerable<Guid> ChildrenIds { get; set; }
+        public IEnumerable<int> ChildrenIds { get; set; }
         public IEnumerable<TestModelToOne> Children { get; set; }
     }
 
@@ -16,6 +16,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests.TestModel
     {
         public TestModelToNApiResource() : base()
         {
+            OfType("toManyData", "/tomany");
             HasMany<TestModelToOneApiResource>(nameof(TestModelToN.Children), nameof(TestModelToN.ChildrenIds));
         }
     }
