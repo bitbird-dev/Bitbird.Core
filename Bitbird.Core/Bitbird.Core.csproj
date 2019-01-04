@@ -5,4 +5,9 @@
     <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Expressions\" />
+    <Folder Include="Query\" />
+  </ItemGroup>
+
 </Project>
