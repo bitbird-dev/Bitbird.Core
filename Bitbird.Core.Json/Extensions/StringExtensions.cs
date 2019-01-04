@@ -1,6 +1,7 @@
 ﻿using Bitbird.Core.Json.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Bitbird.Core.Json.Extensions
@@ -15,6 +16,11 @@ namespace Bitbird.Core.Json.Extensions
         public static string ToJsonRelationshipName(this string inputstring)
         {
             return StringUtils.ToSnakeCase(inputstring);
+        }
+
+        public static string FromCamelCaseToJsonCamelCase(this string expression)
+        {
+            return new string(expression.Select((c, idx) => idx == 0 ? char.ToLower(c) : c).ToArray());
         }
     }
 }
