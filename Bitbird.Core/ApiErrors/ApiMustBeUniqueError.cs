@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace Bitbird.Core.Data.Net
+namespace Bitbird.Core
 {
     public class ApiMustBeUniqueError<TEntity, TMember> : ApiError
     {

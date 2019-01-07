@@ -1,4 +1,4 @@
-﻿namespace Bitbird.Core.Data.Net
+﻿namespace Bitbird.Core.Log
 {
     public enum LogLevel
     {

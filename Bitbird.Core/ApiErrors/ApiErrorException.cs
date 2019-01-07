@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace Bitbird.Core.Data.Net
+namespace Bitbird.Core
 {
     public class ApiErrorException : Exception
     {

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Text;
-using Bitbird.Core.Data.Net.Extensions;
 using Bitbird.Core.Extensions;
 using Newtonsoft.Json;
 
-namespace Bitbird.Core.Data.Net
+namespace Bitbird.Core.Log
 {
     public class EventLogLogger : ILogger
     {

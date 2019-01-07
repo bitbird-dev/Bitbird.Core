@@ -1,14 +1,14 @@
 ﻿using System.Net;
 
-namespace Bitbird.Core.Data.Net
+namespace Bitbird.Core
 {
     public enum ApiErrorType
     {
-        [HttpStatusCode(StatusCode = (int)HttpStatusCode.Forbidden)]
+        [HttpStatusCode(StatusCode = HttpStatusCodeExtended.Forbidden)]
         ForbiddenNoLogin,
-        [HttpStatusCode(StatusCode = (int)HttpStatusCode.Forbidden)]
+        [HttpStatusCode(StatusCode = HttpStatusCodeExtended.Forbidden)]
         ForbiddenNoRights,
-        [HttpStatusCode(StatusCode = (int)HttpStatusCode.NotFound)]
+        [HttpStatusCode(StatusCode = HttpStatusCodeExtended.NotFound)]
         NotFound,
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.UnprocessableEntity)]
         MustBeUnique,
@@ -18,11 +18,11 @@ namespace Bitbird.Core.Data.Net
         InvalidParameter,
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.UnprocessableEntity)]
         InvalidEntity,
-        [HttpStatusCode(StatusCode = (int)HttpStatusCode.Unauthorized)]
+        [HttpStatusCode(StatusCode = HttpStatusCodeExtended.Unauthorized)]
         CredentialsAreInvalid,
-        [HttpStatusCode(StatusCode = (int)HttpStatusCode.Unauthorized)]
+        [HttpStatusCode(StatusCode = HttpStatusCodeExtended.Unauthorized)]
         UserIsLocked,
-        [HttpStatusCode(StatusCode = (int)HttpStatusCode.Unauthorized)]
+        [HttpStatusCode(StatusCode = HttpStatusCodeExtended.Unauthorized)]
         AuthenticationIsNotActive
     }
 }

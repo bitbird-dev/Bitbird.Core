@@ -89,22 +89,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApiErrors\ApiAttributeError.cs" />
-    <Compile Include="ApiErrors\ApiAttributeMustBeUniqueError.cs" />
-    <Compile Include="ApiErrors\ApiEntityError.cs" />
-    <Compile Include="ApiErrors\ApiError.cs" />
-    <Compile Include="ApiErrors\ApiErrorException.cs" />
-    <Compile Include="ApiErrors\ApiErrorType.cs" />
-    <Compile Include="ApiErrors\ApiForbiddenNoLoginError.cs" />
-    <Compile Include="ApiErrors\ApiForbiddenNoRightsError.cs" />
-    <Compile Include="ApiErrors\ApiInvalidCredentialsError.cs" />
-    <Compile Include="ApiErrors\ApiMustBeUniqueError.cs" />
-    <Compile Include="ApiErrors\ApiNotFoundError.cs" />
-    <Compile Include="ApiErrors\ApiParameterError.cs" />
-    <Compile Include="ApiErrors\ApiUserAuthInactiveError.cs" />
-    <Compile Include="ApiErrors\ApiUserIsLockedError.cs" />
-    <Compile Include="ApiErrors\HttpStatusCodeAttribute.cs" />
-    <Compile Include="ApiErrors\HttpStatusCodeExtended.cs" />
     <Compile Include="Cache\RedisCache.cs" />
     <Compile Include="Cache\RedisCacheInfo.cs" />
     <Compile Include="Context\ArithAbortOnInterceptor.cs" />
@@ -122,11 +106,6 @@
     <Compile Include="IsLocked\IIsLockedFlagEntity.cs" />
     <Compile Include="IsLocked\IsLockedFlagExtensions.cs" />
     <Compile Include="IsLocked\LockedState.cs" />
-    <Compile Include="Logging\ConsoleLogger.cs" />
-    <Compile Include="Logging\EventLogLogger.cs" />
-    <Compile Include="Logging\ILogger.cs" />
-    <Compile Include="Logging\Logging.cs" />
-    <Compile Include="Logging\LogLevel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tasks\AsyncHelper.cs" />
     <Compile Include="Tasks\ExclusiveSynchronizationContext.cs" />

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Bitbird.Core.Data.Net
+namespace Bitbird.Core
 {
     [AttributeUsage(AttributeTargets.Field)]
     public sealed class HttpStatusCodeAttribute : Attribute

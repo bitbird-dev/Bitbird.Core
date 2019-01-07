@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Bitbird.Core.Data.Net
+namespace Bitbird.Core.Log
 {
     public interface ILogger : IDisposable
     {

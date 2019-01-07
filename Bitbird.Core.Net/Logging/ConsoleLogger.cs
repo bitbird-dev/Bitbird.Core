@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Text;
-using Newtonsoft.Json;
 using Bitbird.Core.Extensions;
+using Newtonsoft.Json;
 
-namespace Bitbird.Core.Data.Net
+namespace Bitbird.Core.Log
 {
     public class ConsoleLogger : ILogger
     {
