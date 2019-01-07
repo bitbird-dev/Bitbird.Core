@@ -22,7 +22,7 @@ namespace Bitbird.Core.WebApi.Net
         public readonly HttpRequestMessage Request;
         public readonly Dictionary<Type, JsonApiResource> JsonApiResourceMappings;
 
-        internal JsonApiMediaTypeFormatter(JsonApiConfiguration config, HttpRequestMessage request = null)
+        public JsonApiMediaTypeFormatter(JsonApiConfiguration config, HttpRequestMessage request = null)
         {
             Config = config;
             Request = request;
