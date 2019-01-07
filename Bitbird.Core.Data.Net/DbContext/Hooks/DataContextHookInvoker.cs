@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Bitbird.Core.Data.Net.DbContext.Hooks
 {
-    internal class DataContextHookInvoker
+    public class DataContextHookInvoker
     {
         private readonly System.Data.Entity.DbContext context;
         private readonly DataContextHookCollection hooks;
