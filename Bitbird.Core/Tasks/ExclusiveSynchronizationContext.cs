@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Bitbird.Core.Data.Net.Tasks
+namespace Bitbird.Core.Tasks
 {
     internal class ExclusiveSynchronizationContext : SynchronizationContext
     {

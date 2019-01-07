@@ -3,7 +3,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Bitbird.Core.Data.Net.Tasks
+namespace Bitbird.Core.Tasks
 {
     public static class AsyncHelper
     {
