@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Reflection;
+using System.Web.Http;
 using Bitbird.Core.Extensions;
 using Bitbird.Core.Json.Extensions;
 using Bitbird.Core.WebApi.Net.Models;
@@ -17,6 +18,9 @@ namespace Bitbird.Core.WebApi.Net
 
         public static HttpResponseMessage ToJsonApiErrorResponseMessage(this Exception exc)
         {
+            if (exc is HttpResponseException hre && hre.Response?.Content is ObjectContent<JsonApiErrors> oc)
+                return hre.Response;
+
             var jsonApiErrors = exc.ToJsonApiErrors();
             var formatter = new JsonMediaTypeFormatter
             {
@@ -46,6 +50,27 @@ namespace Bitbird.Core.WebApi.Net
                 {
                     case ApiErrorException aee:
                         return aee.ToJsonApiErrorObjects();
+                    case HttpResponseException hre:
+                        return new[]
+                        {
+                            new JsonApiErrorObject
+                            {
+                                Id = Guid.NewGuid().ToString(),
+                                Code = ((int) HttpStatusCode.InternalServerError).ToString(),
+                                Detail = LogDetailledMessages ? $"{hre.Response?.Content}\n{hre}" : "Internal Server Error",
+                                Status = ((int) HttpStatusCode.InternalServerError).ToString(),
+                                Title = "Internal Server Error",
+                                Source = new JsonApiErrorSource
+                                {
+                                    Pointer = "/data",
+                                    Parameter = ""
+                                },
+                                Links = new JsonApiErrorLinks
+                                {
+                                    About = ""
+                                }
+                            }
+                        };
                 }
 
                 return new[]

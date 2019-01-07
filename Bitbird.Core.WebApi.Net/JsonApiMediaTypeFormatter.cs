@@ -22,7 +22,7 @@ namespace Bitbird.Core.WebApi.Net
         public readonly HttpRequestMessage Request;
         public readonly Dictionary<Type, JsonApiResource> JsonApiResourceMappings;
 
-        public JsonApiMediaTypeFormatter(JsonApiConfiguration config, HttpRequestMessage request = null)
+        internal JsonApiMediaTypeFormatter(JsonApiConfiguration config, HttpRequestMessage request = null)
         {
             Config = config;
             Request = request;
@@ -49,6 +49,7 @@ namespace Bitbird.Core.WebApi.Net
         public override MediaTypeFormatter GetPerRequestFormatterInstance(Type type, HttpRequestMessage request, MediaTypeHeaderValue mediaType)
             => new JsonApiMediaTypeFormatter(Config, request);
 
+
         /// <inheritdoc/>
         public override async Task<object> ReadFromStreamAsync(
             Type type,
@@ -69,20 +70,27 @@ namespace Bitbird.Core.WebApi.Net
                     if (type == typeof(JsonApiDocument))
                         return document;
 
-                    Func<object, JsonApiDocument, Func<string,bool>, object> pack = (o,d,p) => o;
+                    var typeForResource = type;
+                    
+                    Func<object, JsonApiDocument, Func<string,bool>, object> packContent = (o,d,p) => o;
+                    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                    {
+                        typeForResource = type.GetGenericArguments()[0];
+                    }
                     if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ContentInfo<>))
                     {
                         var contentInfoType = type;
-                        pack = (o, d, p) => Activator.CreateInstance(contentInfoType, o, d, p);
+                        packContent = (o, d, p) => Activator.CreateInstance(contentInfoType, o, d, p);
                         type = type.GetGenericArguments()[0];
+                        typeForResource = type;
                     }
 
-                    if (!JsonApiResourceMappings.TryGetValue(type, out var resource))
+                    if (!JsonApiResourceMappings.TryGetValue(typeForResource, out var resource))
                         throw new Exception($"No mapping from {type.FullName} to a {nameof(JsonApiResource)} was found.");
 
                     var data = document.ToObject(resource, type, out var foundAttributes);
 
-                    return pack(data, document, foundAttributes);
+                    return packContent(data, document, foundAttributes);
                 }
                 catch (Exception e)
                 {

@@ -220,57 +220,69 @@ namespace Bitbird.Core.Data.Net
             }
 
             var newVal = await valueFactory(id);
-            Set(prefix, id, newVal);
+            if (newVal != null)
+                Set(prefix, id, newVal);
             return newVal;
         }
 
-        public async Task<ICollection<T>> GetOrAddMany<TKey, T>(string prefix, IEnumerable<TKey> ids, Func<IEnumerable<TKey>, Task<IDictionary<TKey, T>>> valueFactory)
+        public async Task<T[]> GetOrAddMany<TKey, T>(string prefix, TKey[] ids, Func<TKey[], Task<T[]>> valueFactory)
         {
-            var ret = new List<T>();
             if (ids == null)
                 throw new ArgumentNullException(nameof(ids));
-
             if (valueFactory == null)
                 throw new ArgumentNullException(nameof(valueFactory));
-
+            
             if (!IsConnected)
-            {
-                return (await valueFactory(ids)).Values;
-            }
+                return await valueFactory(ids);
 
-            var keys = GetKeys(prefix, ids).ToDictionary(_ => _.Key, _ => _.Value);
-            var missingIds = new List<TKey>();
-            var storedVals = Db.StringGet(keys.Values.ToArray());
-            for (int i = 0; i < storedVals.Length; i++)
+            var ret = new T[ids.Length];
+
+            var keys = GetKeys(prefix, ids).ToArray();
+            var missing = new List<int>();
+            var storedValues = Db.StringGet(keys.Select(key => key.Value).ToArray());
+
+            for (var i = 0; i < storedValues.Length; i++)
             {
-                var storedVal = storedVals[i];
-                if (storedVal.HasValue)
+                var storedValue = storedValues[i];
+                if (storedValue.HasValue)
                 {
-                    T element;
                     try
                     {
-                        element = DeserializeObject<T>(storedVal);
+                        var element = DeserializeObject<T>(storedValue);
+
+                        if (element != null && !element.Equals(default(T)))
+                        {
+                            ret[i] = element;
+                            continue;
+                        }
                     }
                     catch
                     {
                         // ignored - cannot deserialize - must be refreshed
-                        missingIds.Add(keys.ElementAt(i).Key);
-                        break;
                     }
-                    if (element != null && !element.Equals(default(T)))
-                        ret.Add(element);
-                    else
-                        missingIds.Add(keys.ElementAt(i).Key);
                 }
-                else
-                    missingIds.Add(keys.ElementAt(i).Key);
+
+                missing.Add(i);
             }
-            if (missingIds.Any())
+
+            if (missing.Any())
             {
-                var missingElements = await valueFactory(missingIds);
-                ret.AddRange(missingElements.Values);
-                SetMany(prefix, missingElements);
+                var missingKeys = missing.Select(idx => keys[idx].Key).ToArray();
+                var missingElements = await valueFactory(missingKeys);
+
+                foreach (var i in missing)
+                    ret[i] = missingElements[i];
+
+                SetMany(prefix, missingKeys
+                    .Select((key, idx) => new
+                    {
+                        Key = key,
+                        Value = missingElements[idx]
+                    })
+                    .GroupBy(x => x.Key)
+                    .ToDictionary(x => x.Key, x => x.First()));
             }
+
             return ret;
         }
 
