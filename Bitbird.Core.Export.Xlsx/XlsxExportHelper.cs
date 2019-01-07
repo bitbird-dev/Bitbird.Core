@@ -20,31 +20,6 @@ namespace Bitbird.Core.Export.Xlsx
         public string Caption { get; set; }
     }
 
-    public class CreateTableException : Exception
-    {
-        public string Message2 { get; private set; }
-        public CreateTableException()
-        {
-        }
-
-        public CreateTableException(string message) : base(message)
-        {
-        }
-
-        public CreateTableException(string message, string message2, Exception innerException) : base(message, innerException)
-        {
-            Message2 = message2;
-        }
-
-        public CreateTableException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        protected CreateTableException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
-    }
-
     public static class XlsxExportHelper
     {
         public static object[][] CreateTableData<T>(XlsxExport export, T[] data)
