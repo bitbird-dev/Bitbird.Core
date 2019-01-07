@@ -22,13 +22,14 @@ namespace Bitbird.Core.WebApi.Net
         public readonly HttpRequestMessage Request;
         public readonly Dictionary<Type, JsonApiResource> JsonApiResourceMappings;
 
-        public JsonApiMediaTypeFormatter(JsonApiConfiguration config, HttpRequestMessage request = null)
+        public JsonApiMediaTypeFormatter(JsonApiConfiguration config, params Assembly[] assemblies)
         {
             Config = config;
-            Request = request;
+            Request = null;
 
-            JsonApiResourceMappings = Assembly.GetAssembly(typeof(JsonApiMediaTypeFormatter))
-                .GetTypes()
+            JsonApiResourceMappings = assemblies
+                .GroupBy(a => a.FullName)
+                .SelectMany(a => a.First().GetTypes())
                 .Where(t => typeof(JsonApiResource).IsAssignableFrom(t))
                 .Select(t => new
                 {
@@ -41,13 +42,20 @@ namespace Bitbird.Core.WebApi.Net
             SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/vnd.api+json"));
         }
 
+        private JsonApiMediaTypeFormatter(JsonApiConfiguration config, HttpRequestMessage request, Dictionary<Type, JsonApiResource> jsonApiResourceMappings)
+        {
+            Config = config;
+            Request = request;
+            JsonApiResourceMappings = jsonApiResourceMappings;
+        }
+
         /// <inheritdoc/>
         public override bool CanReadType(Type type) => true;
         /// <inheritdoc/>
         public override bool CanWriteType(Type type) => false;
         /// <inheritdoc/>
         public override MediaTypeFormatter GetPerRequestFormatterInstance(Type type, HttpRequestMessage request, MediaTypeHeaderValue mediaType)
-            => new JsonApiMediaTypeFormatter(Config, request);
+            => new JsonApiMediaTypeFormatter(Config, request, JsonApiResourceMappings);
 
 
         /// <inheritdoc/>
@@ -76,6 +84,7 @@ namespace Bitbird.Core.WebApi.Net
                     if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                     {
                         typeForResource = type.GetGenericArguments()[0];
+                        //type = typeForResource.MakeArrayType();
                     }
                     if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ContentInfo<>))
                     {
@@ -86,7 +95,7 @@ namespace Bitbird.Core.WebApi.Net
                     }
 
                     if (!JsonApiResourceMappings.TryGetValue(typeForResource, out var resource))
-                        throw new Exception($"No mapping from {type.FullName} to a {nameof(JsonApiResource)} was found.");
+                        throw new Exception($"No mapping from {typeForResource.FullName} to a {nameof(JsonApiResource)} was found.");
 
                     var data = document.ToObject(resource, type, out var foundAttributes);
 
