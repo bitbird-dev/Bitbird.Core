@@ -229,6 +229,12 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             return primaryResourceObjects.Select(r => r.ToObject<T_Result, T_Resource>()).ToList();
         }
 
+
+        public static IEnumerable<T> Cast<T>(IEnumerable<JsonApiResourceObject> data, JsonApiResource apiResource)
+        {
+            return data.Select(r => (T)r.ToObject(apiResource,typeof(T))).ToList();
+        }
+
         /// <summary>
         /// Extracts apiResource to an IEmumerable of type targetType.
         /// </summary>
@@ -244,7 +250,9 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             }
             var primaryResourceObjects = document.Data;
             if (primaryResourceObjects == null) throw new Exception("Json document contains no data.");
-            return primaryResourceObjects.Select(r => r.ToObject(apiResource, targetType)).ToList();
+
+            var method = typeof(JsonApiDocumentExtensions).GetMethod(nameof(JsonApiDocumentExtensions.Cast)).MakeGenericMethod(targetType);
+            return method.Invoke(null, new object[] { primaryResourceObjects, apiResource });
         }
 
         /// <summary>
