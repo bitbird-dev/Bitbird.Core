@@ -7,8 +7,8 @@
     <ProjectGuid>{5DEC161E-0E45-4186-AE5F-9656AE2FABB2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Bitbird.Core.Api.net</RootNamespace>
-    <AssemblyName>Bitbird.Core.Api.net</AssemblyName>
+    <RootNamespace>Bitbird.Core.Api.Net</RootNamespace>
+    <AssemblyName>Bitbird.Core.Api.Net</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -46,6 +46,9 @@
     <Compile Include="Calls\CallBase.cs" />
     <Compile Include="Calls\IPermissionValidation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+	<Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
