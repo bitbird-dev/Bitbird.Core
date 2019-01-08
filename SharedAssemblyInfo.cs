@@ -39,9 +39,6 @@ using System.Runtime.InteropServices;
 #endif
 
 
-[assembly: CLSCompliant(true)]
-
-
 // Setting ComVisible to false makes the types in this assembly not visible
 
 // to COM components.  If you need to access a type in this assembly from
@@ -88,6 +85,6 @@ namespace bla
 {
     internal static class VersionNumberHack
     {
-        public const string VersionNumber = "1.1.1.0";
+        public const string VersionNumber = "1.1.3.0";
     }
 }

@@ -37,6 +37,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{33AEFCD1-4CFB-46E9-A964-1D6DF7F70442}"
 	ProjectSection(SolutionItems) = preProject
 		SharedAssemblyInfo.cs = SharedAssemblyInfo.cs
+		SharedProperties.props = SharedProperties.props
 	EndProjectSection
 EndProject
 Global
