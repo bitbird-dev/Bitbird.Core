@@ -72,7 +72,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
                 }
             }
 
-#warning "better iterate over attributes and relations defined in the apiresource"
+            // TODO: better iterate over attributes and relations defined in the apiresource
 
             // extract attributes
             if(resourceObject.Attributes != null)

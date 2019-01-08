@@ -18,7 +18,7 @@ namespace Bitbird.Core.WebApi.Net
 
         public static HttpResponseMessage ToJsonApiErrorResponseMessage(this Exception exc)
         {
-            if (exc is HttpResponseException hre && hre.Response?.Content is ObjectContent<JsonApiErrors> oc)
+            if (exc is HttpResponseException hre)
                 return hre.Response;
 
             var jsonApiErrors = exc.ToJsonApiErrors();

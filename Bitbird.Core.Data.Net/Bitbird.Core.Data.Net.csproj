@@ -92,10 +92,13 @@
     <Compile Include="Cache\RedisCache.cs" />
     <Compile Include="Cache\RedisCacheInfo.cs" />
     <Compile Include="Context\ArithAbortOnInterceptor.cs" />
+    <Compile Include="DbContext\DbContextExtensions.cs" />
     <Compile Include="DbContext\Hooks\DataContextEntityHookEvents.cs" />
     <Compile Include="DbContext\Hooks\DataContextHookCollection.cs" />
     <Compile Include="DbContext\Hooks\DataContextHookInvoker.cs" />
+    <Compile Include="DbContext\Hooks\HookEventType.cs" />
     <Compile Include="DbContext\Hooks\IDataContextEntityHookEvents.cs" />
+    <Compile Include="DbContext\Hooks\EntityHookEvent.cs" />
     <Compile Include="IsActive\ActiveState.cs" />
     <Compile Include="IsActive\IIsActiveFlagEntity.cs" />
     <Compile Include="IsActive\IsActiveFlagExtensions.cs" />
@@ -108,8 +111,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Token\IToken.cs" />
     <Compile Include="Token\IUserToken.cs" />
-    <Compile Include="Token\TokenExtensions.cs" />
-    <Compile Include="Token\TokenValidity.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

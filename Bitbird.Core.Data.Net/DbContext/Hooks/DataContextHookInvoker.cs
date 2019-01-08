@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Bitbird.Core.Data.Net.DbContext.Hooks
 {
@@ -9,50 +9,77 @@ namespace Bitbird.Core.Data.Net.DbContext.Hooks
     {
         private readonly System.Data.Entity.DbContext context;
         private readonly DataContextHookCollection hooks;
-        private readonly Dictionary<EntityState, List<DbEntityEntry>> entries = new Dictionary<EntityState, List<DbEntityEntry>>
-        {
-            { EntityState.Added, new List<DbEntityEntry>() },
-            { EntityState.Deleted, new List<DbEntityEntry>() },
-            { EntityState.Modified, new List<DbEntityEntry>() }
-        };
+        private readonly EntityHookEvent[] addedEntries;
+        private readonly EntityHookEvent[] modifiedEntries;
+        private readonly EntityHookEvent[] deletedEntries;
 
         public DataContextHookInvoker(System.Data.Entity.DbContext context, DataContextHookCollection hooks)
         {
             this.context = context;
             this.hooks = hooks;
 
-            if (!(hooks?.HasHooks ?? false))
+            if (hooks == null)
+            {
+                addedEntries = null;
+                modifiedEntries = null;
+                deletedEntries = null;
                 return;
+            }
+
+            var addedEntriesList = new List<EntityHookEvent>();
+            var modifiedEntriesList = new List<EntityHookEvent>();
+            var deletedEntriesList = new List<EntityHookEvent>();
 
             foreach (var entry in context.ChangeTracker.Entries())
-                if (entries.TryGetValue(entry.State, out var list))
-                    list.Add(entry);
+            {
+                switch (entry.State)
+                {
+                    case EntityState.Added:
+                        addedEntriesList.Add(new EntityHookEvent(null, entry.Entity));
+                        break;
+                    case EntityState.Modified:
+                        var original = entry.OriginalValues.ToObject();
+                        modifiedEntriesList.Add(new EntityHookEvent(context.Entry(original).Entity, entry.Entity));
+                        break;
+                    case EntityState.Deleted:
+                        deletedEntriesList.Add(new EntityHookEvent(entry.Entity, null));
+                        break;
+                }
+            }
+
+            addedEntries = addedEntriesList.ToArray();
+            modifiedEntries = modifiedEntriesList.ToArray();
+            deletedEntries = deletedEntriesList.ToArray();
         }
 
-        public void InvokePreHooks()
+        public async Task InvokePreHooksAsync()
         {
-            if (!(hooks?.HasHooks ?? false) || (context.Configuration.ValidateOnSaveEnabled && entries.Values.Any(list => list.Any(x => !x.GetValidationResult().IsValid))))
+            if (hooks == null || (context.Configuration.ValidateOnSaveEnabled && context.ChangeTracker.Entries().Any(x => !x.GetValidationResult().IsValid)))
                 return;
 
-            foreach (var entry in entries[EntityState.Added])
-                hooks.InvokePreInsert(entry.Entity);
-            foreach (var entry in entries[EntityState.Modified])
-                hooks.InvokePreUpdate(entry.Entity);
-            foreach (var entry in entries[EntityState.Deleted])
-                hooks.InvokePreDelete(entry.Entity);
+            if (addedEntries.Length != 0)
+                await hooks.InvokePreInsertAsync(addedEntries);
+
+            if (modifiedEntries.Length != 0)
+                await hooks.InvokePreUpdateAsync(modifiedEntries);
+
+            if (deletedEntries.Length != 0)
+                await hooks.InvokePreDeleteAsync(deletedEntries);
         }
 
-        public void InvokePostHooks()
+        public async Task InvokePostHooksAsync()
         {
-            if (!(hooks?.HasHooks ?? false))
+            if (hooks == null)
                 return;
 
-            foreach (var entry in entries[EntityState.Added])
-                hooks.InvokePostInsert(entry.Entity);
-            foreach (var entry in entries[EntityState.Modified])
-                hooks.InvokePostUpdate(entry.Entity);
-            foreach (var entry in entries[EntityState.Deleted])
-                hooks.InvokePostDelete(entry.Entity);
+            if (addedEntries.Length != 0)
+                await hooks.InvokePostInsertAsync(addedEntries);
+
+            if (modifiedEntries.Length != 0)
+                await hooks.InvokePostUpdateAsync(modifiedEntries);
+
+            if (deletedEntries.Length != 0)
+                await hooks.InvokePostDeleteAsync(deletedEntries);
         }
     }
 }

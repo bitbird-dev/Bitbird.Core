@@ -1,12 +1,16 @@
-﻿namespace Bitbird.Core.Data.Net.DbContext.Hooks
+﻿using System.Threading.Tasks;
+
+namespace Bitbird.Core.Data.Net.DbContext.Hooks
 {
     public interface IDataContextEntityHookEvents
     {
-        void InvokePreInsert(object entity);
-        void InvokePostInsert(object entity);
-        void InvokePreDelete(object entity);
-        void InvokePostDelete(object entity);
-        void InvokePreUpdate(object entity);
-        void InvokePostUpdate(object entity);
+        Task InvokePreInsertAsync(EntityHookEvent[] entities);
+        Task InvokePostInsertAsync(EntityHookEvent[] entities);
+        Task InvokePreDeleteAsync(EntityHookEvent[] entities);
+        Task InvokePostDeleteAsync(EntityHookEvent[] entities);
+        Task InvokePreUpdateAsync(EntityHookEvent[] entitiesHookEvent);
+        Task InvokePostUpdateAsync(EntityHookEvent[] entitiesHookEvent);
+
+        IDataContextEntityHookEvents Clone();
     }
 }

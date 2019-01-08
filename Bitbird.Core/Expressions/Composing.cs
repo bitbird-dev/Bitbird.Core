@@ -18,7 +18,7 @@ namespace Bitbird.Core.Expressions
 
             for (var i = 1; i < expressions.Length; i++)
             {
-                var map = expressions[0].Parameters.Select((f, idx) => new { f, s = expressions[i].Parameters[idx] }).ToDictionary(p => p.s, p => p.f);
+                var map = expressions[0].Parameters.Select((f, idx) => new { f, s = expressions[i].Parameters[idx] }).ToDictionary(p => p.s, p => (Expression)p.f);
                 var iBody = ParameterRebinder.ReplaceParameters(map, expressions[i].Body);
                 body = merge(body, iBody);
             }
@@ -34,7 +34,7 @@ namespace Bitbird.Core.Expressions
 
             for (var i = 1; i < expressions.Length; i++)
             {
-                var map = expressions[0].Parameters.Select((f, idx) => new { f, s = expressions[i].Parameters[idx] }).ToDictionary(p => p.s, p => p.f);
+                var map = expressions[0].Parameters.Select((f, idx) => new { f, s = expressions[i].Parameters[idx] }).ToDictionary(p => p.s, p => (Expression)p.f);
                 var iBody = ParameterRebinder.ReplaceParameters(map, expressions[i].Body);
                 body = merge(body, iBody);
             }
@@ -51,7 +51,7 @@ namespace Bitbird.Core.Expressions
 
             for (var i = 1; i < expressionsEnumerated.Length; i++)
             {
-                var map = expressionsEnumerated[0].Parameters.Select((f, idx) => new { f, s = expressionsEnumerated[i].Parameters[idx] }).ToDictionary(p => p.s, p => p.f);
+                var map = expressionsEnumerated[0].Parameters.Select((f, idx) => new { f, s = expressionsEnumerated[i].Parameters[idx] }).ToDictionary(p => p.s, p => (Expression)p.f);
                 var iBody = ParameterRebinder.ReplaceParameters(map, expressionsEnumerated[i].Body);
                 body = merge(body, iBody);
             }
