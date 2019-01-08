@@ -5,21 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
 
 namespace Bitbird.Core.Export.Xlsx
 {
-    public class XlsxExport
-    {
-        public XlsxColumn[] Columns { get; set; }
-    }
-
-    public class XlsxColumn
-    {
-        public string Property { get; set; }
-        public string Caption { get; set; }
-    }
-
     public static class XlsxExportHelper
     {
         public static object[][] CreateTableData<T>(XlsxExport export, T[] data)
@@ -29,7 +17,7 @@ namespace Bitbird.Core.Export.Xlsx
                 Func<T, object> accessor;
                 try
                 {
-                    accessor = PropertiesHelper.GetDottedPropertyGetter<T>(c.Property);
+                    accessor = PropertiesHelper.GetDottedPropertyGetter<T, object>(c.Property);
                 }
                 catch (Exception e)
                 {

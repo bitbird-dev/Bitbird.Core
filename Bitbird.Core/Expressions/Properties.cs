@@ -7,15 +7,13 @@ namespace Bitbird.Core.Expressions
 {
     public static class PropertiesHelper
     {
-        public static LambdaExpression GetDottedPropertyGetterExpression(string dottedProperty, Type instanceType, Type castReturnValueType)
+        public static Expression GetDottedPropertyGetterExpressionBody(Expression instance, string dottedProperty, Type instanceType, Type castReturnValueType, out Type returnType)
         {
             try
             {
                 var path = dottedProperty.Split('.');
 
-                var param = Expression.Parameter(instanceType, "x");
-
-                Expression body = param;
+                var body = instance;
                 var bodyType = instanceType;
 
                 foreach (var node in path)
@@ -26,7 +24,26 @@ namespace Bitbird.Core.Expressions
                     bodyType = property.PropertyType;
                 }
 
-                body = Expression.Convert(body, castReturnValueType);
+                if (castReturnValueType != null)
+                {
+                    body = Expression.Convert(body, castReturnValueType);
+                    bodyType = castReturnValueType;
+                }
+
+                returnType = bodyType;
+                return body;
+            }
+            catch (Exception e)
+            {
+                throw new ExpressionBuildException($"Could not compile property '{dottedProperty}'.", e);
+            }
+        }
+        public static LambdaExpression GetDottedPropertyGetterExpression(string dottedProperty, Type instanceType, Type castReturnValueType = null)
+        {
+            try
+            {
+                var param = Expression.Parameter(instanceType, "x");
+                var body = GetDottedPropertyGetterExpressionBody(param, dottedProperty, instanceType, castReturnValueType, out _);
 
                 return Expression.Lambda(body, param);
             }

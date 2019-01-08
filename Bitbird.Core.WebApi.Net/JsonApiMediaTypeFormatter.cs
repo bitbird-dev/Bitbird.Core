@@ -84,7 +84,6 @@ namespace Bitbird.Core.WebApi.Net
                     if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                     {
                         typeForResource = type.GetGenericArguments()[0];
-                        //type = typeForResource.MakeArrayType();
                     }
                     if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ContentInfo<>))
                     {
