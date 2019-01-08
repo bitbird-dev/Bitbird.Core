@@ -226,7 +226,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         {
             var primaryResourceObjects = document.Data;
             if (primaryResourceObjects == null) throw new Exception("Json document contains no data.");
-            return primaryResourceObjects.Select(r => r.ToObject<T_Result, T_Resource>());
+            return primaryResourceObjects.Select(r => r.ToObject<T_Result, T_Resource>()).ToList();
         }
 
         /// <summary>
@@ -244,7 +244,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             }
             var primaryResourceObjects = document.Data;
             if (primaryResourceObjects == null) throw new Exception("Json document contains no data.");
-            return primaryResourceObjects.Select(r => r.ToObject(apiResource, targetType));
+            return primaryResourceObjects.Select(r => r.ToObject(apiResource, targetType)).ToList();
         }
 
         /// <summary>
