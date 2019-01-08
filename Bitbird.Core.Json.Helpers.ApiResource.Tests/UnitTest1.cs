@@ -99,8 +99,11 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
             };
             var doc = JsonApiDocumentExtensions.CreateDocumentFromApiResource<Model1Resource>(data);
             var jsonString = JsonConvert.SerializeObject(doc, Formatting.Indented);
+            var deserialized = JsonConvert.DeserializeObject<JsonApiDocument>(jsonString);
+            var res = deserialized.ToObject(Activator.CreateInstance<Model1Resource>(), typeof(IEnumerable<Model1>));
+            var res2 = deserialized.ToObject(Activator.CreateInstance<Model1Resource>(), typeof(Model1));
         }
-        
+
         [TestMethod] public void floTest()
         {
             var data = new Model1

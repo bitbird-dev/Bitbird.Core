@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <LangVersion>7.3</LangVersion>
-    <Version>1.1.1</Version>
   </PropertyGroup>
 
   <ItemGroup>

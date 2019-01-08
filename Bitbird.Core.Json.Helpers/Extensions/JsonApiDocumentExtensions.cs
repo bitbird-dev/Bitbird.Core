@@ -181,6 +181,17 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
         #region ToObject
 
+        /// <summary>
+        /// Extract primary Data from the JsonApiDocument.
+        /// </summary>
+        /// <typeparam name="T_Result">The Type of the exracted Data.</typeparam>
+        /// <typeparam name="T_Resource">The Type of JsonApiResource used to extract the Data.</typeparam>
+        /// <returns>An instance containing the model data.</returns>
+        /// <example>
+        /// <code>
+        /// ModelType m = jsonDocument.ToObject<ModelType, ModelTypeApiResource>();
+        /// </code>
+        /// </example>
         public static T_Result ToObject<T_Result, T_Resource>(this JsonApiDocument document) where T_Resource : JsonApiResource
         {
             var primaryResourceObject = document.Data.FirstOrDefault();
@@ -190,6 +201,19 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             return primaryResourceObject.ToObject<T_Result, T_Resource>();
         }
 
+        /// <summary>
+        /// Extract primary Data from the JsonApiDocument.
+        /// </summary>
+        /// <typeparam name="T_Result">The Type of the exracted Data.</typeparam>
+        /// <typeparam name="T_Resource">The Type of JsonApiResource used to extract the Data.</typeparam>
+        /// <param name="foundAttributes">A function to determine which attributes were found in the JsonDocument's primary data</param>
+        /// <returns>An instance containing the model data.</returns>
+        /// <example>
+        /// <code>
+        /// Func<string, bool> foundAttributes;
+        /// ModelType m = jsonDocument.ToObject<ModelType, ModelTypeApiResource>(out foundAttributes);
+        /// </code>
+        /// </example>
         public static T_Result ToObject<T_Result, T_Resource>(this JsonApiDocument document, out Func<string, bool> foundAttributes) where T_Resource : JsonApiResource
         {
             var attrs = document.Data.FirstOrDefault()?.Attributes;
@@ -197,6 +221,18 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             return document.ToObject<T_Result, T_Resource>();
         }
 
+        /// <summary>
+        /// Extract primary Data from the JsonApiDocument.
+        /// </summary>
+        /// <param name="apiResource">instance of JsonApiResource used to extract the Data.</param>
+        /// <param name="targetType">The Type of the exracted Data.</param>
+        /// <returns>An instance containing the model data.</returns>
+        /// <example>
+        /// <code>
+        /// var collection = jsonDocument.ToObject(Activator.CreateInstance<ModelTypeApiResource>(), typeof(IEnumerable<ModelType>));
+        /// var singleItem = jsonDocument.ToObject(Activator.CreateInstance<ModelTypeApiResource>(), typeof(ModelType));
+        /// </code>
+        /// </example>
         public static object ToObject(this JsonApiDocument document, JsonApiResource apiResource, Type targetType)
         {
             if (targetType.IsNonStringEnumerable())
@@ -211,6 +247,20 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             return primaryResourceObject.ToObject(apiResource, targetType);
         }
 
+        /// <summary>
+        /// Extract primary Data from the JsonApiDocument.
+        /// </summary>
+        /// <param name="apiResource">instance of JsonApiResource used to extract the Data.</param>
+        /// <param name="targetType">The Type of the exracted Data.</param>
+        /// <param name="foundAttributes">A function to determine which attributes were found in the JsonDocument's primary data</param>
+        /// <returns>An instance containing the model data.</returns>
+        /// <example>
+        /// <code>
+        /// Func<string, bool> foundAttributes;
+        /// var collection = jsonDocument.ToObject(Activator.CreateInstance<ModelTypeApiResource>(), typeof(IEnumerable<ModelType>, out foundAttributes));
+        /// var singleItem = jsonDocument.ToObject(Activator.CreateInstance<ModelTypeApiResource>(), typeof(ModelType), out foundAttributes);
+        /// </code>
+        /// </example>
         public static object ToObject(this JsonApiDocument document, JsonApiResource apiResource, Type targetType, out Func<string, bool> foundAttributes)
         {
             var attrs = document.Data.FirstOrDefault()?.Attributes;
@@ -228,9 +278,14 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             if (primaryResourceObjects == null) throw new Exception("Json document contains no data.");
             return primaryResourceObjects.Select(r => r.ToObject<T_Result, T_Resource>()).ToList();
         }
+        
+        public static IEnumerable<T_Result> ToObjectCollection<T_Result, T_Resource>(this JsonApiDocument document, out Func<int, string, bool> foundAttributes) where T_Resource : JsonApiResource
+        {
+            foundAttributes = (idx, attrName) => (document.Data.ElementAt(idx)?.Attributes?.ContainsKey(attrName.ToJsonAttributeName())).Value;
+            return document.ToObjectCollection<T_Result, T_Resource>();
+        }
 
-
-        public static IEnumerable<T> Cast<T>(IEnumerable<JsonApiResourceObject> data, JsonApiResource apiResource)
+        internal static IEnumerable<T> Cast<T>(IEnumerable<JsonApiResourceObject> data, JsonApiResource apiResource)
         {
             return data.Select(r => (T)r.ToObject(apiResource,typeof(T))).ToList();
         }
@@ -242,7 +297,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         /// <param name="apiResource"></param>
         /// <param name="targetType"></param>
         /// <returns></returns>
-        public static object ToObjectCollection(this JsonApiDocument document, JsonApiResource apiResource, Type targetType)
+        internal static object ToObjectCollection(this JsonApiDocument document, JsonApiResource apiResource, Type targetType)
         {
             if (targetType.IsNonStringEnumerable())
             {
@@ -251,27 +306,14 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             var primaryResourceObjects = document.Data;
             if (primaryResourceObjects == null) throw new Exception("Json document contains no data.");
 
-            var method = typeof(JsonApiDocumentExtensions).GetMethod(nameof(JsonApiDocumentExtensions.Cast)).MakeGenericMethod(targetType);
+            var method = typeof(JsonApiDocumentExtensions).GetMethod(nameof(JsonApiDocumentExtensions.Cast), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).MakeGenericMethod(targetType);
             return method.Invoke(null, new object[] { primaryResourceObjects, apiResource });
         }
-
-        /// <summary>
-        /// Extracts apiResource to an IEmumerable of type targetType.
-        /// </summary>
-        /// <param name="document"></param>
-        /// <param name="apiResource"></param>
-        /// <param name="targetType"></param>
-        /// <returns></returns>
-        public static object ToObjectCollection(this JsonApiDocument document, JsonApiResource apiResource, Type targetType, out Func<int, string, bool> foundAttributes)
+        
+        internal static object ToObjectCollection(this JsonApiDocument document, JsonApiResource apiResource, Type targetType, out Func<int, string, bool> foundAttributes)
         {
             foundAttributes = (idx, attrName) => (document.Data.ElementAt(idx)?.Attributes?.ContainsKey(attrName.ToJsonAttributeName())).Value;
             return document.ToObjectCollection(apiResource, targetType);
-        }
-
-        public static IEnumerable<T_Result> ToObjectCollection<T_Result, T_Resource>(this JsonApiDocument document, out Func<int, string, bool> foundAttributes) where T_Resource : JsonApiResource
-        {
-            foundAttributes = (idx, attrName) => (document.Data.ElementAt(idx)?.Attributes?.ContainsKey(attrName.ToJsonAttributeName())).Value;
-            return document.ToObjectCollection<T_Result, T_Resource>();
         }
 
         #endregion
