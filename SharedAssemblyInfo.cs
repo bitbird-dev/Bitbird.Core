@@ -85,6 +85,6 @@ namespace bla
 {
     internal static class VersionNumberHack
     {
-        public const string VersionNumber = "1.1.3.0";
+        public const string VersionNumber = "1.1.4.0";
     }
 }
