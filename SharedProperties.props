@@ -1,5 +1,9 @@
 <Project>
 	<PropertyGroup>
-		<Version>1.1.3</Version>
+		<versionprefix>1.1.3</versionprefix>
+    <Company>Bitbird GmbH</Company>
+    <Product>Bitbird.Core</Product>
+    <Copyright>Copyright © Bitbird GmbH 2019</Copyright>
+    <Authors>Bitbird GmbH</Authors>
 	</PropertyGroup>
 </Project>
