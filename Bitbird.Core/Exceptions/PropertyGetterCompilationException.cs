@@ -1,25 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Text;
 
 namespace Bitbird.Core.Exceptions
 {
-    class PropertyGetterCompilationException : Exception
+    public class ExpressionCompilationException : Exception
     {
-        public PropertyGetterCompilationException()
+        public ExpressionCompilationException(string message, Exception innerException) : base(message, innerException)
         {
         }
-
-        public PropertyGetterCompilationException(string message) : base(message)
-        {
-        }
-
-        public PropertyGetterCompilationException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        protected PropertyGetterCompilationException(SerializationInfo info, StreamingContext context) : base(info, context)
+    }
+    public class ExpressionBuildException : Exception
+    {
+        public ExpressionBuildException(string message, Exception innerException) : base(message, innerException)
         {
         }
     }

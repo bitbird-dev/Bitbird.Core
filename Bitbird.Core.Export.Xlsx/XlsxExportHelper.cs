@@ -29,7 +29,7 @@ namespace Bitbird.Core.Export.Xlsx
                 Func<T, object> accessor;
                 try
                 {
-                    accessor = PropertiesHelper.CompileDottedPropertyGetter<T>(c.Property);
+                    accessor = PropertiesHelper.GetDottedPropertyGetter<T>(c.Property);
                 }
                 catch (Exception e)
                 {
