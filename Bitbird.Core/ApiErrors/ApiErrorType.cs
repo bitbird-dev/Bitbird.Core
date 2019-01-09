@@ -18,6 +18,8 @@ namespace Bitbird.Core
         InvalidParameter,
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.UnprocessableEntity)]
         InvalidEntity,
+        [HttpStatusCode(StatusCode = HttpStatusCodeExtended.UnprocessableEntity)]
+        OptimisticLocking,
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.Unauthorized)]
         CredentialsAreInvalid,
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.Unauthorized)]

@@ -12,6 +12,7 @@ using Bitbird.Core.Json.Helpers.ApiResource;
 using Bitbird.Core.Json.Helpers.ApiResource.Extensions;
 using Bitbird.Core.Json.JsonApi;
 using Bitbird.Core.Query;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bitbird.Core.WebApi.Net
@@ -72,8 +73,15 @@ namespace Bitbird.Core.WebApi.Net
             {
                 try
                 {
-                    var json = JToken.Parse(await reader.ReadToEndAsync());
-                    var document = json.ToObject<JsonApiDocument>();
+                    JsonApiDocument document;
+
+                    using (JsonReader jsonReader = new JsonTextReader(reader))
+                    {
+                        jsonReader.DateParseHandling = DateParseHandling.None;
+
+                        var json = await JToken.LoadAsync(jsonReader);
+                        document = json.ToObject<JsonApiDocument>();
+                    }
 
                     if (type == typeof(JsonApiDocument))
                         return document;
