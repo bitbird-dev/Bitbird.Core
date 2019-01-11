@@ -85,13 +85,15 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
                     var targetProperty = targetType.GetProperty(resourceAttribute.PropertyName);
                     if (targetProperty == null) continue;
 
-                    // Not handled: DateTimeOffset(?), DateTime(?)[]
+                    // Not handled: ienumerables of datetime,datetimeoffset and nullables
 
                     var underlying = Nullable.GetUnderlyingType(targetProperty.PropertyType) ?? targetProperty.PropertyType;
 
                     var value = attribute.Value;
                     if (underlying == typeof(DateTime) && attribute.Value != null)
                         value = DateTime.Parse(value.ToString());
+                    else if (underlying == typeof(DateTimeOffset) && attribute.Value != null)
+                        value = DateTimeOffset.Parse(value.ToString());
 
                     targetProperty.SetValueFast(result, value);
                 }
