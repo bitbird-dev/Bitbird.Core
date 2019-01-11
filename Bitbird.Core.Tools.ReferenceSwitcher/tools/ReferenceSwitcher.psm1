@@ -83,6 +83,42 @@
         Write-Error $_.Exception
     }
 }
+
+$script:patternGuid = '([-A-Z0-9]+)';
+$script:patternName = '([-a-zA-Z0-9._]+)';
+$script:patternPath = '([-a-zA-Z0-9.:_\\]+)';
+$script:patternSlnProject = '[pP]roject\s*[(]\s*"{TYPE}"\s*[)]\s*=\s*"NAME"\s*,\s*"PATH"\s*,\s*"{PROJECT}"\s*[eE]nd[pP]roject\s*';
+
+
+
+#function Solution_GetAllProjects{
+#    param(
+#        [string] $SolutionFileContent
+#    )
+#	
+#    $pattern = $script:patternSlnProject.Replace("TYPE",$script:patternGuid).Replace("NAME",$script:patternName).Replace("PATH",$script:patternName).Replace("PROJECT", $script:patternGuid);
+#    $matches = [regex]::Matches($SolutionFileContent, $pattern);
+#
+#    foreach ($match in $matches) {
+#        $projectName = $match.Groups[1].Value
+#        $projectGuid = $match.Groups[3].Value;
+#    }
+#
+#	return $matches | %{ 
+#		new-object psobject -Property @{
+#			ProjectTypeGuid = $_.Groups[1].Value
+#			Name = $_.Groups[2].Value
+#			Path = $_.Groups[3].Value
+#			ProjectGuid = $_.Groups[3].Value
+#		}
+#	};
+#}
+#
+#Export-ModuleMember -Function Solution_GetAllProjects
+#Register-TabExpansion Solution_GetAllProjects @{
+#}
+
+
 function HandleSolution {
     param(
         [string] $Solution,
@@ -93,11 +129,7 @@ function HandleSolution {
     
     [string] $content = Get-Content $solution -Raw
     
-    $guidPattern = '([-A-Z0-9]+)'
-    $namePattern = '([-a-zA-Z0-9._]+)'
-    $pathPattern = '([-a-zA-Z0-9._\\]+)'
-    $projectPattern = '[pP]roject\s*[(]\s*"{TYPE}"\s*[)]\s*=\s*"NAME"\s*,\s*"PATH"\s*,\s*"{PROJECT}"\s*[eE]nd[pP]roject\s*'
-    $folderGuid = "2150E333-8FDC-42A3-9474-1A3956D46DE8";
+    $folderGuid = $Config.variables["ProjectTypeFolder"];
     $configPattern = '\s+{PROJECT}[.].*';
     $nestedPattern = '\s+{PROJECT}\s*=\s*.*';
     $nestedSectionStartPattern = '[gG]lobalSection\s*[(]\s*[nN]ested[pP]rojects\s*[)]\s*=\s*pre[sS]olution';
@@ -112,7 +144,7 @@ function HandleSolution {
 
     $rootGuid = $null;
     $rootName = $null;
-    $matches = [regex]::Matches($content, $projectPattern.Replace("TYPE",$folderGuid).Replace("NAME",$namePattern).Replace("PATH",$namePattern).Replace("PROJECT", $guidPattern));
+    $matches = [regex]::Matches($content, $script:patternSlnProject.Replace("TYPE",$folderGuid).Replace("NAME",$script:patternName).Replace("PATH",$script:patternName).Replace("PROJECT", $script:patternGuid));
     foreach ($match in $matches) {
         $projectName = $match.Groups[1].Value
         $projectGuid = $match.Groups[3].Value;
@@ -152,7 +184,7 @@ function HandleSolution {
     
     Write-Host "  handling folder .External"
     $externalGuid = [Guid]::NewGuid().ToString().ToUpper();
-    $match = [regex]::Match($content, $projectPattern.Replace("TYPE",$folderGuid).Replace("NAME",".External").Replace("PATH",".External").Replace("PROJECT", $guidPattern));
+    $match = [regex]::Match($content, $script:patternSlnProject.Replace("TYPE",$folderGuid).Replace("NAME",".External").Replace("PATH",".External").Replace("PROJECT", $script:patternGuid));
     if (-not $match.Success){
         Write-Host "    no project found, adding new"
         $insertContent = "Project(`"{TYPE}`") = `"NAME`", `"PATH`", `"{PROJECT}`"`r`nEndProject`r`n".Replace("TYPE", $folderGuid).Replace("NAME", ".External").Replace("PATH", ".External").Replace("PROJECT", $externalGuid);
@@ -181,7 +213,7 @@ function HandleSolution {
             Write-Host "  handling group $($ref.group)"
 
             $groupGuid = [Guid]::NewGuid().ToString().ToUpper();            
-            $match = [regex]::Match($content, $projectPattern.Replace("TYPE",$folderGuid).Replace("NAME", $ref.group).Replace("PATH", $ref.group).Replace("PROJECT", $guidPattern));
+            $match = [regex]::Match($content, $script:patternSlnProject.Replace("TYPE",$folderGuid).Replace("NAME", $ref.group).Replace("PATH", $ref.group).Replace("PROJECT", $script:patternGuid));
             if (-not $match.Success){
                 Write-Host "    no project found, adding new"
 
@@ -220,7 +252,7 @@ function HandleSolution {
     foreach ($ref in $Refs.Values){
         Write-Host "  handling ref $($ref.name)"
 
-        $match = [regex]::Match($content, $projectPattern.Replace("TYPE",$guidPattern).Replace("NAME",$namePattern).Replace("PATH",$pathPattern).Replace("PROJECT",($ref.local.project.ToUpper() | ReplaceVariables -Config $Config)));
+        $match = [regex]::Match($content, $script:patternSlnProject.Replace("TYPE",$script:patternGuid).Replace("NAME",$script:patternName).Replace("PATH",$script:patternPath).Replace("PROJECT",($ref.local.project.ToUpper() | ReplaceVariables -Config $Config)));
         
         if (-not $match.Success){
             Write-Host -NoNewline "    no existing ref"
