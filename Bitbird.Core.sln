@@ -40,6 +40,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		SharedProperties.props = SharedProperties.props
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Bitbird.Core.Tools.ReferenceSwitcher", "Bitbird.Core.Tools.ReferenceSwitcher", "{5763AE6D-5D2B-416D-B4D8-5FE0AA5D12DF}"
+	ProjectSection(SolutionItems) = preProject
+		Bitbird.Core.Tools.ReferenceSwitcher\Bitbird.Core.Tools.ReferenceSwitcher.nuspec = Bitbird.Core.Tools.ReferenceSwitcher\Bitbird.Core.Tools.ReferenceSwitcher.nuspec
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{565E511A-D8E4-403B-85ED-356ECC622ADF}"
+	ProjectSection(SolutionItems) = preProject
+		Bitbird.Core.Tools.ReferenceSwitcher\tools\init.ps1 = Bitbird.Core.Tools.ReferenceSwitcher\tools\init.ps1
+		Bitbird.Core.Tools.ReferenceSwitcher\tools\ReferenceSwitcher.psm1 = Bitbird.Core.Tools.ReferenceSwitcher\tools\ReferenceSwitcher.psm1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -297,6 +308,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{565E511A-D8E4-403B-85ED-356ECC622ADF} = {5763AE6D-5D2B-416D-B4D8-5FE0AA5D12DF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7F970483-6D84-4B58-9B0D-B4FB8745BD73}
