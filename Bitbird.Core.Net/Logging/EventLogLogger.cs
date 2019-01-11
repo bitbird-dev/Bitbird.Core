@@ -11,11 +11,9 @@ namespace Bitbird.Core.Log
         public readonly string Source;
         public readonly EventLog EventLog;
 
-        public EventLogLogger(string source)
+        public EventLogLogger(string log, string source)
         {
             Source = source;
-
-            const string log = "Application";
 
             if (!EventLog.SourceExists(source))
                 EventLog.CreateEventSource(source, log);

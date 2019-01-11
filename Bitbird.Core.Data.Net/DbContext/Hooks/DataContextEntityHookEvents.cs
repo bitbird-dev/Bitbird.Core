@@ -25,7 +25,7 @@ namespace Bitbird.Core.Data.Net.DbContext.Hooks
         IDataContextEntityHookEvents IDataContextEntityHookEvents.Clone() 
             => Clone();
         public DataContextEntityHookEvents<T> Clone() 
-            => new DataContextEntityHookEvents<T>(postEventAsyncHandlers, preEventAsyncHandlers);
+            => new DataContextEntityHookEvents<T>(postEventAsyncHandlers.ToList(), preEventAsyncHandlers.ToList());
 
         public void AddPostEventAsyncHandler(Func<EntityHookEvent<T>[], HookEventType, Task> handler)
             => postEventAsyncHandlers.Add(handler);
