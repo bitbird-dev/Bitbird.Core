@@ -10,6 +10,8 @@
     <PackageReference Include="Humanizer" Version="2.5.16" />
   </ItemGroup>
 
+  <Import Project="..\SharedProperties.props" /> 
+
   <ItemGroup>
     <ProjectReference Include="..\Bitbird.Core.Json.Helpers.Base\Bitbird.Core.Json.Helpers.Base.csproj" />
     <ProjectReference Include="..\Bitbird.Core.Json\Bitbird.Core.Json.csproj" />
