@@ -5,7 +5,6 @@
 [string] $script:guidSlnFramework = "FAE04EC0-301F-11D3-BF4B-00C04F79EFBC";
 [string] $script:guidSlnStandard = "9A19103F-16F7-4668-BE54-9A1E7A4F7556";
 [string] $script:guidSlnFolder = "2150E333-8FDC-42A3-9474-1A3956D46DE8";
-
 [string] $script:patternConfig = '([-a-zA-Z0-9_| ]+)';
 [string] $script:patternGuid = '([-A-Z0-9]+)';
 [string] $script:patternName = '([-a-zA-Z0-9._]+)';
@@ -16,12 +15,24 @@
 [string] $script:patternSlnProjectNonFolder = '[pP]roject\s*[(]\s*"{TYPE}"\s*[)]\s*=\s*"NAME"\s*,\s*"PATH"\s*,\s*"{PROJECT}"\s*[eE]nd[pP]roject\s*';
 [string] $script:slnProjectTemplate = "Project(`"{TYPE}`") = `"NAME`", `"PATH`", `"{PROJECT}`"`r`nEndProject`r`n";
 [string] $script:patternProjectInsertPosition = 'MinimumVisualStudioVersion\s*=\s*[0-9.]+\s*';
-[string] $script:patternSlnProjectNesting = '{PROJECT}\s*=\s{PARENT}';
+[string] $script:patternSlnProjectNesting = '{PROJECT}\s*=\s{PARENT}\s*';
 [string] $script:slnProjectNestingTemplate = "`r`n`t`t{PROJECT} = {PARENT}";
 [string] $script:patternSlnProjectConfig = '\s+{PROJECT}[.]SLNCONFIG[.]\S*\s*=\s*PROJETCONFIG';
 [string] $script:slnProjectConfigTemplate = "`r`n`t`t{PROJECT}.SLNCONFIG.ActiveCfg = PROJCONFIG`r`n`t`t{PROJECT}.SLNCONFIG.Build.0 = PROJCONFIG";
 [string] $script:patternSlnConfig = '\s+PLATFORMCFG\s*=\s*SLNCFG';
-
+[string] $script:patternPackagesEntry = '[<]package\s*id\s*=\s*"PROJECT"\s*version\s*=\s*"VERSION"\s*targetFramework\s*=\s*"TARGETFRAMEWORK"\s*[/][>]\s*';
+[string] $script:templatePackagesEntry = "<package id=""PROJECT"" version=""VERSION"" targetFramework=""TARGETFRAMEWORK"" />`r`n  ";
+[string] $script:patternPackagesInsertPosition = '[<]\s*packages\s*[>]\s*';
+[string] $script:patternProjectReferenceItemGroupPosition = '<ItemGroup>(\s*<Reference\s*Include)';
+[string] $script:templateProjectReference = "`r`n    <Reference Include=""INCLUDE"">`r`n      <HintPath>HINTPATH</HintPath>`r`n    </Reference>";
+[string] $script:templateProjectItemGroup = "`r`n  <ItemGroup>`r`n  </ItemGroup>";
+[int] $script:templateProjectItemGroupInsertIndex = "`r`n  <ItemGroup>".Length;
+[string] $script:patternProjectPropertyGroupEnd = '<[/]PropertyGroup>';
+[string] $script:patternProjectReference = '[<]\s*[rR]eference\s*[iI]nclude\s*=\s*"NAME,.*\s*.*\s*[<][/]\s*[rR]eference\s*[>]\s*';
+[string] $script:patternProjectProjectReference = '[<]\s*[pP]roject[rR]eference\s+.*\s*[<][pP]roject.*\s*[<]\s*[nN]ame\s*[>]NAME[<][/]\s*[nN]ame\s*[>]\s*[<][/]\s*[pP]roject[rR]eference\s*[>]\s*';
+[string] $script:templateProjectProjectReference = "`r`n    <ProjectReference Include=""INCLUDE"">`r`n      <Project>{PROJECT}</Project>`r`n      <Name>NAME</Name>`r`n    </ProjectReference>";
+[string] $script:patternProjectProjectReferenceItemGroupPosition = '<ItemGroup>(\s*<ProjectReference\s*Include)';
+[string] $script:patternProjectEmptyItemGroup = '\s*[<]\s*[iI]tem[gG]roup\s*[>]\s*[<][/]\s*[iI]tem[gG]roup\s*[>]';
 [hashtable] $script:patternsSlnSections = @{
 	NestedProjects = @{
 		Start = 'GlobalSection[(]NestedProjects[)] = preSolution';
@@ -83,7 +94,7 @@ function ReadSln {
 		$path = New-Object System.Collections.Generic.List[System.Object]
 		$namePath = New-Object System.Collections.Generic.List[System.Object]
 		
-		$node = $nesting;		
+		$node = $nesting;
 		do {
 			$path.Insert(0, $node.Parent);
 			$namePath.Insert(0, $projects[$node.Parent].Name);
@@ -167,9 +178,9 @@ function Get-SlnSection {
 	if (-not $match.Success) {
         throw [System.Exception] "Sln-GetSection: Could not find start of section ${$sectionName}."
 	}	
-	$startIdx = $match.Index + $match.Length;
+	[int] $startIdx = $match.Index + $match.Length;
 
-	$endIdx = -1;
+	[int] $endIdx = -1;
 	foreach ($match in [regex]::Matches($Content, $section["End"])){
 		if ($match.Index -gt $startIdx) {
 			$endIdx = $match.Index - 1;
@@ -243,20 +254,20 @@ function Remove-SlnProject {
 		[string] $Project
     )
 	
-	$pattern = $script:patternSlnProjectNonFolder | Substitute @{
+	[string] $pattern = $script:patternSlnProjectNonFolder | Substitute @{
 		TYPE = $script:patternGuid;
 		NAME = $script:patternName;
 		PATH = $script:patternPath;
 		PROJECT = $Project;
 	};
-	$Content = $Content | RemoveAllMatches [regex]::Matches($Content, $pattern);
+	$Content = $Content | RemoveAllMatches ([regex]::Matches($Content, $pattern));
 	
 	
 	$pattern = $script:patternSlnProjectNesting | Substitute @{
 		PROJECT = $Project;
 		PARENT = $script:patternGuid;
 	};
-	$Content = $Content | RemoveAllMatches [regex]::Matches(($Content | Get-SlnSection "NestedProjects"), $pattern);
+	$Content = $Content | RemoveAllMatches ([regex]::Matches(($Content | Get-SlnSection "NestedProjects"), $pattern));
 	
 	
 	$pattern = $script:patternSlnProjectConfig | Substitute @{
@@ -264,7 +275,7 @@ function Remove-SlnProject {
 		SLNCONFIG = $script:patternConfig;
 		PROJECTCONFIG = $script:patternConfig;
 	};
-	$Content = $Content | RemoveAllMatches [regex]::Matches(($Content | Get-SlnSection "ProjectConfigPlatforms"), $pattern);
+	$Content = $Content | RemoveAllMatches ([regex]::Matches(($Content | Get-SlnSection "ProjectConfigPlatforms"), $pattern));
 	
 	return $Content;
 }
@@ -275,30 +286,21 @@ function RewriteSln {
         $Config,
         [Hashtable] $Refs
     )
-    Write-Host "handling solution $($solution)"
+    Write-Host "handling solution $($Solution)"
     
-    [string] $content = Get-Content $solution -Raw;
+    [string] $content = Get-Content $Solution -Raw;
 	$sln = ReadSln $content;
-	
-    
-    $folderGuid = $Variables["ProjectTypeFolder"];
-    $configPattern = '\s+{PROJECT}[.].*';
-    $nestedPattern = '\s+{PROJECT}\s*=\s*.*';
-    $nestedSectionStartPattern = '[gG]lobalSection\s*[(]\s*[nN]ested[pP]rojects\s*[)]\s*=\s*pre[sS]olution';
-    $globalConfigPattern = '[gG]lobal[sS]ection\s*[(]\s*[sS]olution[cC]onfiguration[pP]latforms\s*[)]\s*=\s*pre[sS]olution(\s*([-a-zA-Z._| ()]+)\s*=\s([-a-zA-Z._| ()]+))+';
-    $configSectionStartPattern = '[gG]lobalSection\s*[(]\s*[pP]roject[cC]onfiguration[pP]latforms\s*[)]\s*=\s*post[sS]olution';
-
 
 	# .External
 	Write-Host "  adding folder .External";
 	$externalProject = $sln.Projects.Values | Where-Object { $_.Name -eq ".External" -and $_.Nesting.Parent -eq "" } | Select -First 1;
 	if ($externalProject) {
-			Write-Host "    existing project found";
-		$externalGuid = $externalProject.Guid;
+		Write-Host "    existing project found";
+		[string] $externalGuid = $externalProject.Guid;
 	}
 	else {
-		$externalGuid = [Guid]::NewGuid().ToString().ToUpper();
-		$content = $content | Add-SlnProject -Type $folderGuid -Name ".External" -Path ".External" -Project $externalGuid;
+		[string] $externalGuid = [Guid]::NewGuid().ToString().ToUpper();
+		$content = $content | Add-SlnProject -Type $Variables["ProjectTypeFolder"] -Name ".External" -Path ".External" -Project $externalGuid;
 	}
     Write-Host "";
 
@@ -315,11 +317,11 @@ function RewriteSln {
 		
 		if ($groupProject) {
 			Write-Host "    existing project found";
-			$groupGuid = $groupProject.Guid;			
+			[string] $groupGuid = $groupProject.Guid;			
 		}
 		else {			
-			$groupGuid = [Guid]::NewGuid().ToString().ToUpper();
-			$content = $content | Add-SlnProject -Type $folderGuid -Name $ref.group -Path $ref.group -Project $groupGuid -Nesting $externalGuid;
+			[string] $groupGuid = [Guid]::NewGuid().ToString().ToUpper();
+			$content = $content | Add-SlnProject -Type $Variables["ProjectTypeFolder"] -Name $ref.group -Path $ref.group -Project $groupGuid -Nesting $externalGuid;
 		}
 		$groupGuids[$ref.group] = $groupGuid; 
     }
@@ -334,8 +336,8 @@ function RewriteSln {
 			Write-Host "  removing ref $($ref.name)";
 		}
 		
-		$refGuid = $ref.local.project.ToUpper() | ReplaceVariables -Config $Config;
-		$groupGuid = $groupGuids[$ref.group];
+		[string] $refGuid = $ref.local.project.ToUpper() | ReplaceVariables -Config $Config;
+		[string] $groupGuid = $groupGuids[$ref.group];
 		
 		$refProject = $sln.Projects.Values | Where-Object { $_.Guid -eq $refGuid  -and $_.Nesting.Parent -eq $groupGuid } | Select -First 1;
         
@@ -351,16 +353,16 @@ function RewriteSln {
         }
 		
 		if ($ref.isLocal){
-			$projectType = $ref.local.projectType | ReplaceVariables -Config $Config;
-			$projectName = $ref.local.name | ReplaceVariables -Config $Config;
-			$projectPath = $ref.local.include | ReplaceVariables -Config $Config;
+			[string] $projectType = $ref.local.projectType | ReplaceVariables -Config $Config;
+			[string] $projectName = $ref.local.name | ReplaceVariables -Config $Config;
+			[string] $projectPath = $ref.local.include | ReplaceVariables -Config $Config;
 			
 			$projectConfigs = @{};
 			foreach ($slnConfig in $slnConfigs.Values) {
 				$projectConfig = $null;
 				foreach ($projConfigMapping in $ref.local.configs) {
 					if ($projConfigMapping.sln -eq $slnConfig) {
-						$projectConfig = $projConfigMapping.project;
+						[string] $projectConfig = $projConfigMapping.project;
 						break;
 					}
 				}
@@ -378,8 +380,11 @@ function RewriteSln {
 
     $content = $content.Trim();
     $content = $content.Replace("`r`n", "`n").Replace("`r", "").Replace("`n", "`r`n");
-
-    $content | Out-File $solution -Encoding utf8 -NoNewline
+	
+	return @{
+		$Solution = $content;
+	};
+    #$content | Out-File $Solution -Encoding utf8 -NoNewline
 }
 
 
@@ -387,20 +392,6 @@ function RewriteSln {
 #####################################
 #             PROJECTS
 #####################################
-
-[string] $script:patternPackagesEntry = '[<]package\s*id\s*=\s*"PROJECT"\s*version\s*=\s*"VERSION"\s*targetFramework\s*=\s*"TARGETFRAMEWORK"\s*[/][>]\s*';
-[string] $script:templatePackagesEntry = '<package id="PROJECT" version="VERSION" targetFramework="TARGETFRAMEWORK" />';
-[string] $script:patternPackagesInsertPosition = '[<]\s*packages\s*[>]';
-[string] $script:patternProjectReferenceItemGroupPosition = '<ItemGroup>\s*(<Reference\s*Include)';
-[string] $script:templateProjectReference = '`r`n    <Reference Include="INCLUDE">`r`n      <HintPath>HINTPATH</HintPath>`r`n    </Reference>';
-[string] $script:templateProjectItemGroup = '`r`n  <ItemGroup>`r`n  <ItemGroup>';
-[int] $script:templateProjectItemGroupInsertIndex = '`r`n  <ItemGroup>'.Length;
-[string] $script:patternProjectPropertyGroupEnd = '<[/]PropertyGroup>';
-[string] $script:patternProjectReference = '[<]\s*[rR]eference\s*[iI]nclude\s*=\s*"PROJECTNAME.*\s*.*\s*[<][/]\s*[rR]eference\s*[>]\s*';
-[string] $script:patternProjectProjectReference = '[<]\s*[pP]roject[rR]eference\s+.*\s*[<][pP]roject.*\s*[<]\s*[nN]ame\s*[>]NAME[<][/]\s*[nN]ame\s*[>]\s*[<][/]\s*[pP]roject[rR]eference\s*[>]\s*';
-[string] $script:templateProjectProjectReference = '`r`n    <ProjectReference Include="INCLUDE">`r`n      <Project>{PROJECT}</Project>`r`n      <Name>NAME</Name>`r`n    </ProjectReference>';
-[string] $script:patternProjectProjectReferenceItemGroupPosition = '<ItemGroup>\s*(<ProjectReference\s*Include)';
-[string] $script:patternProjectEmptyItemGroup = '\s*[<]\s*[iI]tem[gG]roup\s*[>]\s*[<][/]\s*[iI]tem[gG]roup\s*[>]';
 
 function Add-PackagesEntry {
     [cmdletbinding()]
@@ -456,10 +447,10 @@ function RewritePackagesFile {
 	
 	Write-Host "  updating packages.config"
 	
-    $filePath = [System.IO.Path]::Combine($Project.folder, "packages.config");    
-    $content = Get-Content $filePath -Raw
+    [string] $filePath = [System.IO.Path]::Combine($Project.folder, "packages.config");    
+    [string] $content = Get-Content $filePath -Raw
 	
-	foreach($usedRef in $project.usedRefs) {
+	foreach($usedRef in ($project.usedRefs | Reverse)) {
         if ($ref.isLocal) {
 			Write-Host "    removing ref $($usedRef)"
         }
@@ -468,11 +459,11 @@ function RewritePackagesFile {
 		}
 		
         $ref = $Refs[$usedRef];
-		
-		$refName            = $ref.nuget.name | ReplaceVariables -Config $Config;
-		$refVersion         = $ref.nuget.version | ReplaceVariables -Config $Config;
-		$refTargetFramework = $ref.nuget.targetFramework | ReplaceVariables -Config $Config;
-				
+
+		[string] $refName            = $ref.nuget.name | ReplaceVariables -Config $Config;
+		[string] $refVersion         = $ref.nuget.version | ReplaceVariables -Config $Config;
+		[string] $refTargetFramework = $ref.nuget.targetFramework | ReplaceVariables -Config $Config;
+
 		$content = $content | Remove-PackagesEntry $refName;
 				
         if (-not $ref.isLocal) {
@@ -481,8 +472,11 @@ function RewritePackagesFile {
     }
 
     $content = $content.Trim();
-
-    $content | Out-File $filePath -Encoding utf8 -NoNewline
+	
+	return @{
+		$filePath = $content;
+	};
+    #$content | Out-File $filePath -Encoding utf8 -NoNewline
 }
 
 function Add-ProjectItemGroup {
@@ -496,15 +490,15 @@ function Add-ProjectItemGroup {
 	if ($matches.Count -eq 0){
 		throw [System.Exception] "Add-ProjectItemGroup: Project file is ill-formatted, cannot find <PropertyGroup>-end-tag"
 	} 
-	$insertPosition = $matches[$matches.Count - 1].Index + $matches[$matches.Count - 1].Length;
+	[int] $insertPosition = $matches[$matches.Count - 1].Index + $matches[$matches.Count - 1].Length;
 
-	$insertContent = $script:templateProjectItemGroup;
+	[string] $insertContent = $script:templateProjectItemGroup;
 	$Content = $Content.insert($insertPosition, $insertContent);	
-	$insertIndex += $script:templateProjectItemGroupInsertIndex;
+	$insertPosition += $script:templateProjectItemGroupInsertIndex;
 	
 	return new-object psobject -Property @{
 			Content = $Content
-			InsertIndex = $insertIndex
+			InsertPosition = $insertPosition
 		};
 }
 function Remove-ProjectEmptyItemGroups {
@@ -527,12 +521,12 @@ function Add-ProjectReference {
 	
 	$match = [regex]::Match($Content, $script:patternProjectReferenceItemGroupPosition);
     if ($match.Success){
-		$insertPosition = $match.Groups[1].Index;
+		[int] $insertPosition = $match.Groups[1].Index;
     } 
 	else {	
 		$result = $Content | Add-ProjectItemGroup;
-		$content = $result.Content;
-		$insertPosition = $result.InsertPosition;
+		$Content = $result.Content;
+		[int] $insertPosition = $result.InsertPosition;
 	}
 	
 	$insertContent = $script:templateProjectReference | Substitute @{
@@ -550,7 +544,7 @@ function Remove-ProjectReference {
 		[string] $Name
     )
 	
-	$pattern = $script:patternProjectReference | Substitute @{
+	[string] $pattern = $script:patternProjectReference | Substitute @{
 		NAME = $Name;
 	};
 	
@@ -566,18 +560,18 @@ function Add-ProjectProjectReference {
 		[string] $Include
     )
 	
-	$match = [regex]::Match($Content, $script:patternProjectReferenceItemGroupPosition);
+	$match = [regex]::Match($Content, $script:patternProjectProjectReferenceItemGroupPosition);
     if ($match.Success){
-		$insertPosition = $match.Groups[1].Index;
+		[int] $insertPosition = $match.Groups[1].Index;
     } 
 	else {
 		$result = $Content | Add-ProjectItemGroup;
 		$Content = $result.Content;
-		$insertPosition = $result.InsertPosition;
+		[int] $insertPosition = $result.InsertPosition;
 	}
 	
-	$insertContent = $script:templateProjectProjectReference | Substitute @{
-		NAME = $Include;
+	[string] $insertContent = $script:templateProjectProjectReference | Substitute @{
+		NAME = $Name;
 		PROJECT = $Project;
 		INCLUDE = $Include;
 	};
@@ -592,8 +586,8 @@ function Remove-ProjectProjectReference {
 		[string] $Name
     )
 	
-	$pattern = $script:patternProjectProjectReference | Substitute @{
-		PROJECTNAME = $Name;
+	[string] $pattern = $script:patternProjectProjectReference | Substitute @{
+		NAME = $Name;
 	};
 	
 	return $Content | RemoveAllMatches ([regex]::Matches($Content, $pattern));
@@ -608,17 +602,17 @@ function RewriteProjectFile {
 	
 	Write-Host "  updating $($Project.projectFile)"
 
-    $filePath = [System.IO.Path]::Combine($Project.folder, $Project.projectFile);    
-    $content = Get-Content $filePath -Raw
+    [string] $filePath = [System.IO.Path]::Combine($Project.folder, $Project.projectFile);    
+    [string] $content = Get-Content $filePath -Raw
     
-    foreach($usedRef in $project.usedRefs) {
+    foreach($usedRef in ($project.usedRefs | Reverse)) {
         Write-Host "    handling ref $($usedRef)"
 
         $ref = $Refs[$usedRef];
 		
 		[string] $refLocalName = $ref.local.name | ReplaceVariables -Config $Config;
-		[string] $refNugetName = $ref.nuget.include | ReplaceVariables -Config $Config;
-		
+		[string] $refNugetName = $ref.nuget.name | ReplaceVariables -Config $Config;
+				
 		$content = $content | Remove-ProjectReference $refNugetName;
 		$content = $content | Remove-ProjectProjectReference $refLocalName;	
 		
@@ -628,12 +622,20 @@ function RewriteProjectFile {
 			[string] $include  = $ref.local.include | ReplaceVariables -Config $Config;
 			
 			$include  = [System.IO.Path]::Combine($projectFolderReverse,$include);
+			if ($include.StartsWith(".\") -or $include.StartsWith("./")){
+				$include = $include.Substring(2);
+			}
 			
 			$content = $content | Add-ProjectProjectReference -Include $include -Name $name -Project $project;
 		}
 		else {
 			[string] $include  = $ref.nuget.include | ReplaceVariables -Config $Config;
 			[string] $hintPath = $ref.nuget.hintPath | ReplaceVariables -Config $Config;
+			
+			$hintPath  = [System.IO.Path]::Combine($projectFolderReverse,$hintPath);
+			if ($hintPath.StartsWith(".\") -or $hintPath.StartsWith("./")){
+				$hintPath = $hintPath.Substring(2);
+			}
 			
 			$content = $content | Add-ProjectReference -Include $include -HintPath $hintPath;
 		}
@@ -642,7 +644,10 @@ function RewriteProjectFile {
     $content = $content | Remove-ProjectEmptyItemGroups;
     $content = $content.Trim();
 
-    $content | Out-File $filePath -Encoding utf8 -NoNewline
+	return @{
+		$filePath = $content;
+	};
+    #$content | Out-File $filePath -Encoding utf8 -NoNewline
 }
 
 function RewriteProject {
@@ -653,14 +658,16 @@ function RewriteProject {
     )
     Write-Host "handling project $($Project.projectFile) ($($Project.folder))"
 	
-    $projectFolderDeepLevel = $Project.folder.Split("\").Count;
-    $projectFolderReverse = ".";
+    [int] $projectFolderDeepLevel = $Project.folder.Split("\").Count;
+    [string] $projectFolderReverse = ".";
     for ($i=0; $i -lt $projectFolderDeepLevel; $i++) {
         $projectFolderReverse = "$($projectFolderReverse)\..";
     }
 	
-	RewritePackagesFile -Project $Project -Config $Config -Refs $Refs -ProjectFolderReverse $projectFolderReverse;
-	RewriteProjectFile -Project $Project -Config $Config -Refs $Refs -ProjectFolderReverse $projectFolderReverse;
+	$resuls = @{};
+	$results = $results | Merge-Hashtables (RewritePackagesFile -Project $Project -Config $Config -Refs $Refs -ProjectFolderReverse $projectFolderReverse);
+	$results = $results | Merge-Hashtables (RewriteProjectFile -Project $Project -Config $Config -Refs $Refs -ProjectFolderReverse $projectFolderReverse);
+	return $results;
 }
 
 
@@ -725,7 +732,31 @@ function Substitute {
 
     return $Content;
 }
+Function Merge-Hashtables {
+    [cmdletbinding()]
+    param(
+        [parameter(ValueFromPipeline)]
+		[Hashtable] $Left,
+		[parameter(Position = 0)]
+		[Hashtable] $Right
+    )
 
+	[Hashtable] $result = @{};
+
+	foreach ($kvp in $Left.GetEnumerator()) {
+		$result[$kvp.Name] = $kvp.Value;
+	}
+	foreach ($kvp in $Right.GetEnumerator()) {
+		$result[$kvp.Name] = $kvp.Value;
+	}
+
+	return $result;
+}
+function Reverse {
+	$arr = @($input);
+	[array]::reverse($arr);
+	return $arr;
+}
 
 
 #####################################
@@ -748,7 +779,7 @@ function Update-Project-Refs {
         [string] $Local = ""
         )
 
-    #try {
+    try {
         $config = Get-Content -Raw -Path "update-project-refs.json" | ConvertFrom-Json
                 
         $localGroups = @{};
@@ -756,18 +787,18 @@ function Update-Project-Refs {
             $localGroups[$localGroup.Trim()] = $true;
         }
 
-        $localRefs = [System.Collections.ArrayList]@();
-        $nugetRefs = [System.Collections.ArrayList]@();
+        $localRefs = New-Object System.Collections.Generic.List[System.Object];
+        $nugetRefs = New-Object System.Collections.Generic.List[System.Object];
         $refs = @{};
         foreach($ref in $config.refs) {
             $ref | Add-Member isLocal $localGroups.ContainsKey($ref.group);
             $refs[$ref.name] = $ref;
 
             if ($ref.isLocal){
-                $id = $localRefs.Add($ref);
+                [int] $id = $localRefs.Add($ref);
             }
             else {
-                $id = $nugetRefs.Add($ref);
+                [int] $id = $nugetRefs.Add($ref);
             }
         }
 
@@ -819,19 +850,27 @@ function Update-Project-Refs {
         }
         Write-Host "";
 
+		$results = @{};
         foreach($solution in $config.solutions) {
-            RewriteSln -Solution $solution -Variables $vars -Config $config -Refs $refs
+            $results = $results | Merge-Hashtables (RewriteSln -Solution $solution -Variables $vars -Config $config -Refs $refs);
+        }
+        foreach($project in $config.projects) { 
+            $results = $results | Merge-Hashtables (RewriteProject -Project $project -Config $config -Refs $refs);
         }
 
-        foreach($project in $config.projects) { 
-            RewriteProject -Project $project -Config $config -Refs $refs
-        }
-    #}
-    #catch {
-    #    Write-Error $_.Exception
-    #}
+		Write-Host "`r`nwriting results to disc...";
+		foreach ($entry in $results.GetEnumerator()){
+			$entry.Value | Out-File $entry.Name -Encoding utf8 -NoNewline
+		}
+		Write-Host "  done.";
+
+		Write-Host "`r`n`r`nATTENTION:`r`n  If Visual Studio shows a dialog with the option to 'Discard'`r`n  (i.e. discard Visual Studio's changes and reload the .sln-file'),`r`n  you had unsaved changes in the *.sln-file.`r`n  You might want to save them before running this command again.`r`n`r`n  If there is a dialog where the only possibiltiy is to 'Reload', DO it.`r`n  This is the case if you didn't have unsaved changes.`r`n`r`n  If there is no dialog at all, Visual Studio did not notice the changes in the *.sln-file.`r`n  In this case you need to Close and Reopen the solution.`r`n  This might happen for the solution only!`r`n  In this case Visual Studio reloads the projects but not the solution.";
+    }
+    catch {
+        Write-Error $_.Exception
+    }
 }
 Export-ModuleMember -Function Update-Project-Refs
-#Register-TabExpansion Update-Project-Refs @{
-#    Local = { GetRefGroups }
-#}
+Register-TabExpansion Update-Project-Refs @{
+    Local = { GetRefGroups }
+}
