@@ -5,6 +5,7 @@ using System.Text;
 using System.Linq;
 using Bitbird.Core.Json.Extensions;
 using Bitbird.Core.Json.Helpers.Base.Extensions;
+using System.Collections;
 
 namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 {
@@ -13,6 +14,116 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         public string PropertyPath { get; set; }
         public ResourceRelationship IncludeApiResourceRelationship {get; set;}
         public IncludePathNode Child { get; set; }
+    }
+
+    public static class JsonApiCollectionDocumentExtensions
+    {
+        #region CreateDocumentFromApiResource
+
+        public static JsonApiCollectionDocument CreateDocumentFromApiResource<T>(IEnumerable data, string baseUrl = null) where T : JsonApiResource
+        {
+            T apiResource = Activator.CreateInstance<T>();
+            var document = new JsonApiCollectionDocument();
+            document.FromApiResource(data, apiResource, baseUrl);
+            return document;
+        }
+
+        #endregion
+
+        #region FromApiResource
+
+        public static void FromApiResource(this JsonApiCollectionDocument document, IEnumerable data, JsonApiResource apiResource, string baseUrl = null)
+        {
+            if (data == null) { return; }
+            List<JsonApiResourceObject> resourceObjects = new List<JsonApiResourceObject>();
+            foreach (var item in data)
+            {
+                var rObject = new JsonApiResourceObject();
+                rObject.FromApiResource(item, apiResource, baseUrl);
+                resourceObjects.Add(rObject);
+            }
+            document.Data = resourceObjects;
+            if (!string.IsNullOrWhiteSpace(baseUrl))
+            {
+                document.Links = new JsonApiLinksObject
+                {
+                    Self = new JsonApiLink
+                    {
+                        Href = $"{baseUrl}{apiResource.UrlPath}"
+                    }
+                };
+            }
+        }
+
+        #endregion
+        
+        #region ToObjectCollection
+
+        public static IEnumerable<T_Result> ToObjectCollection<T_Result, T_Resource>(this JsonApiCollectionDocument document) where T_Resource : JsonApiResource
+        {
+            var primaryResourceObjects = document.Data;
+            if (primaryResourceObjects == null) throw new Exception("Json document contains no data.");
+            return primaryResourceObjects.Select(r => r.ToObject<T_Result, T_Resource>()).ToList();
+        }
+
+        public static IEnumerable<T_Result> ToObjectCollection<T_Result, T_Resource>(this JsonApiCollectionDocument document, out Func<int, string, bool> foundAttributes) where T_Resource : JsonApiResource
+        {
+            foundAttributes = (idx, attrName) => (document.Data.ElementAt(idx)?.Attributes?.ContainsKey(attrName.ToJsonAttributeName())).Value;
+            return document.ToObjectCollection<T_Result, T_Resource>();
+        }
+
+        internal static IEnumerable<T> Cast<T>(IEnumerable<JsonApiResourceObject> data, JsonApiResource apiResource)
+        {
+            return data.Select(r => (T)r.ToObject(apiResource, typeof(T))).ToList();
+        }
+
+        /// <summary>
+        /// Extracts apiResource to an IEmumerable of type targetType.
+        /// </summary>
+        /// <param name="document"></param>
+        /// <param name="apiResource"></param>
+        /// <param name="targetType"></param>
+        /// <returns></returns>
+        public static object ToObjectCollection(this JsonApiCollectionDocument document, JsonApiResource apiResource, Type targetType)
+        {
+            if (targetType.IsNonStringEnumerable())
+            {
+                throw new Exception("Do not use a collection as target type!");
+            }
+            var primaryResourceObjects = document.Data;
+            if (primaryResourceObjects == null) throw new Exception("Json document contains no data.");
+
+            var method = typeof(JsonApiCollectionDocumentExtensions).GetMethod(nameof(JsonApiCollectionDocumentExtensions.Cast), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).MakeGenericMethod(targetType);
+            return method.Invoke(null, new object[] { primaryResourceObjects, apiResource });
+        }
+
+        public static object ToObjectCollection(this JsonApiCollectionDocument document, JsonApiResource apiResource, Type targetType, out Func<int, string, bool> foundAttributes)
+        {
+            foundAttributes = (idx, attrName) => (document.Data.ElementAt(idx)?.Attributes?.ContainsKey(attrName.ToJsonAttributeName())).Value;
+            return document.ToObjectCollection(apiResource, targetType);
+        }
+
+        #endregion
+
+        #region GetIncludedResource
+
+        public static T_Result GetIncludedResource<T_Result, T_ResultApiResource>(this JsonApiCollectionDocument document, object id) where T_ResultApiResource : JsonApiResource where T_Result : class
+        {
+            return (T_Result)document.GetIncludedResource(id, typeof(T_Result), Activator.CreateInstance<T_ResultApiResource>());
+        }
+
+        public static T_Result GetIncludedResource<T_Result>(this JsonApiCollectionDocument document, object id, JsonApiResource apiResource) where T_Result : class
+        {
+            return (T_Result)document.GetIncludedResource(id, typeof(T_Result), apiResource);
+        }
+
+        public static object GetIncludedResource(this JsonApiCollectionDocument document, object id, Type type, JsonApiResource apiResource)
+        {
+            return document.Included?.GetResource(id, apiResource)?.ToObject(apiResource, type);
+        }
+
+        #endregion
+
     }
 
     public static class JsonApiDocumentExtensions
@@ -36,34 +147,15 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         public static void FromApiResource(this JsonApiDocument document, object data, JsonApiResource apiResource, string baseUrl = null)
         {
             if(data == null) { return; }
-            var collection = data as IEnumerable<object>;
-            if(collection != null)
+            if(data is IEnumerable<object> enumCollection)
             {
-                List<JsonApiResourceObject> resourceObjects = new List<JsonApiResourceObject>();
-                foreach (var item in collection)
-                {
-                    var rObject = new JsonApiResourceObject();
-                    rObject.FromApiResource(item, apiResource, baseUrl);
-                    resourceObjects.Add(rObject);
-                }
-                document.Data = resourceObjects;
-                if(!string.IsNullOrWhiteSpace(baseUrl))
-                {
-                    document.Links = new JsonApiLinksObject
-                    {
-                        Self = new JsonApiLink
-                        {
-                            Href = $"{baseUrl}{apiResource.UrlPath}"
-                        }
-                    };
-                }
-                
+                throw new Exception("data cannot be a collection");
             }
             else
             {
                 var rObject = new JsonApiResourceObject();
                 rObject.FromApiResource(data, apiResource, baseUrl);
-                document.Data = new List<JsonApiResourceObject> { rObject };
+                document.Data = rObject;
                 if (!string.IsNullOrWhiteSpace(baseUrl))
                 {
                     document.Links = new JsonApiLinksObject
@@ -194,7 +286,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         /// </example>
         public static T_Result ToObject<T_Result, T_Resource>(this JsonApiDocument document) where T_Resource : JsonApiResource
         {
-            var primaryResourceObject = document.Data.FirstOrDefault();
+            var primaryResourceObject = document.Data;
             if (primaryResourceObject == null) throw new Exception("Json document contains no data.");
 
             // extract primary data
@@ -216,7 +308,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         /// </example>
         public static T_Result ToObject<T_Result, T_Resource>(this JsonApiDocument document, out Func<string, bool> foundAttributes) where T_Resource : JsonApiResource
         {
-            var attrs = document.Data.FirstOrDefault()?.Attributes;
+            var attrs = document.Data.Attributes;
             foundAttributes = (attrName) => attrs != null ? attrs.ContainsKey(attrName.ToJsonAttributeName()) : false;
             return document.ToObject<T_Result, T_Resource>();
         }
@@ -240,7 +332,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
                 var innerType = targetType.GenericTypeArguments[0];
                 return document.ToObjectCollection(apiResource, innerType);
             }
-            var primaryResourceObject = document.Data.FirstOrDefault();
+            var primaryResourceObject = document.Data;
             if (primaryResourceObject == null) throw new Exception("Json document contains no data.");
 
             // extract primary data
@@ -263,7 +355,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         /// </example>
         public static object ToObject(this JsonApiDocument document, JsonApiResource apiResource, Type targetType, out Func<string, bool> foundAttributes)
         {
-            var attrs = document.Data.FirstOrDefault()?.Attributes;
+            var attrs = document.Data.Attributes;
             foundAttributes = (attrName) => attrs != null ? attrs.ContainsKey(attrName.ToJsonAttributeName()) : false;
             return document.ToObject(apiResource, targetType);
         }
@@ -274,20 +366,20 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
         public static IEnumerable<T_Result> ToObjectCollection<T_Result, T_Resource>(this JsonApiDocument document) where T_Resource : JsonApiResource
         {
-            var primaryResourceObjects = document.Data;
-            if (primaryResourceObjects == null) throw new Exception("Json document contains no data.");
-            return primaryResourceObjects.Select(r => r.ToObject<T_Result, T_Resource>()).ToList();
+            var primaryResourceObject = document.Data;
+            if (primaryResourceObject == null) throw new Exception("Json document contains no data.");
+            return new List<T_Result> { primaryResourceObject.ToObject<T_Result, T_Resource>() };
         }
         
-        public static IEnumerable<T_Result> ToObjectCollection<T_Result, T_Resource>(this JsonApiDocument document, out Func<int, string, bool> foundAttributes) where T_Resource : JsonApiResource
+        public static IEnumerable<T_Result> ToObjectCollection<T_Result, T_Resource>(this JsonApiDocument document, out Func<string, bool> foundAttributes) where T_Resource : JsonApiResource
         {
-            foundAttributes = (idx, attrName) => (document.Data.ElementAt(idx)?.Attributes?.ContainsKey(attrName.ToJsonAttributeName())).Value;
+            foundAttributes = (attrName) => (document.Data?.Attributes?.ContainsKey(attrName.ToJsonAttributeName())).Value;
             return document.ToObjectCollection<T_Result, T_Resource>();
         }
 
-        internal static IEnumerable<T> Cast<T>(IEnumerable<JsonApiResourceObject> data, JsonApiResource apiResource)
+        internal static IEnumerable<T> Cast<T>(JsonApiResourceObject data, JsonApiResource apiResource)
         {
-            return data.Select(r => (T)r.ToObject(apiResource,typeof(T))).ToList();
+            return new List<T> { (T)data.ToObject(apiResource, typeof(T)) };
         }
 
         /// <summary>
@@ -297,26 +389,28 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         /// <param name="apiResource"></param>
         /// <param name="targetType"></param>
         /// <returns></returns>
-        internal static object ToObjectCollection(this JsonApiDocument document, JsonApiResource apiResource, Type targetType)
+        public static object ToObjectCollection(this JsonApiDocument document, JsonApiResource apiResource, Type targetType)
         {
             if (targetType.IsNonStringEnumerable())
             {
                 throw new Exception("Do not use a collection as target type!");
             }
-            var primaryResourceObjects = document.Data;
-            if (primaryResourceObjects == null) throw new Exception("Json document contains no data.");
+            var primaryResourceObject = document.Data;
+            if (primaryResourceObject == null) throw new Exception("Json document contains no data.");
 
             var method = typeof(JsonApiDocumentExtensions).GetMethod(nameof(JsonApiDocumentExtensions.Cast), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).MakeGenericMethod(targetType);
-            return method.Invoke(null, new object[] { primaryResourceObjects, apiResource });
+            return method.Invoke(null, new object[] { primaryResourceObject, apiResource });
         }
         
-        internal static object ToObjectCollection(this JsonApiDocument document, JsonApiResource apiResource, Type targetType, out Func<int, string, bool> foundAttributes)
+        public static object ToObjectCollection(this JsonApiDocument document, JsonApiResource apiResource, Type targetType, out Func<string, bool> foundAttributes)
         {
-            foundAttributes = (idx, attrName) => (document.Data.ElementAt(idx)?.Attributes?.ContainsKey(attrName.ToJsonAttributeName())).Value;
+            foundAttributes = (attrName) => (document.Data.Attributes?.ContainsKey(attrName.ToJsonAttributeName())).Value;
             return document.ToObjectCollection(apiResource, targetType);
         }
 
         #endregion
+
+        #region GetIncludedResource
 
         public static T_Result GetIncludedResource<T_Result,T_ResultApiResource>(this JsonApiDocument document, object id) where T_ResultApiResource : JsonApiResource where T_Result : class
         {
@@ -332,5 +426,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         {
             return document.Included?.GetResource(id, apiResource)?.ToObject(apiResource, type);
         }
+
+        #endregion
     }
 }

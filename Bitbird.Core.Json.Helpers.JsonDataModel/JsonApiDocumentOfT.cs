@@ -12,57 +12,57 @@ using System.Text;
 
 namespace Bitbird.Core.Json.Helpers.JsonDataModel
 {
-    public class JsonApiDocument<T> : JsonApiDocument where T : IJsonApiDataModel
+    public class JsonApiCollectionDocument<T> : JsonApiCollectionDocument where T : IJsonApiDataModel
     {
 
         #region Constructor
 
-        public JsonApiDocument()
+        public JsonApiCollectionDocument()
         {
         }
 
-        public JsonApiDocument(IEnumerable<T> data)
+        public JsonApiCollectionDocument(IEnumerable<T> data)
         {
             SetupResources(data);
         }
 
-        public JsonApiDocument(IEnumerable<T> data, Uri queryString)
+        public JsonApiCollectionDocument(IEnumerable<T> data, Uri queryString)
         {
             SetupResources(data, queryString);
             SetupLinks(queryString);
         }
 
-        public JsonApiDocument(T data)
+        public JsonApiCollectionDocument(T data)
         {
             SetupResources(data);
         }
 
-        public JsonApiDocument(T data, Uri queryString)
+        public JsonApiCollectionDocument(T data, Uri queryString)
         {
             SetupResources(data, queryString);
             SetupLinks(queryString);
         }
 
-        public JsonApiDocument(IEnumerable<T> data, IEnumerable<PropertyInfo> includedTypes)
+        public JsonApiCollectionDocument(IEnumerable<T> data, IEnumerable<PropertyInfo> includedTypes)
         {
             SetupResources(data);
             SetupIncludes(data, includedTypes);
         }
 
-        public JsonApiDocument(IEnumerable<T> data, IEnumerable<PropertyInfo> includedTypes, Uri queryString)
+        public JsonApiCollectionDocument(IEnumerable<T> data, IEnumerable<PropertyInfo> includedTypes, Uri queryString)
         {
             SetupResources(data, queryString);
             SetupIncludes(data, includedTypes, queryString);
             SetupLinks(queryString);
         }
 
-        public JsonApiDocument(T data, IEnumerable<PropertyInfo> includedTypes)
+        public JsonApiCollectionDocument(T data, IEnumerable<PropertyInfo> includedTypes)
         {
             SetupResources(data);
             SetupIncludes(data, includedTypes);
         }
 
-        public JsonApiDocument(T data, IEnumerable<PropertyInfo> includedTypes, Uri queryString)
+        public JsonApiCollectionDocument(T data, IEnumerable<PropertyInfo> includedTypes, Uri queryString)
         {
             SetupResources(data, queryString);
             SetupIncludes(data, includedTypes, queryString);

@@ -26,8 +26,8 @@ namespace Bitbird.Core.Json.Tests.JsonApi
         {
             var modelIdNull = new arr();
             var modelIdNotNull = new arr { Id = 112314, MyProperty = "muh" };
-            var docIdNull = new JsonApiDocument<arr>(modelIdNull);
-            var docIdNotNull = new JsonApiDocument<arr>(modelIdNotNull);
+            var docIdNull = new JsonApiCollectionDocument<arr>(modelIdNull);
+            var docIdNotNull = new JsonApiCollectionDocument<arr>(modelIdNotNull);
 
             var jsonIdNull = JsonConvert.SerializeObject(docIdNull);
             var jsonIdNotNull = JsonConvert.SerializeObject(docIdNotNull);
