@@ -161,7 +161,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         internal static object GetApiResourceId(object data, JsonApiResource apiResource)
         {
             var propertyInfo = data.GetType().GetProperty(apiResource.IdProperty);
-            return propertyInfo.GetValueFast(data);
+            return propertyInfo?.GetValueFast(data);
         }
 
         #endregion
