@@ -29,7 +29,7 @@ namespace Bitbird.Core.Api.AzureReporting.Net.Tests
                 ReproductionSteps = "Steps to reproduce something..",
                 Severity = Severity.Low,
                 SystemInfo = "Some kind of application",
-                Title = "Some title"
+                Title = "[UNIT TEST SIDEEFFECT] Some title"
             });
             Console.WriteLine(JsonConvert.SerializeObject(data,Formatting.Indented));
 
@@ -51,7 +51,7 @@ namespace Bitbird.Core.Api.AzureReporting.Net.Tests
             {
                 Priority = Priority.Unimportant,
                 SystemInfo = "Some kind of application",
-                Title = "Some title",
+                Title = "[UNIT TEST SIDEEFFECT] Some title",
                 Description = "Some description"
             });
             Console.WriteLine(JsonConvert.SerializeObject(data, Formatting.Indented));
@@ -74,7 +74,7 @@ namespace Bitbird.Core.Api.AzureReporting.Net.Tests
             {
                 Priority = Priority.Unimportant,
                 SystemInfo = "Some kind of application",
-                Title = "Some title",
+                Title = "[UNIT TEST SIDEEFFECT] Some title",
                 Description = "Some description",
                 AcceptanceCriteria = "Some acceptance criteria"
             });
