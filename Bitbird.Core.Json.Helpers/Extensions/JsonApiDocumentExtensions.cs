@@ -177,7 +177,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             document.IncludeRelation(Activator.CreateInstance<T_Resource>(), data, path, baseUrl);
         }
 
-        public static void IncludeRelation(this JsonApiDocument document, JsonApiResource dataApiResource, object data, string path, string baseUrl = null)
+        public static void IncludeRelation(this JsonApiDocument document, JsonApiResource dataApiResource, object data, string path, string baseUrl = null) // TODO: include relations for collections
         {
             // parse paths
             var subpaths = path.Split(new char[] { ',' });

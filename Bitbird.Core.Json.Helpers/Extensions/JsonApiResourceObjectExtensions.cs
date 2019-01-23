@@ -99,6 +99,8 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
                         value = DateTime.Parse(value.ToString());
                     else if (underlying == typeof(DateTimeOffset) && attribute.Value != null)
                         value = DateTimeOffset.Parse(value.ToString());
+                    else if (underlying.IsEnum && attribute.Value != null)
+                        value = Enum.Parse(underlying, value.ToString());
 
                     targetProperty.SetValueFast(result, value);
                 }
