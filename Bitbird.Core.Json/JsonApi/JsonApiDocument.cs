@@ -1,20 +1,10 @@
-﻿using Bitbird.Core.Json.Extensions;
-using Bitbird.Core.Json.JsonApi.Dictionaries;
-using Bitbird.Core.Json.Utils;
+﻿using Bitbird.Core.Json.JsonApi.Dictionaries;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 
 namespace Bitbird.Core.Json.JsonApi
 {
-    
-
     /// <summary>
     /// A document MUST contain at least one of the following top-level members:
     ///
@@ -65,6 +55,4 @@ namespace Bitbird.Core.Json.JsonApi
         [JsonProperty("included", NullValueHandling = NullValueHandling.Ignore)]
         public JsonApiResourceObjectDictionary Included { get; set; }
     }
-
-    
 }

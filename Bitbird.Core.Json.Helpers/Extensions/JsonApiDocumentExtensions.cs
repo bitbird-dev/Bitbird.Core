@@ -134,8 +134,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         public static JsonApiDocument CreateDocumentFromApiResource<T>(object data, string baseUrl = null) where T : JsonApiResource
         {
             T apiResource = Activator.CreateInstance<T>();
-            JsonApiDocument document = null;
-            document = new JsonApiDocument();
+            JsonApiDocument document = new JsonApiDocument();
             document.FromApiResource(data, apiResource, baseUrl);
             return document;
         }
