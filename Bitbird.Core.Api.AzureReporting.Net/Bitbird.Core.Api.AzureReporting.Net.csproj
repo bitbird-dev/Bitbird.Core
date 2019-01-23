@@ -47,13 +47,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Models\CreateFeatureTicketModel.cs" />
     <Compile Include="Models\CreateUserStoryTicketModel.cs" />
     <Compile Include="Models\CreateBugTicketModel.cs" />
     <Compile Include="Models\ICreateTicketModel.cs" />
     <Compile Include="Models\IUploadAttachmentModel.cs" />
     <Compile Include="Models\Priority.cs" />
-    <Compile Include="Properties\SharedAssemblyInfo.cs" />
     <Compile Include="Models\Severity.cs" />
     <Compile Include="TicketLogger.cs" />
     <Compile Include="Core\PatchOperation.cs" />
