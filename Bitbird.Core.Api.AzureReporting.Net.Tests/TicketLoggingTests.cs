@@ -33,6 +33,9 @@ namespace Bitbird.Core.Api.AzureReporting.Net.Tests
             });
             Console.WriteLine(JsonConvert.SerializeObject(data,Formatting.Indented));
 
+            var created = await TicketLogging.QueryTicketAsync(data.Id);
+            Console.WriteLine(JsonConvert.SerializeObject(data, Formatting.Indented));
+
             await TicketLogging.AttachFileToTicketAsync(data.Id, new IUploadAttachmentModel[]
             {
                 new UploadAttachmentModel

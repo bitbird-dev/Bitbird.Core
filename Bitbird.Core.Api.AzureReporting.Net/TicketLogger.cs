@@ -127,6 +127,23 @@ namespace Bitbird.Core.Api.AzureReporting.Net
         }
 
         /// <summary>
+        /// Queries a ticket from Azure DevOps by it's id.
+        /// </summary>
+        /// <returns>TicketModel representing the ticket-results of the Query.</returns>
+        public static async Task<TicketModel> QueryTicketAsync(long id)
+        {
+            using (var httpClient = CreateClient())
+            {
+                httpClient.SetBaseUri("wit");
+                
+                var queryParams = $"fields={string.Join(",", "System.Title", "System.WorkItemType", "System.State")}&$expand=links";
+                var result = JToken.Parse(await httpClient.SendRequestAsync($"workitems/{id}", queryParams));
+
+                return TicketModel.FromJToken(result);
+            }
+        }
+
+        /// <summary>
         /// Creates a HttpClient that supports authentication. The result must be disposed by the caller.
         /// </summary>
         /// <returns>A HttpClient.</returns>
