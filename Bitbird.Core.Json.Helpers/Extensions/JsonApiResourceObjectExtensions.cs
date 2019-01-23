@@ -16,19 +16,24 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         internal static void FromApiResource(this JsonApiResourceObject resourceObject, object data, JsonApiResource apiResource, string baseUrl)
         {
             resourceObject.SetIdAndType(data, apiResource);
-            foreach (var attr in apiResource.Attributes)
-            {
-                resourceObject.AddAttribute(data, attr);
-            }
-            foreach (var realtionship in apiResource.Relationships)
-            {
-                if (realtionship.Kind == RelationshipKind.BelongsTo)
+            if(apiResource?.Attributes != null) {
+                foreach (var attr in apiResource.Attributes)
                 {
-                    resourceObject.AddToOneRelationship(data, apiResource, realtionship, baseUrl);
+                    resourceObject.AddAttribute(data, attr);
                 }
-                else
+            }
+            if (apiResource?.Relationships != null)
+            {
+                foreach (var realtionship in apiResource.Relationships)
                 {
-                    resourceObject.AddToManyRelationship(data, apiResource, realtionship, baseUrl);
+                    if (realtionship.Kind == RelationshipKind.BelongsTo)
+                    {
+                        resourceObject.AddToOneRelationship(data, apiResource, realtionship, baseUrl);
+                    }
+                    else
+                    {
+                        resourceObject.AddToManyRelationship(data, apiResource, realtionship, baseUrl);
+                    }
                 }
             }
             if (!string.IsNullOrWhiteSpace(baseUrl))
@@ -156,7 +161,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         internal static object GetApiResourceId(object data, JsonApiResource apiResource)
         {
             var propertyInfo = data.GetType().GetProperty(apiResource.IdProperty);
-            return propertyInfo.GetValueFast(data);
+            return propertyInfo?.GetValueFast(data);
         }
 
         #endregion

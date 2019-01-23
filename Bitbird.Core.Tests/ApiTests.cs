@@ -63,7 +63,7 @@ namespace Bitbird.Core.Json.Tests
         #endregion
 
         [TestMethod]
-        public void JsonApiDocument_TestResourceKeyCollision()
+        public void JsonApiCollectionDocument_TestResourceKeyCollision()
         {
             ResourceKey k1 = new ResourceKey("123", "classA");
             ResourceKey k2 = new ResourceKey("123", "classB");
@@ -77,7 +77,7 @@ namespace Bitbird.Core.Json.Tests
         
 
         [TestMethod]
-        public void JsonApiDocument_TestNestedIncludes()
+        public void JsonApiCollectionDocument_TestNestedIncludes()
         {
             // A has a reference to B
             // B has a reference to C
@@ -98,12 +98,12 @@ namespace Bitbird.Core.Json.Tests
                 }
             };
 
-            var doc = new JsonApiDocument<ClassA>(data);
+            var doc = new JsonApiCollectionDocument<ClassA>(data);
             doc.Included = new JsonApiResourceObjectDictionary();
             doc.Included.AddResource(new JsonApiResourceObject().FromObject(data.BReference));
             doc.Included.AddResource(new JsonApiResourceObject().FromObject(data.BReference.CReference));
             string jsonString = JsonConvert.SerializeObject(doc, Formatting.Indented);
-            var deserializedDocument = JsonConvert.DeserializeObject<JsonApiDocument<ClassA>>(jsonString);
+            var deserializedDocument = JsonConvert.DeserializeObject<JsonApiCollectionDocument<ClassA>>(jsonString);
 
             var aResource = deserializedDocument.Data.FirstOrDefault();
             Assert.IsNotNull(aResource);
@@ -117,14 +117,14 @@ namespace Bitbird.Core.Json.Tests
         }
 
         [TestMethod]
-        public void JsonApiDocument_TestPrimitveArray()
+        public void JsonApiCollectionDocument_TestPrimitveArray()
         {
             var list = new List<string> { "data1", "data2", "data3" };
             var data = new Fahrer { Id = "123", Name = "hansi", Keys = list };
-            var testApiDocument = new JsonApiDocument<Fahrer>(data);
+            var testApiDocument = new JsonApiCollectionDocument<Fahrer>(data);
             string jsonString = JsonConvert.SerializeObject(testApiDocument);
 
-            var result = JsonConvert.DeserializeObject<JsonApiDocument<Fahrer>>(jsonString);
+            var result = JsonConvert.DeserializeObject<JsonApiCollectionDocument<Fahrer>>(jsonString);
             Assert.IsNotNull(result);
             var deserialzedModel = result.ToObject()?.FirstOrDefault();
             Assert.IsNotNull(deserialzedModel);
@@ -136,13 +136,13 @@ namespace Bitbird.Core.Json.Tests
         }
 
         [TestMethod]
-        public void JsonApiDocument_DataArray()
+        public void JsonApiCollectionDocument_DataArray()
         {
             var data = GetSomeData();
-            var testApiDocument = new JsonApiDocument<Firma>(data);
+            var testApiDocument = new JsonApiCollectionDocument<Firma>(data);
             string jsonString = JsonConvert.SerializeObject(testApiDocument, Formatting.Indented);
 
-            var result = JsonConvert.DeserializeObject<JsonApiDocument<Firma>>(jsonString);
+            var result = JsonConvert.DeserializeObject<JsonApiCollectionDocument<Firma>>(jsonString);
             Assert.IsNotNull(result);
             var deserialzedModel = result.ToObject();
             Assert.IsNotNull(deserialzedModel);
@@ -150,7 +150,7 @@ namespace Bitbird.Core.Json.Tests
         }
 
         [TestMethod]
-        public void JsonApiDocument_TestSelfLinks()
+        public void JsonApiCollectionDocument_TestSelfLinks()
         {
             // create test data
             var model = GetSomeData();
@@ -159,20 +159,20 @@ namespace Bitbird.Core.Json.Tests
             Uri queryUri = (new UriBuilder { Host = "localhost", Path = "api/firma"}).Uri;
 
             // create JsonDocument
-            var jsonDocument = new JsonApiDocument<Firma>(model, new List<PropertyInfo> { typeof(Firma).GetProperty(nameof(Firma.Fahrer)) }, queryUri);
+            var jsonDocument = new JsonApiCollectionDocument<Firma>(model, new List<PropertyInfo> { typeof(Firma).GetProperty(nameof(Firma.Fahrer)) }, queryUri);
             jsonDocument.Links.Related = new JsonApiLink("test", 1);
             var jsonString = JsonConvert.SerializeObject(jsonDocument, Formatting.Indented);
-            var result = JsonConvert.DeserializeObject<JsonApiDocument<Firma>>(jsonString);
+            var result = JsonConvert.DeserializeObject<JsonApiCollectionDocument<Firma>>(jsonString);
             Assert.IsNotNull(result);
             var deserialzedModel = result.ToObject();
             Assert.IsNotNull(deserialzedModel);
         }
 
         [TestMethod]
-        public void JsonApiDocument_TestRelationshipIdentifiers()
+        public void JsonApiCollectionDocument_TestRelationshipIdentifiers()
         {
             var model = GetSomeData().FirstOrDefault();
-            var testApiDocument = new JsonApiDocument<Firma>(model);
+            var testApiDocument = new JsonApiCollectionDocument<Firma>(model);
             JsonSerializerSettings settings = new JsonSerializerSettings()
             {
                 Formatting = Formatting.Indented
@@ -181,7 +181,7 @@ namespace Bitbird.Core.Json.Tests
 
             System.Diagnostics.Debug.WriteLine(jsonString);
 
-            var result = JsonConvert.DeserializeObject<JsonApiDocument<Firma>>(jsonString, settings);
+            var result = JsonConvert.DeserializeObject<JsonApiCollectionDocument<Firma>>(jsonString, settings);
 
             var deserialzedModel = result.ToObject()?.FirstOrDefault();
 
@@ -193,10 +193,10 @@ namespace Bitbird.Core.Json.Tests
         }
 
         [TestMethod]
-        public void JsonApiDocument_TestInclude()
+        public void JsonApiCollectionDocument_TestInclude()
         {
             var model = GetSomeData().FirstOrDefault();
-            var testApiDocument = new JsonApiDocument<Firma>(model, new List<PropertyInfo> { model.GetType().GetProperty(nameof(model.Fahrer)) });
+            var testApiDocument = new JsonApiCollectionDocument<Firma>(model, new List<PropertyInfo> { model.GetType().GetProperty(nameof(model.Fahrer)) });
             JsonSerializerSettings settings = new JsonSerializerSettings()
             {
                 Formatting = Formatting.Indented
@@ -205,7 +205,7 @@ namespace Bitbird.Core.Json.Tests
 
             System.Diagnostics.Debug.WriteLine(jsonString);
 
-            var result = JsonConvert.DeserializeObject<JsonApiDocument<Firma>>(jsonString, settings);
+            var result = JsonConvert.DeserializeObject<JsonApiCollectionDocument<Firma>>(jsonString, settings);
 
             var deserializedModel = result.ToObject()?.FirstOrDefault();
 
@@ -217,7 +217,7 @@ namespace Bitbird.Core.Json.Tests
         }
 
         [TestMethod]
-        public void JsonApiDocument_TestIncludeToMany()
+        public void JsonApiCollectionDocument_TestIncludeToMany()
         {
             //var model = GetSomeData().FirstOrDefault();
             var model = new Firma
@@ -227,7 +227,7 @@ namespace Bitbird.Core.Json.Tests
                 FahrZeuge = new List<Fahrzeug> { new Fahrzeug { Id = Guid.NewGuid().ToString(), Kilometerstand = 4000 }, new Fahrzeug { Id = Guid.NewGuid().ToString(), Kilometerstand = 10000 } },
                 Fahrer = new Fahrer { Id = Guid.NewGuid().ToString(), Name = "Christian", Keys = new List<string> { "key0", "key1", "key2" } }
             };
-            var testApiDocument = new JsonApiDocument<Firma>(model, new List<PropertyInfo>
+            var testApiDocument = new JsonApiCollectionDocument<Firma>(model, new List<PropertyInfo>
             {
                 model.GetType().GetProperty(nameof(model.Fahrer)),model.GetType().GetProperty(nameof(model.FahrZeuge))
             });
@@ -239,7 +239,7 @@ namespace Bitbird.Core.Json.Tests
 
             System.Diagnostics.Debug.WriteLine(jsonString);
 
-            var result = JsonConvert.DeserializeObject<JsonApiDocument<Firma>>(jsonString, settings);
+            var result = JsonConvert.DeserializeObject<JsonApiCollectionDocument<Firma>>(jsonString, settings);
 
             var deserialzedModel = result.ToObject()?.FirstOrDefault();
 

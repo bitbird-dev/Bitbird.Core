@@ -1,62 +1,10 @@
-﻿using Bitbird.Core.Json.Extensions;
-using Bitbird.Core.Json.JsonApi.Dictionaries;
-using Bitbird.Core.Json.Utils;
+﻿using Bitbird.Core.Json.JsonApi.Dictionaries;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 
 namespace Bitbird.Core.Json.JsonApi
 {
-    public class JsonDocumentDataConverter : JsonConverter
-    {
-        public override bool CanConvert(Type objectType)
-        {
-            return typeof(JsonApiResourceObject).IsAssignableFrom(objectType) || typeof(IEnumerable<JsonApiResourceObject>).IsAssignableFrom(objectType);
-        }
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            if(reader.TokenType != JsonToken.StartArray)
-            {
-                var res = serializer.Deserialize<JsonApiResourceObject>(reader);
-                if (res != null)
-                {
-                    return new List<JsonApiResourceObject> { res };
-                }
-            }
-            return serializer.Deserialize(reader, objectType);
-        }
-
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            var resourceCollection = value as IEnumerable<JsonApiResourceObject>;
-            if(resourceCollection != null)
-            {
-                var count = resourceCollection.Count();
-                
-                if (count == 1)
-                {
-                    var singleResource = resourceCollection.FirstOrDefault();
-                    serializer.Serialize(writer, singleResource);
-                }
-                else
-                {
-                    serializer.Serialize(writer, resourceCollection);
-                }
-            }
-            else
-            {
-                writer.WriteNull();
-            }
-        }
-    }
-
     /// <summary>
     /// A document MUST contain at least one of the following top-level members:
     ///
@@ -91,10 +39,9 @@ namespace Bitbird.Core.Json.JsonApi
     {
         //[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         //public JObject JsonApi => new JObject(new JProperty("version", "1.0"));
-
-        [JsonConverter(typeof(JsonDocumentDataConverter))]
+        
         [JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)]
-        public IEnumerable<JsonApiResourceObject> Data { get; set; }
+        public JsonApiResourceObject Data { get; set; }
         
         [JsonProperty("errors", NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<JsonApiErrorObject> Errors { get; set; }
@@ -108,6 +55,4 @@ namespace Bitbird.Core.Json.JsonApi
         [JsonProperty("included", NullValueHandling = NullValueHandling.Ignore)]
         public JsonApiResourceObjectDictionary Included { get; set; }
     }
-
-    
 }
