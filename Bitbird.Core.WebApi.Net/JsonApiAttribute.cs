@@ -13,7 +13,7 @@ using Microsoft.Azure;
 namespace Bitbird.Core.WebApi.Net
 {
     /// <inheritdoc />
-        [AttributeUsage(AttributeTargets.Method)]
+    [AttributeUsage(AttributeTargets.Method)]
     public class JsonApiAttribute : ActionFilterAttribute
     {
         private static readonly Regex FilterKeyRegex = new Regex("filter[.](?<Property>[a-zA-Z0-9_.]+)", RegexOptions.Compiled);
