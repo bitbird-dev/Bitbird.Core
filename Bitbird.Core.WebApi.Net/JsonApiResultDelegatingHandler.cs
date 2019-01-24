@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,14 +35,28 @@ namespace Bitbird.Core.WebApi.Net
 
             try
             {
-                var document = new JsonApiDocument();
-                document.FromApiResource(objectContent.Value, resource);
+                if (objectContent.Value is IEnumerable collectionValue)
+                {
+                    var document = new JsonApiCollectionDocument();
+                    document.FromApiResource(collectionValue, resource);
 
-                if (request.Properties.TryGetValue(nameof(QueryInfo), out var queryInfoUntyped) && queryInfoUntyped is QueryInfo queryInfo && queryInfo.Includes != null)
-                    foreach (var include in queryInfo.Includes)
-                        document.IncludeRelation(resource, objectContent.Value, include);
+                    //if (request.Properties.TryGetValue(nameof(QueryInfo), out var queryInfoUntyped) && queryInfoUntyped is QueryInfo queryInfo && queryInfo.Includes != null)
+                        //foreach (var include in queryInfo.Includes)
+                            // document.IncludeRelation(resource, objectContent.Value, include); // TODO: include relations for collections
 
-                result.Content = new ObjectContent<JsonApiDocument>(document, Config.Formatter);
+                    result.Content = new ObjectContent<JsonApiCollectionDocument>(document, Config.Formatter);
+                }
+                else
+                {
+                    var document = new JsonApiDocument();
+                    document.FromApiResource(objectContent.Value, resource);
+
+                    if (request.Properties.TryGetValue(nameof(QueryInfo), out var queryInfoUntyped) && queryInfoUntyped is QueryInfo queryInfo && queryInfo.Includes != null)
+                        foreach (var include in queryInfo.Includes)
+                            document.IncludeRelation(resource, objectContent.Value, include);
+
+                    result.Content = new ObjectContent<JsonApiDocument>(document, Config.Formatter);
+                }
 
                 return result;
             }
