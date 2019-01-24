@@ -35,7 +35,7 @@ namespace Bitbird.Core.Json.JsonApi
     /// 
     /// </summary>
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class JsonApiDocument
+    public class JsonApiDocument : IJsonApiDocument
     {
         //[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         //public JObject JsonApi => new JObject(new JProperty("version", "1.0"));

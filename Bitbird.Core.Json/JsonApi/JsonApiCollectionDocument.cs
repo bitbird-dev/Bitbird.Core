@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Bitbird.Core.Json.JsonApi
 {
-    public class JsonApiCollectionDocument
+    public class JsonApiCollectionDocument : IJsonApiDocument
     {
         [JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<JsonApiResourceObject> Data { get; set; }
