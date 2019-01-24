@@ -8,19 +8,27 @@ namespace Bitbird.Core.Benchmarks
     {
         private readonly List<BenchmarkResult> benchmarks;
         private readonly string name;
-        private readonly long start;
+        private readonly Stopwatch sw;
 
         public ActiveMeasuring(List<BenchmarkResult> benchmarks, string name)
         {
             this.benchmarks = benchmarks;
             this.name = name;
-            if (this.benchmarks != null)
-                start = Stopwatch.GetTimestamp();
+
+            if (benchmarks == null)
+                return;
+
+            sw = new Stopwatch();
+            sw.Start();
         }
 
         public void Dispose()
         {
-            benchmarks?.Add(new BenchmarkResult(name, (Stopwatch.GetTimestamp() - start) / (Stopwatch.Frequency / 1000)));
+            if (benchmarks == null)
+                return;
+
+            sw.Stop();
+            benchmarks.Add(new BenchmarkResult(name, sw.ElapsedMilliseconds));
         }
     }
 }

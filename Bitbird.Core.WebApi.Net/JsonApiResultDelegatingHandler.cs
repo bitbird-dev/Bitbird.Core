@@ -38,44 +38,53 @@ namespace Bitbird.Core.WebApi.Net
 
             var meta = new JsonApiMetaData();
 
-            if (request.Properties.TryGetValue(nameof(BenchmarkCollection), out var benchmarksObj) && benchmarksObj is BenchmarkCollection benchmarks)
-                meta.Benchmarks = benchmarks.Benchmarks.Select(b => $"{b.Name}:{b.Duration}");
+            BenchmarkCollection benchmarks = null;
+            if (request.Properties.TryGetValue(nameof(BenchmarkCollection), out var benchmarksObj) &&
+                benchmarksObj is BenchmarkCollection foundBenchmarks)
+            {
+                benchmarks = foundBenchmarks;
+            }
 
             try
             {
-                var value = objectContent.Value;
+                Func<ObjectContent> createContent;
 
-                if (value is IQueryResult queryResult)
+                using (benchmarks.CreateBenchmark("ConvertToJsonApiDoc"))
                 {
-                    meta.PageCount = queryResult.PageCount;
-                    meta.RecordCount = queryResult.RecordCount;
-                    value = queryResult.Data;
-                }
+                    var value = objectContent.Value;
+                    if (value is IQueryResult queryResult)
+                    {
+                        meta.PageCount = queryResult.PageCount;
+                        meta.RecordCount = queryResult.RecordCount;
+                        value = queryResult.Data;
+                    }
 
-                if (value is IEnumerable collectionValue)
-                {
-                    var document = new JsonApiCollectionDocument();
-                    document.FromApiResource(collectionValue, resource);
+                    IJsonApiDocument document;
+                    if (value is IEnumerable collectionValue)
+                    {
+                        var apiCollectionDocument = new JsonApiCollectionDocument();
+                        apiCollectionDocument.FromApiResource(collectionValue, resource);
+                        createContent = () => new ObjectContent<JsonApiCollectionDocument>(apiCollectionDocument, Config.Formatter);
+                        document = apiCollectionDocument;
+                    }
+                    else
+                    {
+                        var apiDocument = new JsonApiDocument();
+                        apiDocument.FromApiResource(value, resource);
+                        createContent = () => new ObjectContent<JsonApiDocument>(apiDocument, Config.Formatter);
+                        document = apiDocument;
+                    }
 
                     if (request.Properties.TryGetValue(nameof(QueryInfo), out var queryInfoUntyped) && queryInfoUntyped is QueryInfo queryInfo && queryInfo.Includes != null)
                         foreach (var include in queryInfo.Includes)
                             document.IncludeRelation(resource, value, include);
 
                     document.Meta = meta;
-                    result.Content = new ObjectContent<JsonApiCollectionDocument>(document, Config.Formatter);
                 }
-                else
-                {
-                    var document = new JsonApiDocument();
-                    document.FromApiResource(value, resource);
 
-                    if (request.Properties.TryGetValue(nameof(QueryInfo), out var queryInfoUntyped) && queryInfoUntyped is QueryInfo queryInfo && queryInfo.Includes != null)
-                        foreach (var include in queryInfo.Includes)
-                            document.IncludeRelation(resource, value, include);
+                meta.Benchmarks = benchmarks?.Benchmarks?.Select(b => $"{b.Name}:{b.Duration}");
 
-                    document.Meta = meta;
-                    result.Content = new ObjectContent<JsonApiDocument>(document, Config.Formatter);
-                }
+                result.Content = createContent();
 
                 return result;
             }
