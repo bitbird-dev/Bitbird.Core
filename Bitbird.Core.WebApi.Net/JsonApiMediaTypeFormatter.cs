@@ -95,7 +95,7 @@ namespace Bitbird.Core.WebApi.Net
                         if (!JsonApiResourceMappings.TryGetValue(typeForResource, out var resource))
                             throw new Exception($"No mapping from {typeForResource.FullName} to a {nameof(JsonApiResource)} was found.");
 
-                        return document.ToObjectCollection(resource, type, out var foundAttributes);
+                        return document.ToObject(resource, type, out var foundAttributes);
                     }
                     else
                     {
@@ -110,11 +110,11 @@ namespace Bitbird.Core.WebApi.Net
 
                         var typeForResource = type;
 
-                        Func<object, JsonApiDocument, Func<string, bool>, object> packContent = (o, d, p) => o;
+                        Func<object, JsonApiDocument, Func<int, string, bool>, object> packContent = (o, d, p) => o;
                         if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ContentInfo<>))
                         {
                             var contentInfoType = type;
-                            packContent = (o, d, p) => Activator.CreateInstance(contentInfoType, o, d, p);
+                            packContent = (o, d, p) => Activator.CreateInstance(contentInfoType, o, d, (Func<string, bool>)(prop => p(0,prop)));
                             type = type.GetGenericArguments()[0];
                             typeForResource = type;
                         }
