@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Bitbird.Core.Benchmarks;
@@ -10,6 +11,7 @@ using Bitbird.Core.Json.Helpers.ApiResource;
 using Bitbird.Core.Json.Helpers.ApiResource.Extensions;
 using Bitbird.Core.Json.JsonApi;
 using Bitbird.Core.Query;
+using Newtonsoft.Json;
 
 namespace Bitbird.Core.WebApi.Net
 {
@@ -47,7 +49,7 @@ namespace Bitbird.Core.WebApi.Net
 
             try
             {
-                Func<ObjectContent> createContent;
+                IJsonApiDocument document;
 
                 using (benchmarks.CreateBenchmark("ConvertToJsonApiDoc"))
                 {
@@ -59,19 +61,16 @@ namespace Bitbird.Core.WebApi.Net
                         value = queryResult.Data;
                     }
 
-                    IJsonApiDocument document;
                     if (value is IEnumerable collectionValue)
                     {
                         var apiCollectionDocument = new JsonApiCollectionDocument();
                         apiCollectionDocument.FromApiResource(collectionValue, resource);
-                        createContent = () => new ObjectContent<JsonApiCollectionDocument>(apiCollectionDocument, Config.Formatter);
                         document = apiCollectionDocument;
                     }
                     else
                     {
                         var apiDocument = new JsonApiDocument();
                         apiDocument.FromApiResource(value, resource);
-                        createContent = () => new ObjectContent<JsonApiDocument>(apiDocument, Config.Formatter);
                         document = apiDocument;
                     }
 
@@ -83,8 +82,8 @@ namespace Bitbird.Core.WebApi.Net
                 }
 
                 meta.Benchmarks = benchmarks?.Benchmarks?.Select(b => $"{b.Name}:{b.Duration}");
-
-                result.Content = createContent();
+                
+                result.Content = new StringContent(JsonConvert.SerializeObject(document, Config.Formatter.SerializerSettings), Encoding.UTF8, "application/vnd.api+json");
 
                 return result;
             }
