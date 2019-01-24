@@ -110,6 +110,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
                 foreach (var relationship in resourceObject.Relationships)
                 {
                     var relationResource = apiResource.Relationships.Where(r => r.Name == relationship.Key).FirstOrDefault();
+                    if (relationResource == null) continue;
                     if (relationResource.Kind == RelationshipKind.BelongsTo)
                     {
                         var relationshipObject = relationship.Value as JsonApiToOneRelationshipObject;
