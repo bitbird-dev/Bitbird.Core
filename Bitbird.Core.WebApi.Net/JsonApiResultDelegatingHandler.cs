@@ -40,9 +40,9 @@ namespace Bitbird.Core.WebApi.Net
                     var document = new JsonApiCollectionDocument();
                     document.FromApiResource(collectionValue, resource);
 
-                    //if (request.Properties.TryGetValue(nameof(QueryInfo), out var queryInfoUntyped) && queryInfoUntyped is QueryInfo queryInfo && queryInfo.Includes != null)
-                        //foreach (var include in queryInfo.Includes)
-                            // document.IncludeRelation(resource, objectContent.Value, include); // TODO: include relations for collections
+                    if (request.Properties.TryGetValue(nameof(QueryInfo), out var queryInfoUntyped) && queryInfoUntyped is QueryInfo queryInfo && queryInfo.Includes != null)
+                        foreach (var include in queryInfo.Includes)
+                            document.IncludeRelation(resource, objectContent.Value, include);
 
                     result.Content = new ObjectContent<JsonApiCollectionDocument>(document, Config.Formatter);
                 }
