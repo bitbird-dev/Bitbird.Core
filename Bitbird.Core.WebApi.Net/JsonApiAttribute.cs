@@ -5,8 +5,10 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
+using Bitbird.Core.Benchmarks;
 using Bitbird.Core.Json.Helpers.ApiResource;
 using Bitbird.Core.Query;
+using Microsoft.Azure;
 
 namespace Bitbird.Core.WebApi.Net
 {
@@ -113,11 +115,24 @@ namespace Bitbird.Core.WebApi.Net
 
             actionContext.Request.Properties[nameof(QueryInfo)] = queryInfo;
             actionContext.Request.Properties[nameof(ReturnResource)] = ReturnResource;
-            
+
+            var useBenchmarks = Convert.ToBoolean(CloudConfigurationManager.GetSetting("Benchmarks") ?? false.ToString());
+            var benchmarks = new BenchmarkCollection(useBenchmarks);
+
+            actionContext.Request.Properties[nameof(BenchmarkCollection)] = benchmarks;
+
+
             foreach (var parameter in actionContext.ActionDescriptor.GetParameters())
             {
                 if (parameter.ParameterType == typeof(QueryInfo))
                     actionContext.ActionArguments[parameter.ParameterName] = queryInfo;
+                if (parameter.ParameterType == typeof(BenchmarkCollection))
+                    actionContext.ActionArguments[parameter.ParameterName] = benchmarks;
+            }
+
+            if (actionContext.ControllerContext.Controller is IBenchmarkController benchmarkController)
+            {
+                benchmarkController.Benchmarks = benchmarks;
             }
 
             base.OnActionExecuting(actionContext);

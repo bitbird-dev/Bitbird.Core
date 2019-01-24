@@ -112,6 +112,9 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Query\BuiltQuery.cs" />
+    <Compile Include="Query\IQueryResult.cs" />
+    <Compile Include="Query\QueryResult.cs" />
     <Compile Include="Token\IToken.cs" />
     <Compile Include="Token\IUserToken.cs" />
   </ItemGroup>

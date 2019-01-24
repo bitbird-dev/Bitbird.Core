@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Bitbird.Core.Benchmarks;
+using Bitbird.Core.Data.Net.Query;
 using Bitbird.Core.Json.Helpers.ApiResource;
 using Bitbird.Core.Json.Helpers.ApiResource.Extensions;
 using Bitbird.Core.Json.JsonApi;
@@ -33,28 +36,44 @@ namespace Bitbird.Core.WebApi.Net
             if (!(result.Content is ObjectContent objectContent))
                 return result;
 
+            var meta = new JsonApiMetaData();
+
+            if (request.Properties.TryGetValue(nameof(BenchmarkCollection), out var benchmarksObj) && benchmarksObj is BenchmarkCollection benchmarks)
+                meta.Benchmarks = benchmarks.Benchmarks.Select(b => $"{b.Name}:{b.Duration}");
+
             try
             {
-                if (objectContent.Value is IEnumerable collectionValue)
+                var value = objectContent.Value;
+
+                if (value is IQueryResult queryResult)
+                {
+                    meta.PageCount = queryResult.PageCount;
+                    meta.RecordCount = queryResult.RecordCount;
+                    value = queryResult.Data;
+                }
+
+                if (value is IEnumerable collectionValue)
                 {
                     var document = new JsonApiCollectionDocument();
                     document.FromApiResource(collectionValue, resource);
 
                     if (request.Properties.TryGetValue(nameof(QueryInfo), out var queryInfoUntyped) && queryInfoUntyped is QueryInfo queryInfo && queryInfo.Includes != null)
                         foreach (var include in queryInfo.Includes)
-                            document.IncludeRelation(resource, objectContent.Value, include);
+                            document.IncludeRelation(resource, value, include);
 
+                    document.Meta = meta;
                     result.Content = new ObjectContent<JsonApiCollectionDocument>(document, Config.Formatter);
                 }
                 else
                 {
                     var document = new JsonApiDocument();
-                    document.FromApiResource(objectContent.Value, resource);
+                    document.FromApiResource(value, resource);
 
                     if (request.Properties.TryGetValue(nameof(QueryInfo), out var queryInfoUntyped) && queryInfoUntyped is QueryInfo queryInfo && queryInfo.Includes != null)
                         foreach (var include in queryInfo.Includes)
-                            document.IncludeRelation(resource, objectContent.Value, include);
+                            document.IncludeRelation(resource, value, include);
 
+                    document.Meta = meta;
                     result.Content = new ObjectContent<JsonApiDocument>(document, Config.Formatter);
                 }
 
