@@ -144,6 +144,20 @@ namespace Bitbird.Core.Api.AzureReporting.Net
         }
 
         /// <summary>
+        /// Deletes a ticket from Azure DevOps by it's id.
+        /// </summary>
+        /// <returns>The response from azure in plain text.</returns>
+        public static async Task<string> DeleteTicketAsync(long id)
+        {
+            using (var httpClient = CreateClient())
+            {
+                httpClient.SetBaseUri("wit");
+
+                return await httpClient.SendRequestAsync($"workitems/{id}", null, "DELETE");
+            }
+        }
+
+        /// <summary>
         /// Creates a HttpClient that supports authentication. The result must be disposed by the caller.
         /// </summary>
         /// <returns>A HttpClient.</returns>
