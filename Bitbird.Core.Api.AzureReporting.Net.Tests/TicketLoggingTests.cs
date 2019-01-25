@@ -15,16 +15,58 @@ namespace Bitbird.Core.Api.AzureReporting.Net.Tests
     [TestClass]
     public class TicketLoggingTests
     {
-        [TestMethod]
-        public async Task QueryTicketAsyncTest()
+        private const string ArchiveFileName = "TestArchieve.zip";
+        private const string TextFileName = "TestTextFile.txt";
+        private const string TextFileContent = "Das ist ein Text.";
+
+        private static IUploadAttachmentModel[] CreateAttachments()
         {
-            var tickets = await TicketLogging.QueryTicketsAsync();
-            Console.WriteLine(JsonConvert.SerializeObject(tickets, Formatting.Indented));
+            return new IUploadAttachmentModel[]
+            {
+                new UploadAttachmentModel
+                {
+                    Filename = TextFileName,
+                    GetStream = () => new MemoryStream(Encoding.UTF8.GetBytes(TextFileContent))
+                },
+                new UploadAttachmentModel
+                {
+                    Filename = ArchiveFileName,
+                    GetStream = () => new MemoryStream(Resources.TestArchieve)
+                }
+            };
+        }
+        private static IEnumerable<ICreateTicketModel> CreateTickets()
+        {
+            return new ICreateTicketModel[]
+            {
+                new CreateBugTicketModel
+                {
+                    Priority = Priority.Unimportant,
+                    ReproductionSteps = "Steps to reproduce something..",
+                    Severity = Severity.Low,
+                    SystemInfo = "Some kind of application",
+                    Title = "[UNIT TEST SIDEEFFECT] Some title"
+                },
+                new CreateFeatureTicketModel
+                {
+                    Priority = Priority.Unimportant,
+                    SystemInfo = "Some kind of application",
+                    Title = "[UNIT TEST SIDEEFFECT] Some title",
+                    Description = "Some description"
+                },
+                new CreateUserStoryTicketModel
+                {
+                    Priority = Priority.Unimportant,
+                    SystemInfo = "Some kind of application",
+                    Title = "[UNIT TEST SIDEEFFECT] Some title",
+                    Description = "Some description",
+                    AcceptanceCriteria = "Some acceptance criteria"
+                }
+            };
         }
 
-
         [TestMethod]
-        public async Task LogTicketAndAddAttachmentsAndDeleteTicketsAsyncTest()
+        public async Task TestAllMethods()
         {
             if (string.IsNullOrWhiteSpace(CloudConfigurationManager.GetSetting("AzureReporting.AccessToken")))
             {
@@ -32,101 +74,38 @@ namespace Bitbird.Core.Api.AzureReporting.Net.Tests
                 return;
             }
 
+            var tickets = await TicketLogging.QueryTicketsAsync();
+            Console.WriteLine(JsonConvert.SerializeObject(tickets, Formatting.Indented));
+
+
             var ids = new List<long>();
 
             try
             {
-                var data = await TicketLogging.CreateTicketAsync(new CreateBugTicketModel
+                foreach (var createTicketModel in CreateTickets())
                 {
-                    Priority = Priority.Unimportant,
-                    ReproductionSteps = "Steps to reproduce something..",
-                    Severity = Severity.Low,
-                    SystemInfo = "Some kind of application",
-                    Title = "[UNIT TEST SIDEEFFECT] Some title"
-                });
-                ids.Add(data.Id);
-                Console.WriteLine(JsonConvert.SerializeObject(data, Formatting.Indented));
+                    var created = await TicketLogging.CreateTicketAsync(createTicketModel);
+                    ids.Add(created.Id);
+                    Console.WriteLine(JsonConvert.SerializeObject(created, Formatting.Indented));
 
-                var created = await TicketLogging.QueryTicketAsync(data.Id);
-                Console.WriteLine(JsonConvert.SerializeObject(data, Formatting.Indented));
+                    var queried = await TicketLogging.QueryTicketAsync(created.Id);
+                    Console.WriteLine(JsonConvert.SerializeObject(queried, Formatting.Indented));
 
-                await TicketLogging.AttachFileToTicketAsync(data.Id, new IUploadAttachmentModel[]
-                {
-                new UploadAttachmentModel
-                {
-                    Filename = "test1.txt",
-                    GetStream = () => new MemoryStream(Encoding.UTF8.GetBytes("Das ist ein Text."))
-                },
-                new UploadAttachmentModel
-                {
-                    Filename = "TestArchieve.zip",
-                    GetStream = () => new MemoryStream(Resources.TestArchieve)
+                    await TicketLogging.AttachFileToTicketAsync(queried.Id, CreateAttachments());
                 }
-                });
-
-                data = await TicketLogging.CreateTicketAsync(new CreateFeatureTicketModel
-                {
-                    Priority = Priority.Unimportant,
-                    SystemInfo = "Some kind of application",
-                    Title = "[UNIT TEST SIDEEFFECT] Some title",
-                    Description = "Some description"
-                });
-                ids.Add(data.Id);
-                Console.WriteLine(JsonConvert.SerializeObject(data, Formatting.Indented));
-
-                await TicketLogging.AttachFileToTicketAsync(data.Id, new IUploadAttachmentModel[]
-                {
-                new UploadAttachmentModel
-                {
-                    Filename = "test1.txt",
-                    GetStream = () => new MemoryStream(Encoding.UTF8.GetBytes("Das ist ein Text."))
-                },
-                new UploadAttachmentModel
-                {
-                    Filename = "TestArchieve.zip",
-                    GetStream = () => new MemoryStream(Resources.TestArchieve)
-                }
-                });
-
-                data = await TicketLogging.CreateTicketAsync(new CreateUserStoryTicketModel
-                {
-                    Priority = Priority.Unimportant,
-                    SystemInfo = "Some kind of application",
-                    Title = "[UNIT TEST SIDEEFFECT] Some title",
-                    Description = "Some description",
-                    AcceptanceCriteria = "Some acceptance criteria"
-                });
-                ids.Add(data.Id);
-                Console.WriteLine(JsonConvert.SerializeObject(data, Formatting.Indented));
-
-                await TicketLogging.AttachFileToTicketAsync(data.Id, new IUploadAttachmentModel[]
-                {
-                new UploadAttachmentModel
-                {
-                    Filename = "test1.txt",
-                    GetStream = () => new MemoryStream(Encoding.UTF8.GetBytes("Das ist ein Text."))
-                },
-                new UploadAttachmentModel
-                {
-                    Filename = "TestArchieve.zip",
-                    GetStream = () => new MemoryStream(Resources.TestArchieve)
-                }
-                });
 
                 while (ids.Any())
                 {
-                    var id = ids[0];
-
-                    Console.WriteLine(await TicketLogging.DeleteTicketAsync(id));
-
+                    await TicketLogging.DeleteTicketAsync(ids[0]);
                     ids.RemoveAt(0);
                 }
             }
             catch
             {
+                // if something failed, try to delete all created tickets.
                 foreach (var id in ids)
                 {
-                    try{ await TicketLogging.DeleteTicketAsync(id); } catch { /* ignored */ }
+                    try { await TicketLogging.DeleteTicketAsync(id); } catch { /* ignored */ }
                 }
 
                 throw;
