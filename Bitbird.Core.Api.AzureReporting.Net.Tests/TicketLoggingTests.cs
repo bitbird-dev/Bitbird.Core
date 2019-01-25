@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using Bitbird.Core.Api.AzureReporting.Net.Models;
 using Bitbird.Core.Api.AzureReporting.Net.Tests.Properties;
+using Microsoft.Azure;
 using Newtonsoft.Json;
 
 namespace Bitbird.Core.Api.AzureReporting.Net.Tests
@@ -25,6 +26,12 @@ namespace Bitbird.Core.Api.AzureReporting.Net.Tests
         [TestMethod]
         public async Task LogTicketAndAddAttachmentsAndDeleteTicketsAsyncTest()
         {
+            if (string.IsNullOrWhiteSpace(CloudConfigurationManager.GetSetting("AzureReporting.AccessToken")))
+            {
+                Console.WriteLine("TEST NOT EXECUTED. Access token not specified!");
+                return;
+            }
+
             var ids = new List<long>();
 
             try
