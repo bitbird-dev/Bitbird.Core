@@ -40,7 +40,6 @@ namespace Bitbird.Core.Json.Helpers.JsonDataModel.Extensions
         /// <summary>
         /// Converts the resource to a object.
         /// </summary>
-        /// <typeparam name="t"></typeparam>
         /// <returns></returns>
         public static IJsonApiDataModel ToObject(this JsonApiResourceObject resourceObject, Type t, bool processRelations = true)
         {
@@ -68,11 +67,9 @@ namespace Bitbird.Core.Json.Helpers.JsonDataModel.Extensions
 
             foreach (var relation in resourceObject.Relationships)
             {
-                string propname;
-                if (refKeyToName.TryGetValue(relation.Key, out propname))
+                if (refKeyToName.TryGetValue(relation.Key, out var propName))
                 {
-                    PropertyInfo propertyInfo = null;
-                    if (idPropertyDict.TryGetValue(propname, out propertyInfo))
+                    if (idPropertyDict.TryGetValue(propName, out var propertyInfo))
                     {
                         if (propertyInfo.PropertyType is IEnumerable)
                         {
@@ -93,8 +90,7 @@ namespace Bitbird.Core.Json.Helpers.JsonDataModel.Extensions
                     }
                 }
 
-                PropertyInfo refInfo;
-                if (refPropertyDict.TryGetValue(relation.Key, out refInfo))
+                if (refPropertyDict.TryGetValue(relation.Key, out var refInfo))
                 {
                     if (refInfo.PropertyType.IsNonStringEnumerable())
                     {

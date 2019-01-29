@@ -1,0 +1,503 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Bitbird.Core.Json.Helpers.ApiResource</name>
+    </assembly>
+    <members>
+        <member name="F:Bitbird.Core.Json.Helpers.ApiResource.Exceptions.ErrorType.Server">
+            <summary>
+            An error that is the server (application)'s fault.
+            </summary>
+        </member>
+        <member name="F:Bitbird.Core.Json.Helpers.ApiResource.Exceptions.ErrorType.Client">
+            <summary>
+            An error that is the client (application user)'s fault.
+            </summary>
+        </member>
+        <member name="T:Bitbird.Core.Json.Helpers.ApiResource.Exceptions.JsonApiException">
+            <summary>
+            The exception that is thrown when an the Json Api serializer misses necessary information.
+            </summary>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.Exceptions.JsonApiException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Bitbird.Core.Json.Helpers.ApiResource.Exceptions.JsonApiException"/> class.
+            </summary>
+            <param name="info">The serialization information.</param>
+            <param name="context">The streaming context.</param>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.Exceptions.JsonApiException.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.Extensions.JsonApiCollectionDocumentExtensions.ToObjectInternal(Bitbird.Core.Json.JsonApi.JsonApiCollectionDocument,Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource,System.Type)">
+            <summary>
+            Extracts apiResource to an <see cref="T:System.Collections.Generic.IEnumerable`1"/> of type targetType.
+            </summary>
+            <param name="document"></param>
+            <param name="apiResource"></param>
+            <param name="targetType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.Extensions.JsonApiDocumentExtensions.ToObject``2(Bitbird.Core.Json.JsonApi.JsonApiDocument)">
+            <summary>
+            Extract primary Data from the JsonApiDocument.
+            </summary>
+            <typeparam name="TResult">The Type of the extracted Data.</typeparam>
+            <typeparam name="TResource">The Type of JsonApiResource used to extract the Data.</typeparam>
+            <returns>An instance containing the model data.</returns>
+            <example>
+            <code>
+            ModelType m = jsonDocument.ToObject&lt;ModelType, ModelTypeApiResource>();
+            </code>
+            </example>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.Extensions.JsonApiDocumentExtensions.ToObject``2(Bitbird.Core.Json.JsonApi.JsonApiDocument,System.Func{System.String,System.Boolean}@)">
+            <summary>
+            Extract primary Data from the JsonApiDocument.
+            </summary>
+            <typeparam name="TResult">The Type of the extracted Data.</typeparam>
+            <typeparam name="TResource">The Type of JsonApiResource used to extract the Data.</typeparam>
+            <param name="foundAttributes">A function to determine which attributes were found in the JsonDocument's primary data</param>
+            <returns>An instance containing the model data.</returns>
+            <example>
+            <code>
+            Func&lt;string, bool&gt; foundAttributes;
+            ModelType m = jsonDocument.ToObject&lt;ModelType, ModelTypeApiResource&gt;(out foundAttributes);
+            </code>
+            </example>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.Extensions.JsonApiDocumentExtensions.ToObjectInternal(Bitbird.Core.Json.JsonApi.JsonApiDocument,Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource,System.Type)">
+            <summary>
+            Extract primary Data from the JsonApiDocument.
+            </summary>
+            <param name="apiResource">instance of JsonApiResource used to extract the Data.</param>
+            <param name="targetType">The Type of the extracted Data.</param>
+            <returns>An instance containing the model data.</returns>
+            <example>
+            <code>
+            var collection = jsonDocument.ToObject(Activator.CreateInstance&lt;ModelTypeApiResource&gt;(), typeof(IEnumerable&lt;ModelType&gt;));
+            var singleItem = jsonDocument.ToObject(Activator.CreateInstance&lt;ModelTypeApiResource&gt;(), typeof(ModelType));
+            </code>
+            </example>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.Extensions.JsonApiDocumentExtensions.ToObjectInternal(Bitbird.Core.Json.JsonApi.JsonApiDocument,Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource,System.Type,System.Func{System.Int32,System.String,System.Boolean}@)">
+            <summary>
+            Extract primary Data from the JsonApiDocument.
+            </summary>
+            <param name="apiResource">instance of JsonApiResource used to extract the Data.</param>
+            <param name="targetType">The Type of the extracted Data.</param>
+            <param name="foundAttributes">A function to determine which attributes were found in the JsonDocument's primary data</param>
+            <returns>An instance containing the model data.</returns>
+            <example>
+            <code>
+            Func&gt;string, bool&lt; foundAttributes;
+            var collection = jsonDocument.ToObject(Activator.CreateInstance&lt;ModelTypeApiResource&gt;(), typeof(IEnumerable&lt;ModelType&gt;, out foundAttributes));
+            var singleItem = jsonDocument.ToObject(Activator.CreateInstance&lt;ModelTypeApiResource&gt;(), typeof(ModelType), out foundAttributes);
+            </code>
+            </example>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.Extensions.JsonApiDocumentExtensions.ToObjectCollection(Bitbird.Core.Json.JsonApi.JsonApiDocument,Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource,System.Type)">
+            <summary>
+            Extracts apiResource to an <see cref="T:System.Collections.Generic.IEnumerable`1"/> of type targetType.
+            </summary>
+            <param name="document"></param>
+            <param name="apiResource"></param>
+            <param name="targetType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.Extensions.JsonApiResourceObjectExtensions.ToObject(Bitbird.Core.Json.JsonApi.JsonApiResourceObject,Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource,System.Type)">
+            <summary>
+            Attempts to instatiate an object of type <paramref name="targetType"/> with data from <paramref name="resourceObject"/> using the <paramref name="apiResource"/>.
+            </summary>
+            <param name="resourceObject"></param>
+            <param name="apiResource"></param>
+            <param name="targetType"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource">
+            <summary>
+            Represents a resource that can be consumed by clients.
+            </summary>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="N:Bitbird.Core.Json.Helpers.ApiResource"/> class.
+            </summary>
+        </member>
+        <member name="P:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource.UrlPath">
+            <summary>
+            Gets the url path of this resource.
+            </summary>
+        </member>
+        <member name="P:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource.ResourceType">
+            <summary>
+            Gets the type name of this resource.
+            </summary>
+        </member>
+        <member name="P:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource.Attributes">
+            <summary>
+            Gets the defined attributes of this resource.
+            </summary>
+        </member>
+        <member name="P:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource.Relationships">
+            <summary>
+            Gets the defined relationships of this resource.
+            </summary>
+        </member>
+        <member name="P:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource.IdProperty">
+            <summary>
+            Gets the defined identifier of this resource.
+            </summary>
+        </member>
+        <member name="P:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource.LinkType">
+            <summary>
+            Gets the defined <see cref="P:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource.LinkType"/> to be generated for this resource.
+            </summary>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource.GetMetadata(System.Object,System.Type,System.Boolean)">
+            <summary>
+            Returns metadata for API responses that serialize this resource.
+            </summary>
+            <param name="response">The response object or collection.</param>
+            <param name="resourceType">
+            The type of the resource that is being serialized. If
+            the response is a collection, this is the generic type
+            parameter of that collection.
+            </param>
+            <param name="isEnumerable">True if the response is a collection of items, otherwise false.</param>
+            <returns>An object that will be serialized into the `meta` hash of the response.</returns>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource.OfType(System.String)">
+            <summary>
+            Customize the type name of this resource. The default value
+            is the name of the class (without 'Resource', if it exists).
+            </summary>
+            <param name="value">The type of the resource.</param>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource.OfType(System.String,System.String)">
+            <summary>
+            Customize the type name of this resource. The default value
+            is the name of the class (without 'Resource', if it exists).
+            </summary>
+            <param name="value">The type of the resource.</param>
+            <param name="path">The url pathspec of this relationship (default is the
+            pluralized version of the type name)</param>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource.WithId(System.String)">
+            <summary>
+            Customize the id property of this resource. The default value
+            is 'Id'.
+            </summary>
+            <param name="name">The name of the property that holds the id.</param>
+            <returns>Value that was set.</returns>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource.WithLinks(Bitbird.Core.Json.Helpers.ApiResource.LinkType)">
+            <summary>
+            Customize the LinkType property of this resource. The default value
+            is <see cref="F:Bitbird.Core.Json.Helpers.ApiResource.LinkType.All"/>.
+            </summary>
+            <param name="withLinks">The desired <see cref="P:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource.LinkType"/> to generate for this resource.</param>
+            <returns>Value that was set.</returns>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource.Attribute(System.String)">
+            <summary>
+            Specify an attribute of this resource.
+            </summary>
+            <param name="name">The name of the attribute.</param>
+            <returns>The <see cref="T:Bitbird.Core.Json.Helpers.ApiResource.ResourceAttribute"/>.</returns>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource.BelongsTo``1(System.String,System.String,System.String)">
+            <summary>
+            Specify a to-one relationship of this resource.
+            </summary>
+            <param name="name">The name of the relationship.</param>
+            <param name="path">The url pathspec of this relationship (default
+            is the name)</param>
+            <typeparam name="T">The api resource type of the relationship.</typeparam>
+            <returns>The <see cref="T:Bitbird.Core.Json.Helpers.ApiResource.ResourceRelationship"/>.</returns>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource.BelongsTo``1(System.String,System.String,System.String,Bitbird.Core.Json.Helpers.ApiResource.LinkType)">
+            <summary>
+            Specify a to-one relationship of this resource.
+            </summary>
+            <typeparam name="T">The api resource type of the relationship.</typeparam>
+            <param name="name">The name of the relationship reference property.</param>
+            <param name="idPropertyName">The name of the relationship id property.</param>
+            <param name="path">The url pathspec of this relationship (default
+            is the name)</param>
+            <param name="withLinks">The defined <see cref="P:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource.LinkType" /> to be generated for this relationship.</param>
+            <returns>
+            The <see cref="T:Bitbird.Core.Json.Helpers.ApiResource.ResourceRelationship" />.
+            </returns>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource.HasMany``1(System.String,System.String,System.String)">
+            <summary>
+            Specify a to-many relationship of this resource.
+            </summary>
+            <param name="name">The name of the relationship.</param>
+            <param name="path">The url pathspec of this relationship (default is the name).</param>
+            <typeparam name="T">The api resource type of the relationship.</typeparam>
+            <returns>The <see cref="T:Bitbird.Core.Json.Helpers.ApiResource.ResourceRelationship"/>.</returns>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource.HasMany``1(System.String,System.String,System.String,Bitbird.Core.Json.Helpers.ApiResource.LinkType)">
+            <summary>
+            Specify a to-many relationship of this resource.
+            </summary>
+            <typeparam name="T">The api resource type of the relationship.</typeparam>
+            <param name="name">The name of the relationship reference property.</param>
+            <param name="idPropertyName">The name of the relationship id property.</param>
+            <param name="path">The url pathspec of this relationship (default is the name).</param>
+            <param name="withLinks">The defined <see cref="P:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource.LinkType" /> to be generated for this relationship.</param>
+            <returns>
+            The <see cref="T:Bitbird.Core.Json.Helpers.ApiResource.ResourceRelationship" />.
+            </returns>
+        </member>
+        <member name="T:Bitbird.Core.Json.Helpers.ApiResource.LinkType">
+            <summary>
+            Describes one or more link types to be generated.
+            Source: https://github.com/joukevandermaas/saule/
+            </summary>
+        </member>
+        <member name="F:Bitbird.Core.Json.Helpers.ApiResource.LinkType.None">
+            <summary>
+            No links
+            </summary>
+        </member>
+        <member name="F:Bitbird.Core.Json.Helpers.ApiResource.LinkType.Self">
+            <summary>
+            Only self links
+            </summary>
+        </member>
+        <member name="F:Bitbird.Core.Json.Helpers.ApiResource.LinkType.Related">
+            <summary>
+            Only related links
+            </summary>
+        </member>
+        <member name="F:Bitbird.Core.Json.Helpers.ApiResource.LinkType.TopSelf">
+            <summary>
+            Only self links in the top section
+            </summary>
+        </member>
+        <member name="F:Bitbird.Core.Json.Helpers.ApiResource.LinkType.All">
+            <summary>
+            Generate all possible links
+            </summary>
+        </member>
+        <member name="T:Bitbird.Core.Json.Helpers.ApiResource.RelationshipKind">
+            <summary>
+            Represents the different kinds of relationships between resources.
+            </summary>
+        </member>
+        <member name="F:Bitbird.Core.Json.Helpers.ApiResource.RelationshipKind.BelongsTo">
+            <summary>
+            A to-one relationship between resources.
+            </summary>
+        </member>
+        <member name="F:Bitbird.Core.Json.Helpers.ApiResource.RelationshipKind.HasMany">
+            <summary>
+            A to-many relationship between resources.
+            </summary>
+        </member>
+        <member name="T:Bitbird.Core.Json.Helpers.ApiResource.ResourceAttribute">
+            <summary>
+            Represents an attribute on a resource.
+            </summary>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.ResourceAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Bitbird.Core.Json.Helpers.ApiResource.ResourceAttribute"/> class.
+            </summary>
+            <param name="name">The name of the attribute.</param>
+        </member>
+        <member name="P:Bitbird.Core.Json.Helpers.ApiResource.ResourceAttribute.InternalName">
+            <summary>
+            Gets the name of the attribute as provided from the ApiResource definition.
+            </summary>
+        </member>
+        <member name="P:Bitbird.Core.Json.Helpers.ApiResource.ResourceAttribute.Name">
+            <summary>
+            Gets the name of the attribute in dashed JSON API format.
+            </summary>
+        </member>
+        <member name="P:Bitbird.Core.Json.Helpers.ApiResource.ResourceAttribute.PropertyName">
+            <summary>
+            Gets the name of the attribute in PascalCase.
+            </summary>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.ResourceAttribute.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Bitbird.Core.Json.Helpers.ApiResource.ResourceRelationship">
+            <summary>
+            Represents a related resource (to-one or to-many).
+            </summary>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.ResourceRelationship.#ctor(System.String,System.String,System.String,Bitbird.Core.Json.Helpers.ApiResource.RelationshipKind,Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource,Bitbird.Core.Json.Helpers.ApiResource.LinkType)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Bitbird.Core.Json.Helpers.ApiResource.ResourceRelationship" /> class.
+            </summary>
+            <param name="name">The name of the reference on the resource that defines the relationship.</param>
+            <param name="urlPath">The url path of this relationship relative to the resource url that holds
+            the relationship.</param>
+            <param name="kind">The kind of relationship.</param>
+            <param name="relationshipResource">The specification of the related resource.</param>
+            <param name="withLinks">The defined <see cref="P:Bitbird.Core.Json.Helpers.ApiResource.ResourceRelationship.LinkType" /> to be generated for this relationship.</param>
+        </member>
+        <member name="P:Bitbird.Core.Json.Helpers.ApiResource.ResourceRelationship.Name">
+            <summary>
+            Gets the name of the relationship in dashed JSON API format.
+            </summary>
+        </member>
+        <member name="P:Bitbird.Core.Json.Helpers.ApiResource.ResourceRelationship.PropertyName">
+            <summary>
+            Gets the name of the relationship in PascalCase.
+            </summary>
+        </member>
+        <member name="P:Bitbird.Core.Json.Helpers.ApiResource.ResourceRelationship.IdPropertyName">
+            <summary>
+            Gets the name of the Id property relationship in PascalCase.
+            </summary>
+        </member>
+        <member name="P:Bitbird.Core.Json.Helpers.ApiResource.ResourceRelationship.RelatedResource">
+            <summary>
+            Gets the definition of the related resource
+            </summary>
+        </member>
+        <member name="P:Bitbird.Core.Json.Helpers.ApiResource.ResourceRelationship.UrlPath">
+            <summary>
+            Gets the pathspec of this relationship.
+            </summary>
+        </member>
+        <member name="P:Bitbird.Core.Json.Helpers.ApiResource.ResourceRelationship.Kind">
+            <summary>
+            Gets the kind of relationship.
+            </summary>
+        </member>
+        <member name="P:Bitbird.Core.Json.Helpers.ApiResource.ResourceRelationship.LinkType">
+            <summary>
+            Gets the defined <see cref="P:Bitbird.Core.Json.Helpers.ApiResource.ResourceRelationship.LinkType"/> to be generated for this relationship.
+            </summary>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.ResourceRelationship.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Bitbird.Core.Json.Helpers.ApiResource.UrlPathBuilder.CanonicalUrlPathBuilder">
+            <summary>
+            Always builds canonical self paths, rather than relationship paths.
+            </summary>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.UrlPathBuilder.CanonicalUrlPathBuilder.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Bitbird.Core.Json.Helpers.ApiResource.UrlPathBuilder.CanonicalUrlPathBuilder"/> class.
+            </summary>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.UrlPathBuilder.CanonicalUrlPathBuilder.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Bitbird.Core.Json.Helpers.ApiResource.UrlPathBuilder.CanonicalUrlPathBuilder"/> class.
+            </summary>
+            <param name="prefix">A prefix for all urls generated by this instance of the CanonicalUrlPathBuilder class.</param>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.UrlPathBuilder.CanonicalUrlPathBuilder.BuildRelationshipPath(Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource,System.String,Bitbird.Core.Json.Helpers.ApiResource.ResourceRelationship,System.String)">
+            <summary>
+            Returns a path in the form `/relatedResource.UrlPath/relatedResource.Id/`.
+            </summary>
+            <param name="resource">The resource this path is related to.</param>
+            <param name="id">The unique id of the resource.</param>
+            <param name="relationship">The relationship this path refers to.</param>
+            <param name="relatedResourceId">The id of the related resource.</param>
+            <returns>A <see cref="T:System.String"/> containing the path.</returns>
+        </member>
+        <member name="T:Bitbird.Core.Json.Helpers.ApiResource.UrlPathBuilder.DefaultUrlPathBuilder">
+            <summary>
+            Used to build url paths.
+            </summary>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.UrlPathBuilder.DefaultUrlPathBuilder.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Bitbird.Core.Json.Helpers.ApiResource.UrlPathBuilder.DefaultUrlPathBuilder"/> class.
+            </summary>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.UrlPathBuilder.DefaultUrlPathBuilder.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Bitbird.Core.Json.Helpers.ApiResource.UrlPathBuilder.DefaultUrlPathBuilder"/> class.
+            </summary>
+            <param name="prefix">A prefix for all urls generated by this instance of the DefaultUrlPathBuilder class.</param>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.UrlPathBuilder.DefaultUrlPathBuilder.BuildCanonicalPath(Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource)">
+            <summary>
+            Returns the UrlPath of the resource, ensuring it starts and ends with '/'
+            </summary>
+            <param name="resource">The resource this path refers to.</param>
+            <returns>A <see cref="T:System.String"/> containing the path.</returns>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.UrlPathBuilder.DefaultUrlPathBuilder.BuildCanonicalPath(Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource,System.String)">
+            <summary>
+            Returns a path in the form `/resource.UrlPath/id/`.
+            </summary>
+            <param name="resource">The resource this path refers to.</param>
+            <param name="id">The unique id of the resource.</param>
+            <returns>A <see cref="T:System.String"/> containing the path.</returns>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.UrlPathBuilder.DefaultUrlPathBuilder.BuildRelationshipPath(Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource,System.String,Bitbird.Core.Json.Helpers.ApiResource.ResourceRelationship)">
+            <summary>
+            Returns a path in the form `/resource.UrlPath/id/relationships/relationship.UrlPath/`.
+            </summary>
+            <param name="resource">The resource this path is related to.</param>
+            <param name="id">The unique id of the resource.</param>
+            <param name="relationship">The relationship this path refers to.</param>
+            <returns>A <see cref="T:System.String"/> containing the path.</returns>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.UrlPathBuilder.DefaultUrlPathBuilder.BuildRelationshipPath(Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource,System.String,Bitbird.Core.Json.Helpers.ApiResource.ResourceRelationship,System.String)">
+            <summary>
+            Returns a path in the form `/resource.UrlPath/id/relationship.UrlPath/`.
+            </summary>
+            <param name="resource">The resource this path is related to.</param>
+            <param name="id">The unique id of the resource.</param>
+            <param name="relationship">The relationship this path refers to.</param>
+            <param name="relatedResourceId">The id of the related resource.</param>
+            <returns>A <see cref="T:System.String"/> containing the path.</returns>
+        </member>
+        <member name="T:Bitbird.Core.Json.Helpers.ApiResource.UrlPathBuilder.IUrlPathBuilder">
+            <summary>
+            Used to build url paths.
+            </summary>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.UrlPathBuilder.IUrlPathBuilder.BuildCanonicalPath(Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource)">
+            <summary>
+            Builds the canonical path to a resource collection.
+            </summary>
+            <param name="resource">The resource this path refers to.</param>
+            <returns>A <see cref="T:System.String"/> containing the path.</returns>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.UrlPathBuilder.IUrlPathBuilder.BuildCanonicalPath(Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource,System.String)">
+            <summary>
+            Builds the canonical path to a specific resource.
+            </summary>
+            <param name="resource">The resource this path refers to.</param>
+            <param name="id">The id of the resource.</param>
+            <returns>A <see cref="T:System.String"/> containing the path.</returns>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.UrlPathBuilder.IUrlPathBuilder.BuildRelationshipPath(Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource,System.String,Bitbird.Core.Json.Helpers.ApiResource.ResourceRelationship)">
+            <summary>
+            Builds the path to a related resource.
+            </summary>
+            <param name="resource">The resource that contains the relationship.</param>
+            <param name="id">The id of the resource.</param>
+            <param name="relationship">The relationship this path refers to.</param>
+            <returns>A <see cref="T:System.String"/> containing the path.</returns>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.UrlPathBuilder.IUrlPathBuilder.BuildRelationshipPath(Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource,System.String,Bitbird.Core.Json.Helpers.ApiResource.ResourceRelationship,System.String)">
+            <summary>
+            Builds the self path to a related resource.
+            </summary>
+            <param name="resource">The resource that contains the relationship.</param>
+            <param name="id">The id of the resource.</param>
+            <param name="relationship">The relationship this path refers to.</param>
+            <param name="relatedResourceId">The id of the related resource.</param>
+            <returns>A <see cref="T:System.String"/> containing the path.</returns>
+        </member>
+    </members>
+</doc>

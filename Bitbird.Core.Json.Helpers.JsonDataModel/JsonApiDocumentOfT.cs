@@ -125,18 +125,14 @@ namespace Bitbird.Core.Json.Helpers.JsonDataModel
                     {
                         if (typeof(IJsonApiDataModel).IsAssignableFrom(propertyInfo.PropertyType))
                         {
-                            var rawdata = propertyInfo.GetValue(data) as IJsonApiDataModel;
-                            Included.AddResource(JsonApiResourceBuilder.Build(rawdata, false));
+                            var rawData = propertyInfo.GetValue(data) as IJsonApiDataModel;
+                            Included.AddResource(JsonApiResourceBuilder.Build(rawData, false));
                         }
-                        else if (propertyInfo.PropertyType.IsNonStringEnumerable())
+                        else if (propertyInfo.PropertyType.IsNonStringEnumerable() && propertyInfo.GetValue(data) is IEnumerable<IJsonApiDataModel> rawData)
                         {
-                            var rawdata = propertyInfo.GetValue(data) as IEnumerable<IJsonApiDataModel>;
-                            if (rawdata != null)
+                            foreach (var item in rawData)
                             {
-                                foreach (var item in rawdata as IEnumerable<IJsonApiDataModel>)
-                                {
-                                    Included.AddResource(JsonApiResourceBuilder.Build(item, false));
-                                }
+                                Included.AddResource(JsonApiResourceBuilder.Build(item, false));
                             }
                         }
                     }
@@ -172,7 +168,7 @@ namespace Bitbird.Core.Json.Helpers.JsonDataModel
             Type resultType = typeof(T);
             foreach (var item in Data)
             {
-                T result = default(T);
+                T result = default;
                 result = item.ToObject<T>(true);
 
                 if (item.Relationships == null) { results.Add(result); continue; }
@@ -181,8 +177,10 @@ namespace Bitbird.Core.Json.Helpers.JsonDataModel
                 {
                     if (typeof(IJsonApiDataModel).IsAssignableFrom(property.PropertyType))
                     {
-                        var propertyValue = property.GetValueFast(result) as IJsonApiDataModel;
-                        if (propertyValue == null) { continue; }
+                        if (!(property.GetValueFast(result) is IJsonApiDataModel propertyValue))
+                        {
+                            continue;
+                        }
                         string typeString = propertyValue.GetJsonApiClassName();
                         var includedResource = GetIncludedResource(new ResourceKey(propertyValue.GetIdAsString(), typeString));
                         if (includedResource == null) { continue; }
@@ -192,8 +190,10 @@ namespace Bitbird.Core.Json.Helpers.JsonDataModel
                     {
                         var innerType = property.PropertyType.GenericTypeArguments[0];
                         var listInstance = Activator.CreateInstance(typeof(List<>).MakeGenericType(innerType)) as IList;
-                        var propertyValue = property.GetValueFast(result) as IEnumerable<IJsonApiDataModel>;
-                        if (propertyValue == null) { continue; }
+                        if (!(property.GetValueFast(result) is IEnumerable<IJsonApiDataModel> propertyValue))
+                        {
+                            continue;
+                        }
                         foreach (var reference in propertyValue)
                         {
                             string typeString = reference.GetJsonApiClassName();

@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Bitbird.Core.Json.Helpers.JsonDataModel</name>
+    </assembly>
+    <members>
+        <member name="M:Bitbird.Core.Json.Helpers.JsonDataModel.Extensions.JsonApiResourceObjectExtensions.ToObject``1(Bitbird.Core.Json.JsonApi.JsonApiResourceObject,System.Boolean)">
+            <summary>
+            Converts the resource to a object.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.JsonDataModel.Extensions.JsonApiResourceObjectExtensions.ToObject(Bitbird.Core.Json.JsonApi.JsonApiResourceObject,System.Type,System.Boolean)">
+            <summary>
+            Converts the resource to a object.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.JsonDataModel.JsonApiCollectionDocument`1.SetupResources(`0,System.Uri)">
+            <summary>
+            Instantiates the ResourceObjects in the Data property
+            </summary>
+            <param name="data"></param>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.JsonDataModel.JsonApiCollectionDocument`1.SetupResources(System.Collections.Generic.IEnumerable{`0},System.Uri)">
+            <summary>
+            Instantiates the ResourceObjects in the Data property
+            </summary>
+            <param name="data"></param>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.JsonDataModel.JsonApiCollectionDocument`1.SetupIncludes(`0,System.Collections.Generic.IEnumerable{System.Reflection.PropertyInfo},System.Uri)">
+            <summary>
+            Populates the Included Property with ResourceObjects
+            </summary>
+            <param name="data"></param>
+            <param name="includedProperties"></param>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.JsonDataModel.JsonApiCollectionDocument`1.SetupIncludes(System.Collections.Generic.IEnumerable{`0},System.Collections.Generic.IEnumerable{System.Reflection.PropertyInfo},System.Uri)">
+            <summary>
+            Populates the Included Property with ResourceObjects
+            </summary>
+            <param name="dataSet">The data conatining the properties</param>
+            <param name="includedProperties">Defines which properties are to be included</param>
+        </member>
+        <member name="M:Bitbird.Core.Json.Helpers.JsonDataModel.JsonApiCollectionDocument`1.ToObject">
+            <summary>
+            Extracts all primary data items from the JsonApiDocuments.
+            If any Relationships are present the model instances with the respective id's will being injected.
+            If any Includes are present the model instances with the respective attirbutes will being injected.
+            </summary>
+            <returns>An empty collection if no data exists</returns>
+        </member>
+    </members>
+</doc>

@@ -1,16 +1,18 @@
-﻿// https://stackoverflow.com/questions/5095183/how-would-i-run-an-async-taskt-method-synchronously
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Bitbird.Core.Tasks
 {
+    /// <summary>
+    /// See <see href="https://stackoverflow.com/questions/5095183/how-would-i-run-an-async-taskt-method-synchronously"/>.
+    /// </summary>
     public static class AsyncHelper
     {
         /// <summary>
-        /// Execute's an async Task<T> method which has a void return value synchronously
+        /// Executes an async <see cref="Task{TResult}"/> method which has a void return value synchronously.
         /// </summary>
-        /// <param name="task">Task<T> method to execute</param>
+        /// <param name="task"><see cref="Task{TResult}"/> method to execute.</param>
         public static void RunSync(Func<Task> task)
         {
             var oldContext = SynchronizationContext.Current;
@@ -33,16 +35,15 @@ namespace Bitbird.Core.Tasks
                 }
             }, null);
             synch.BeginMessageLoop();
-
             SynchronizationContext.SetSynchronizationContext(oldContext);
         }
 
         /// <summary>
-        /// Execute's an async Task<T> method which has a T return type synchronously
+        /// Executes an async <see cref="Task{TResult}"/> method which has a T return type synchronously.
         /// </summary>
-        /// <typeparam name="T">Return Type</typeparam>
-        /// <param name="task">Task<T> method to execute</param>
-        /// <returns></returns>
+        /// <typeparam name="T">Return type of the task and therefore this method.</typeparam>
+        /// <param name="task"><see cref="Task{TResult}"/> method to execute.</param>
+        /// <returns>The value returned by the task.</returns>
         public static T RunSync<T>(Func<Task<T>> task)
         {
             var oldContext = SynchronizationContext.Current;

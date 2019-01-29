@@ -25,7 +25,7 @@ namespace Bitbird.Core.Api.AzureReporting.Net
         /// </summary>
         private const string ApiVersion = "4.1";
         /// <summary>
-        /// Settings for de- & serialization of data during REST requests with the Azure DevOps REST interface.
+        /// Settings for de- &amp; serialization of data during REST requests with the Azure DevOps REST interface.
         /// </summary>
         private static readonly JsonSerializerSettings JsonSerializerSettings = new JsonSerializerSettings
         {

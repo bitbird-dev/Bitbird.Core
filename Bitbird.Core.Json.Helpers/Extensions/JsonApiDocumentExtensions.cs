@@ -1,11 +1,10 @@
 ﻿using Bitbird.Core.Json.JsonApi;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 using Bitbird.Core.Json.Extensions;
-using Bitbird.Core.Json.Helpers.Base.Extensions;
 using System.Collections;
+using System.Reflection;
 
 namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 {
@@ -22,25 +21,27 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
         public static object ToObject(this IJsonApiDocument document, JsonApiResource apiResource, Type targetType)
         {
-            if(document is JsonApiDocument)
+            switch (document)
             {
-                return (document as JsonApiDocument).ToObjectInternal(apiResource, targetType);
-            }
-            else
-            {
-                return (document as JsonApiCollectionDocument).ToObjectInternal(apiResource, targetType);
+                case JsonApiDocument doc:
+                    return doc.ToObjectInternal(apiResource, targetType);
+                case JsonApiCollectionDocument collDoc:
+                    return collDoc.ToObjectInternal(apiResource, targetType);
+                default:
+                    throw new ArgumentException($"Parameter {nameof(document)} does not have a supported type. (Type={document?.GetType()})");
             }
         }
 
         public static object ToObject(this IJsonApiDocument document, JsonApiResource apiResource, Type targetType, out Func<int, string, bool> foundAttributes)
         {
-            if (document is JsonApiDocument)
+            switch (document)
             {
-                return (document as JsonApiDocument).ToObjectInternal(apiResource, targetType, out foundAttributes);
-            }
-            else
-            {
-                return (document as JsonApiCollectionDocument).ToObjectInternal(apiResource, targetType, out foundAttributes);
+                case JsonApiDocument doc:
+                    return doc.ToObjectInternal(apiResource, targetType, out foundAttributes);
+                case JsonApiCollectionDocument collDoc:
+                    return collDoc.ToObjectInternal(apiResource, targetType, out foundAttributes);
+                default:
+                    throw new ArgumentException($"Parameter {nameof(document)} does not have a supported type. (Type={document?.GetType()})");
             }
         }
 
@@ -48,21 +49,23 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
         #region IncludeRelation
 
-        public static void IncludeRelation<T_Resource>(this IJsonApiDocument document, object data, string path, string baseUrl = null) where T_Resource : JsonApiResource
+        public static void IncludeRelation<TResource>(this IJsonApiDocument document, object data, string path, string baseUrl = null) where TResource : JsonApiResource
         {
-            document.IncludeRelation(Activator.CreateInstance<T_Resource>(), data, path, baseUrl);
+            document.IncludeRelation(Activator.CreateInstance<TResource>(), data, path, baseUrl);
         }
 
-        public static void IncludeRelation(this IJsonApiDocument document, JsonApiResource dataApiResource, object data, string path, string baseUrl = null) // TODO: include relations for collections
+        public static void IncludeRelation(this IJsonApiDocument document, JsonApiResource dataApiResource, object data, string path, string baseUrl = null)
         {
+            // TODO: include relations for collections
+
             // parse paths
-            var subpaths = path.Split(new char[] { ',' });
-            var collection = data as IEnumerable<object>;
-            if (collection != null)
+            var subPaths = path.Split(',');
+
+            if (data is IEnumerable<object> collection)
             {
                 foreach (var item in collection)
                 {
-                    foreach (var includePath in subpaths)
+                    foreach (var includePath in subPaths)
                     {
                         // generate tree
                         var includePathTree = GenerateIncludeTree(dataApiResource, includePath);
@@ -73,7 +76,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             }
             else
             {
-                foreach (var includePath in subpaths)
+                foreach (var includePath in subPaths)
                 {
                     // generate tree
                     var includePathTree = GenerateIncludeTree(dataApiResource, includePath);
@@ -106,8 +109,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             }
             else
             {
-                var collection = value as IEnumerable<object>;
-                if (collection != null && collection.Count() > 0)
+                if (value is IEnumerable<object> collection && collection.Any())
                 {
                     if (document.Included == null) { document.Included = new JsonApi.Dictionaries.JsonApiResourceObjectDictionary(); }
                     foreach (var item in collection)
@@ -130,17 +132,20 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         internal static IncludePathNode GenerateIncludeTree(JsonApiResource apiResource, string path)
         {
             if (string.IsNullOrWhiteSpace(path)) { return null; }
-            var subpaths = path.Split(new char[] { '.' }, 2);
+            var subPaths = path.Split(new[] { '.' }, 2);
 
-            var relationshipName = subpaths[0].ToJsonRelationshipName();
-            var relationshipResource = apiResource.Relationships.Where(x => x.Name == relationshipName).FirstOrDefault();
+            var relationshipName = subPaths[0].ToJsonRelationshipName();
+            var relationshipResource = apiResource.Relationships.FirstOrDefault(x => x.Name == relationshipName);
             if (relationshipResource == null) { throw new Exception($"Cannot include resource {path}: Path does not exist."); }
+
             var resultNode = new IncludePathNode
             {
                 PropertyPath = relationshipName,
                 IncludeApiResourceRelationship = relationshipResource,
+                Child = subPaths.Length > 1
+                    ? GenerateIncludeTree(relationshipResource.RelatedResource, subPaths[1])
+                    : null
             };
-            resultNode.Child = (subpaths.Count() > 1) ? GenerateIncludeTree(relationshipResource.RelatedResource, subpaths[1]) : null;
             return resultNode;
         }
 
@@ -154,7 +159,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
         public static JsonApiCollectionDocument CreateDocumentFromApiResource<T>(IEnumerable data, string baseUrl = null) where T : JsonApiResource
         {
-            T apiResource = Activator.CreateInstance<T>();
+            var apiResource = Activator.CreateInstance<T>();
             var document = new JsonApiCollectionDocument();
             document.FromApiResource(data, apiResource, baseUrl);
             return document;
@@ -167,7 +172,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         public static void FromApiResource(this JsonApiCollectionDocument document, IEnumerable data, JsonApiResource apiResource, string baseUrl = null)
         {
             if (data == null) { return; }
-            List<JsonApiResourceObject> resourceObjects = new List<JsonApiResourceObject>();
+            var resourceObjects = new List<JsonApiResourceObject>();
             foreach (var item in data)
             {
                 var rObject = new JsonApiResourceObject();
@@ -191,17 +196,17 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         
         #region ToObjectCollection
 
-        public static IEnumerable<T_Result> ToObjectCollection<T_Result, T_Resource>(this JsonApiCollectionDocument document) where T_Resource : JsonApiResource
+        public static IEnumerable<TResult> ToObjectCollection<TResult, TResource>(this JsonApiCollectionDocument document) where TResource : JsonApiResource
         {
             var primaryResourceObjects = document.Data;
             if (primaryResourceObjects == null) throw new Exception("Json document contains no data.");
-            return primaryResourceObjects.Select(r => r.ToObject<T_Result, T_Resource>()).ToList();
+            return primaryResourceObjects.Select(r => r.ToObject<TResult, TResource>()).ToList();
         }
 
-        public static IEnumerable<T_Result> ToObjectCollection<T_Result, T_Resource>(this JsonApiCollectionDocument document, out Func<int, string, bool> foundAttributes) where T_Resource : JsonApiResource
+        public static IEnumerable<TResult> ToObjectCollection<TResult, TResource>(this JsonApiCollectionDocument document, out Func<int, string, bool> foundAttributes) where TResource : JsonApiResource
         {
             foundAttributes = (idx, attrName) => (document.Data.ElementAt(idx)?.Attributes?.ContainsKey(attrName.ToJsonAttributeName())).Value;
-            return document.ToObjectCollection<T_Result, T_Resource>();
+            return document.ToObjectCollection<TResult, TResource>();
         }
 
         #endregion
@@ -214,7 +219,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         }
 
         /// <summary>
-        /// Extracts apiResource to an IEmumerable of type targetType.
+        /// Extracts apiResource to an <see cref="IEnumerable{T}"/> of type targetType.
         /// </summary>
         /// <param name="document"></param>
         /// <param name="apiResource"></param>
@@ -229,7 +234,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             var primaryResourceObjects = document.Data;
             if (primaryResourceObjects == null) throw new Exception("Json document contains no data.");
 
-            var method = typeof(JsonApiCollectionDocumentExtensions).GetMethod(nameof(JsonApiCollectionDocumentExtensions.Cast), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).MakeGenericMethod(targetType);
+            var method = typeof(JsonApiCollectionDocumentExtensions).GetMethod(nameof(Cast), BindingFlags.Static | BindingFlags.NonPublic)?.MakeGenericMethod(targetType);
             return method.Invoke(null, new object[] { primaryResourceObjects, apiResource });
         }
 
@@ -243,14 +248,14 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
         #region GetIncludedResource
 
-        public static T_Result GetIncludedResource<T_Result, T_ResultApiResource>(this JsonApiCollectionDocument document, object id) where T_ResultApiResource : JsonApiResource where T_Result : class
+        public static TResult GetIncludedResource<TResult, TResultApiResource>(this JsonApiCollectionDocument document, object id) where TResultApiResource : JsonApiResource where TResult : class
         {
-            return (T_Result)document.GetIncludedResource(id, typeof(T_Result), Activator.CreateInstance<T_ResultApiResource>());
+            return (TResult)document.GetIncludedResource(id, typeof(TResult), Activator.CreateInstance<TResultApiResource>());
         }
 
-        public static T_Result GetIncludedResource<T_Result>(this JsonApiCollectionDocument document, object id, JsonApiResource apiResource) where T_Result : class
+        public static TResult GetIncludedResource<TResult>(this JsonApiCollectionDocument document, object id, JsonApiResource apiResource) where TResult : class
         {
-            return (T_Result)document.GetIncludedResource(id, typeof(T_Result), apiResource);
+            return (TResult)document.GetIncludedResource(id, typeof(TResult), apiResource);
         }
 
         public static object GetIncludedResource(this JsonApiCollectionDocument document, object id, Type type, JsonApiResource apiResource)
@@ -269,8 +274,8 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
         public static JsonApiDocument CreateDocumentFromApiResource<T>(object data, string baseUrl = null) where T : JsonApiResource
         {
-            T apiResource = Activator.CreateInstance<T>();
-            JsonApiDocument document = new JsonApiDocument();
+            var apiResource = Activator.CreateInstance<T>();
+            var document = new JsonApiDocument();
             document.FromApiResource(data, apiResource, baseUrl);
             return document;
         }
@@ -281,83 +286,83 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
         public static void FromApiResource(this JsonApiDocument document, object data, JsonApiResource apiResource, string baseUrl = null)
         {
-            if(data == null) { return; }
-            if(data is IEnumerable<object> enumCollection)
+            switch (data)
             {
-                throw new Exception("data cannot be a collection");
+                case null:
+                    return;
+                case IEnumerable<object> _:
+                    throw new Exception("data cannot be a collection");
             }
-            else
+
+            var rObject = new JsonApiResourceObject();
+            rObject.FromApiResource(data, apiResource, baseUrl);
+            document.Data = rObject;
+            if (!string.IsNullOrWhiteSpace(baseUrl))
             {
-                var rObject = new JsonApiResourceObject();
-                rObject.FromApiResource(data, apiResource, baseUrl);
-                document.Data = rObject;
-                if (!string.IsNullOrWhiteSpace(baseUrl))
+                document.Links = new JsonApiLinksObject
                 {
-                    document.Links = new JsonApiLinksObject
+                    Self = new JsonApiLink
                     {
-                        Self = new JsonApiLink
-                        {
-                            Href = $"{baseUrl}{apiResource.UrlPath}/{rObject.Id}"
-                        }
-                    };
-                }
+                        Href = $"{baseUrl}{apiResource.UrlPath}/{rObject.Id}"
+                    }
+                };
             }
         }
 
         #endregion
-        
+
         #region ToObject
 
         /// <summary>
         /// Extract primary Data from the JsonApiDocument.
         /// </summary>
-        /// <typeparam name="T_Result">The Type of the exracted Data.</typeparam>
-        /// <typeparam name="T_Resource">The Type of JsonApiResource used to extract the Data.</typeparam>
+        /// <typeparam name="TResult">The Type of the extracted Data.</typeparam>
+        /// <typeparam name="TResource">The Type of JsonApiResource used to extract the Data.</typeparam>
         /// <returns>An instance containing the model data.</returns>
         /// <example>
         /// <code>
-        /// ModelType m = jsonDocument.ToObject<ModelType, ModelTypeApiResource>();
+        /// ModelType m = jsonDocument.ToObject&lt;ModelType, ModelTypeApiResource>();
         /// </code>
         /// </example>
-        public static T_Result ToObject<T_Result, T_Resource>(this JsonApiDocument document) where T_Resource : JsonApiResource
+        public static TResult ToObject<TResult, TResource>(this JsonApiDocument document) where TResource : JsonApiResource
         {
             var primaryResourceObject = document.Data;
             if (primaryResourceObject == null) throw new Exception("Json document contains no data.");
 
             // extract primary data
-            return primaryResourceObject.ToObject<T_Result, T_Resource>();
+            return primaryResourceObject.ToObject<TResult, TResource>();
         }
 
         /// <summary>
         /// Extract primary Data from the JsonApiDocument.
         /// </summary>
-        /// <typeparam name="T_Result">The Type of the exracted Data.</typeparam>
-        /// <typeparam name="T_Resource">The Type of JsonApiResource used to extract the Data.</typeparam>
+        /// <typeparam name="TResult">The Type of the extracted Data.</typeparam>
+        /// <typeparam name="TResource">The Type of JsonApiResource used to extract the Data.</typeparam>
         /// <param name="foundAttributes">A function to determine which attributes were found in the JsonDocument's primary data</param>
         /// <returns>An instance containing the model data.</returns>
         /// <example>
         /// <code>
-        /// Func<string, bool> foundAttributes;
-        /// ModelType m = jsonDocument.ToObject<ModelType, ModelTypeApiResource>(out foundAttributes);
+        /// Func&lt;string, bool&gt; foundAttributes;
+        /// ModelType m = jsonDocument.ToObject&lt;ModelType, ModelTypeApiResource&gt;(out foundAttributes);
         /// </code>
         /// </example>
-        public static T_Result ToObject<T_Result, T_Resource>(this JsonApiDocument document, out Func<string, bool> foundAttributes) where T_Resource : JsonApiResource
+        public static TResult ToObject<TResult, TResource>(this JsonApiDocument document, out Func<string, bool> foundAttributes) where TResource : JsonApiResource
         {
             var attrs = document.Data.Attributes;
-            foundAttributes = (attrName) => attrs != null ? attrs.ContainsKey(attrName.ToJsonAttributeName()) : false;
-            return document.ToObject<T_Result, T_Resource>();
+            foundAttributes = (attrName) => attrs?.ContainsKey(attrName.ToJsonAttributeName()) ?? false;
+            return document.ToObject<TResult, TResource>();
         }
 
         /// <summary>
         /// Extract primary Data from the JsonApiDocument.
         /// </summary>
         /// <param name="apiResource">instance of JsonApiResource used to extract the Data.</param>
-        /// <param name="targetType">The Type of the exracted Data.</param>
+        /// <param name="targetType">The Type of the extracted Data.</param>
         /// <returns>An instance containing the model data.</returns>
         /// <example>
         /// <code>
-        /// var collection = jsonDocument.ToObject(Activator.CreateInstance<ModelTypeApiResource>(), typeof(IEnumerable<ModelType>));
-        /// var singleItem = jsonDocument.ToObject(Activator.CreateInstance<ModelTypeApiResource>(), typeof(ModelType));
+        /// var collection = jsonDocument.ToObject(Activator.CreateInstance&lt;ModelTypeApiResource&gt;(), typeof(IEnumerable&lt;ModelType&gt;));
+        /// var singleItem = jsonDocument.ToObject(Activator.CreateInstance&lt;ModelTypeApiResource&gt;(), typeof(ModelType));
         /// </code>
         /// </example>
         public static object ToObjectInternal(this JsonApiDocument document, JsonApiResource apiResource, Type targetType)
@@ -378,20 +383,20 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         /// Extract primary Data from the JsonApiDocument.
         /// </summary>
         /// <param name="apiResource">instance of JsonApiResource used to extract the Data.</param>
-        /// <param name="targetType">The Type of the exracted Data.</param>
+        /// <param name="targetType">The Type of the extracted Data.</param>
         /// <param name="foundAttributes">A function to determine which attributes were found in the JsonDocument's primary data</param>
         /// <returns>An instance containing the model data.</returns>
         /// <example>
         /// <code>
-        /// Func<string, bool> foundAttributes;
-        /// var collection = jsonDocument.ToObject(Activator.CreateInstance<ModelTypeApiResource>(), typeof(IEnumerable<ModelType>, out foundAttributes));
-        /// var singleItem = jsonDocument.ToObject(Activator.CreateInstance<ModelTypeApiResource>(), typeof(ModelType), out foundAttributes);
+        /// Func&gt;string, bool&lt; foundAttributes;
+        /// var collection = jsonDocument.ToObject(Activator.CreateInstance&lt;ModelTypeApiResource&gt;(), typeof(IEnumerable&lt;ModelType&gt;, out foundAttributes));
+        /// var singleItem = jsonDocument.ToObject(Activator.CreateInstance&lt;ModelTypeApiResource&gt;(), typeof(ModelType), out foundAttributes);
         /// </code>
         /// </example>
         public static object ToObjectInternal(this JsonApiDocument document, JsonApiResource apiResource, Type targetType, out Func<int, string, bool> foundAttributes)
         {
             var attrs = document.Data.Attributes;
-            foundAttributes = (idx, attrName) => attrs != null ? attrs.ContainsKey(attrName.ToJsonAttributeName()) : false;
+            foundAttributes = (idx, attrName) => attrs?.ContainsKey(attrName.ToJsonAttributeName()) ?? false;
             return document.ToObject(apiResource, targetType);
         }
 
@@ -399,17 +404,17 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
         #region ToObjectCollection
 
-        public static IEnumerable<T_Result> ToObjectCollection<T_Result, T_Resource>(this JsonApiDocument document) where T_Resource : JsonApiResource
+        public static IEnumerable<TResult> ToObjectCollection<TResult, TResource>(this JsonApiDocument document) where TResource : JsonApiResource
         {
             var primaryResourceObject = document.Data;
             if (primaryResourceObject == null) throw new Exception("Json document contains no data.");
-            return new List<T_Result> { primaryResourceObject.ToObject<T_Result, T_Resource>() };
+            return new List<TResult> { primaryResourceObject.ToObject<TResult, TResource>() };
         }
         
-        public static IEnumerable<T_Result> ToObjectCollection<T_Result, T_Resource>(this JsonApiDocument document, out Func<string, bool> foundAttributes) where T_Resource : JsonApiResource
+        public static IEnumerable<TResult> ToObjectCollection<TResult, TResource>(this JsonApiDocument document, out Func<string, bool> foundAttributes) where TResource : JsonApiResource
         {
             foundAttributes = (attrName) => (document.Data?.Attributes?.ContainsKey(attrName.ToJsonAttributeName())).Value;
-            return document.ToObjectCollection<T_Result, T_Resource>();
+            return document.ToObjectCollection<TResult, TResource>();
         }
 
         internal static IEnumerable<T> Cast<T>(JsonApiResourceObject data, JsonApiResource apiResource)
@@ -418,7 +423,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         }
 
         /// <summary>
-        /// Extracts apiResource to an IEmumerable of type targetType.
+        /// Extracts apiResource to an <see cref="IEnumerable{T}"/> of type targetType.
         /// </summary>
         /// <param name="document"></param>
         /// <param name="apiResource"></param>
@@ -433,7 +438,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             var primaryResourceObject = document.Data;
             if (primaryResourceObject == null) throw new Exception("Json document contains no data.");
 
-            var method = typeof(JsonApiDocumentExtensions).GetMethod(nameof(JsonApiDocumentExtensions.Cast), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).MakeGenericMethod(targetType);
+            var method = typeof(JsonApiDocumentExtensions).GetMethod(nameof(Cast), BindingFlags.Static | BindingFlags.NonPublic).MakeGenericMethod(targetType);
             return method.Invoke(null, new object[] { primaryResourceObject, apiResource });
         }
         
@@ -447,14 +452,14 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
         #region GetIncludedResource
 
-        public static T_Result GetIncludedResource<T_Result,T_ResultApiResource>(this JsonApiDocument document, object id) where T_ResultApiResource : JsonApiResource where T_Result : class
+        public static TResult GetIncludedResource<TResult, TResultApiResource>(this JsonApiDocument document, object id) where TResultApiResource : JsonApiResource where TResult : class
         {
-            return (T_Result)document.GetIncludedResource(id, typeof(T_Result), Activator.CreateInstance<T_ResultApiResource>());
+            return (TResult)document.GetIncludedResource(id, typeof(TResult), Activator.CreateInstance<TResultApiResource>());
         }
 
-        public static T_Result GetIncludedResource<T_Result>(this JsonApiDocument document, object id, JsonApiResource apiResource) where T_Result : class
+        public static TResult GetIncludedResource<TResult>(this JsonApiDocument document, object id, JsonApiResource apiResource) where TResult : class
         {
-            return (T_Result)document.GetIncludedResource(id, typeof(T_Result), apiResource);
+            return (TResult)document.GetIncludedResource(id, typeof(TResult), apiResource);
         }
 
         public static object GetIncludedResource(this JsonApiDocument document, object id, Type type,JsonApiResource apiResource)

@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Bitbird.Core</name>
+    </assembly>
+    <members>
+        <member name="T:Bitbird.Core.IId`1">
+            <summary>
+            An object that can be uniquely identified among other objects of the same type by an id.
+            </summary>
+            <typeparam name="T">The id's data-type. Simple types are recommended.</typeparam>
+        </member>
+        <member name="P:Bitbird.Core.IId`1.Id">
+            <summary>
+            An id that uniquely identifies this object among other objects of the same type.
+            </summary>
+        </member>
+        <member name="T:Bitbird.Core.Tasks.AsyncHelper">
+            <summary>
+            See <see href="https://stackoverflow.com/questions/5095183/how-would-i-run-an-async-taskt-method-synchronously"/>.
+            </summary>
+        </member>
+        <member name="M:Bitbird.Core.Tasks.AsyncHelper.RunSync(System.Func{System.Threading.Tasks.Task})">
+            <summary>
+            Executes an async <see cref="T:System.Threading.Tasks.Task`1"/> method which has a void return value synchronously.
+            </summary>
+            <param name="task"><see cref="T:System.Threading.Tasks.Task`1"/> method to execute.</param>
+        </member>
+        <member name="M:Bitbird.Core.Tasks.AsyncHelper.RunSync``1(System.Func{System.Threading.Tasks.Task{``0}})">
+            <summary>
+            Executes an async <see cref="T:System.Threading.Tasks.Task`1"/> method which has a T return type synchronously.
+            </summary>
+            <typeparam name="T">Return type of the task and therefore this method.</typeparam>
+            <param name="task"><see cref="T:System.Threading.Tasks.Task`1"/> method to execute.</param>
+            <returns>The value returned by the task.</returns>
+        </member>
+    </members>
+</doc>

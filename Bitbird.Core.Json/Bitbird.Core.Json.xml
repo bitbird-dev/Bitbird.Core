@@ -1,0 +1,163 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Bitbird.Core.Json</name>
+    </assembly>
+    <members>
+        <member name="T:Bitbird.Core.Json.JsonApi.Attributes.JsonApiDataCollectionAttribute">
+            <summary>
+            Instructs the <see cref="T:Newtonsoft.Json.JsonSerializer"/> how to serialize the collection.
+            </summary>
+        </member>
+        <member name="P:Bitbird.Core.Json.JsonApi.Attributes.JsonApiDataCollectionAttribute.AllowNullItems">
+            <summary>
+            Gets or sets a value indicating whether null items are allowed in the collection.
+            </summary>
+            <value><c>true</c> if null items are allowed in the collection; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="M:Bitbird.Core.Json.JsonApi.Attributes.JsonApiDataCollectionAttribute.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Newtonsoft.Json.JsonArrayAttribute"/> class.
+            </summary>
+        </member>
+        <member name="M:Bitbird.Core.Json.JsonApi.Attributes.JsonApiDataCollectionAttribute.#ctor(System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Newtonsoft.Json.JsonObjectAttribute"/> class with a flag indicating whether the array can contain null items.
+            </summary>
+            <param name="allowNullItems">A flag indicating whether the array can contain null items.</param>
+        </member>
+        <member name="M:Bitbird.Core.Json.JsonApi.Attributes.JsonApiDataCollectionAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Newtonsoft.Json.JsonArrayAttribute"/> class with the specified container Id.
+            </summary>
+            <param name="id">The container Id.</param>
+        </member>
+        <member name="M:Bitbird.Core.Json.JsonApi.Dictionaries.JsonApiResourceObjectDictionary.#ctor">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="M:Bitbird.Core.Json.JsonApi.Dictionaries.JsonApiResourceObjectDictionary.AddResource(Bitbird.Core.Json.JsonApi.JsonApiResourceObject)">
+            <summary>
+            Adds a resource to the Dictionary.
+            Ignores duplicates.
+            </summary>
+            <param name="resource"></param>
+        </member>
+        <member name="M:Bitbird.Core.Json.JsonApi.Dictionaries.JsonApiResourceObjectDictionary.GetResource(System.String,System.String)">
+            <summary>
+            Retrievews a resource from the Dictionary.
+            Returns null if resource does not exist.
+            </summary>
+            <param name="resourceId"></param>
+            <param name="resourceType"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Bitbird.Core.Json.JsonApi.JsonApiDocument">
+             <summary>
+             A document MUST contain at least one of the following top-level members:
+            
+                 data: the document’s “primary data”
+                 errors: an array of error objects
+                 meta: a meta object that contains non-standard meta-information.
+                 
+             The members data and errors MUST NOT coexist in the same document.
+             
+             A document MAY contain any of these top-level members:
+             
+                 jsonapi: an object describing the server’s implementation
+                 links: a links object related to the primary data.
+                 included: an array of resource objects that are related to the primary data and/or each other (“included resources”).
+             
+             If a document does not contain a top-level data key, the included member MUST NOT be present either.
+             
+             The top-level links object MAY contain the following members:
+                 
+                 self: the link that generated the current response document.
+                 related: a related resource link when the primary data represents a resource relationship.
+                 pagination links for the primary data.
+                 
+             Primary data MUST be either:
+             
+                 a single resource object, a single resource identifier object, or null, for requests that target single resources
+                 an array of resource objects, an array of resource identifier objects, or an empty array([]), for requests that target resource collections
+             
+             </summary>
+        </member>
+        <member name="P:Bitbird.Core.Json.JsonApi.JsonApiErrorSource.Pointer">
+            <summary>
+            a JSON Pointer [RFC6901] to the associated entity in the request document [e.g. "/data" for a primary data object, or "/data/attributes/title" for a specific attribute].
+            </summary>
+        </member>
+        <member name="P:Bitbird.Core.Json.JsonApi.JsonApiErrorSource.Parameter">
+            <summary>
+            a string indicating which URI query parameter caused the error.
+            </summary>
+        </member>
+        <member name="P:Bitbird.Core.Json.JsonApi.JsonApiErrorObject.Id">
+            <summary>
+            a unique identifier for this particular occurrence of the problem.
+            </summary>
+        </member>
+        <member name="P:Bitbird.Core.Json.JsonApi.JsonApiErrorObject.Links">
+            <summary>
+            a links object containing the following members:
+            </summary>
+        </member>
+        <member name="P:Bitbird.Core.Json.JsonApi.JsonApiErrorObject.Status">
+            <summary>
+            the HTTP status code applicable to this problem, expressed as a string value.
+            </summary>
+        </member>
+        <member name="P:Bitbird.Core.Json.JsonApi.JsonApiErrorObject.Code">
+            <summary>
+            an application-specific error code, expressed as a string value.
+            </summary>
+        </member>
+        <member name="P:Bitbird.Core.Json.JsonApi.JsonApiErrorObject.Title">
+            <summary>
+            a short, human-readable summary of the problem that SHOULD NOT change from occurrence to occurrence of the problem, except for purposes of localization.
+            </summary>
+        </member>
+        <member name="P:Bitbird.Core.Json.JsonApi.JsonApiErrorObject.Detail">
+            <summary>
+            a human-readable explanation specific to this occurrence of the problem. Like title, this field’s value can be localized.
+            </summary>
+        </member>
+        <member name="P:Bitbird.Core.Json.JsonApi.JsonApiErrorObject.Source">
+            <summary>
+            an object containing references to the source of the error, optionally including any of the following members:
+            </summary>
+        </member>
+        <member name="T:Bitbird.Core.Json.JsonApi.JsonApiLink">
+            <summary>
+            Where specified, a links member can be used to represent links. 
+            The value of each links member MUST be an object (a “links object”).
+            
+            Each member of a links object is a “link”. A link MUST be represented as either:
+            
+            a string containing the link’s URL.
+            an object (“link object”) which can contain the following members:
+                href: a string containing the link’s URL.
+                meta: a meta object containing non-standard meta-information about the link.
+            
+            </summary>
+        </member>
+        <member name="T:Bitbird.Core.Json.JsonApi.JsonApiLinksObject">
+            <summary>
+            Where specified, a links member can be used to represent links. 
+            The value of each links member MUST be an object (a “links object”).
+            </summary>
+        </member>
+        <member name="T:Bitbird.Core.Json.JsonApi.JsonApiResourceIdentifierObject">
+            <summary>
+            A “resource identifier object” is an object that identifies an individual resource.
+            
+            A “resource identifier object” MUST contain type and id members.
+            
+            A “resource identifier object” MAY also include a meta member, 
+            whose value is a meta object that contains non-standard meta-information.
+            </summary>
+        </member>
+    </members>
+</doc>
