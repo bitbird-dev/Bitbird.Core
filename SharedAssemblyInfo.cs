@@ -21,6 +21,6 @@ namespace Bitbird.Core
 {
     internal static class SharedAssemblyVersion
     {
-        public const string VersionNumberString = "1.1.22.0"; 
+        public const string VersionNumberString = "1.1.23.0"; 
     }
 }
