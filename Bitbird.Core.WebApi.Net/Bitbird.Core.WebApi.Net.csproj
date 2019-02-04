@@ -91,6 +91,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ContentInfo.cs" />
+    <Compile Include="IJsonApiResourceController.cs" />
     <Compile Include="IBenchmarkController.cs" />
     <Compile Include="JsonApiAttribute.cs" />
     <Compile Include="JsonApiConfiguration.cs" />

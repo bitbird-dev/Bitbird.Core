@@ -21,7 +21,7 @@ namespace Bitbird.Core.WebApi.Net
         private static readonly Regex FilterValueInRegex = new Regex("IN[(](?<Values>.*)[)]", RegexOptions.Compiled);
         private static readonly Regex FilterValueFreeTextRegex = new Regex("FREETEXT[(](?<Pattern>.*)[)]", RegexOptions.Compiled);
 
-        public readonly JsonApiResource ReturnResource;
+        public readonly Func<IHttpController, JsonApiResource> ReturnResourceGetter;
 
         public JsonApiAttribute(Type returnResourceType = null)
         {
@@ -30,11 +30,33 @@ namespace Bitbird.Core.WebApi.Net
                 if (!returnResourceType.IsSubclassOf(typeof(JsonApiResource)))
                     throw new ArgumentException("Resource types must inherit from JsonApiResource");
 
-                ReturnResource = (JsonApiResource)Activator.CreateInstance(returnResourceType);
+                var instance = (JsonApiResource) Activator.CreateInstance(returnResourceType);
+                ReturnResourceGetter = c => instance;
             }
             else
             {
-                ReturnResource = null;
+                ReturnResourceGetter = null;
+            }
+        }
+        public JsonApiAttribute(string returnResourceTypeId)
+        {
+            if (returnResourceTypeId != null)
+            {
+                ReturnResourceGetter = controller =>
+                {
+                    if (!(controller is IJsonApiResourceController jsonApiResourceController))
+                        throw new Exception($"Controller {controller.GetType()} cannot not return a valid {nameof(JsonApiResource)} because it does not inherit from {nameof(IJsonApiResourceController)}.");
+
+                    var resource = jsonApiResourceController.GetJsonApiResourceById(returnResourceTypeId);
+                    if (resource == null)
+                        throw new Exception($"Controller {controller.GetType()} does not return a valid {nameof(JsonApiResource)} for the identifier '{returnResourceTypeId}'.");
+
+                    return resource;
+                };
+            }
+            else
+            {
+                ReturnResourceGetter = null;
             }
         }
 
@@ -45,6 +67,8 @@ namespace Bitbird.Core.WebApi.Net
             QuerySortProperty[] sort = null;
             string[] includes = null;
             var filter = new List<QueryFilter>();
+
+            var returnResource = ReturnResourceGetter?.Invoke(actionContext.ControllerContext.Controller);
 
             foreach (var queryParam in actionContext.Request.GetQueryNameValuePairs())
             {
@@ -114,7 +138,7 @@ namespace Bitbird.Core.WebApi.Net
             var queryInfo = new QueryInfo(sort, filter?.ToArray(), paging, includes);
 
             actionContext.Request.Properties[nameof(QueryInfo)] = queryInfo;
-            actionContext.Request.Properties[nameof(ReturnResource)] = ReturnResource;
+            actionContext.Request.Properties[nameof(ReturnResourceGetter)] = returnResource;
 
             var useBenchmarks = Convert.ToBoolean(CloudConfigurationManager.GetSetting("Benchmarks") ?? false.ToString());
             var benchmarks = new BenchmarkCollection(useBenchmarks);

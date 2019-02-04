@@ -29,7 +29,7 @@ namespace Bitbird.Core.WebApi.Net
         {
             var result = await base.SendAsync(request, cancellationToken);
 
-            if (!(request.Properties.TryGetValue(nameof(JsonApiAttribute.ReturnResource), out var resourceUntyped) && resourceUntyped is JsonApiResource resource))
+            if (!(request.Properties.TryGetValue(nameof(JsonApiAttribute.ReturnResourceGetter), out var resourceUntyped) && resourceUntyped is JsonApiResource resource))
                 return result;
 
             if (!result.IsSuccessStatusCode)
