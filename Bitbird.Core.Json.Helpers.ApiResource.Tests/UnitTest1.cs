@@ -23,17 +23,17 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
 
         #region Test Models
 
-        public class Model1Resource : JsonApiResource
+        public class ModelOneResource : JsonApiResource
         {
-            public Model1Resource()
+            public ModelOneResource()
             {
-                WithId(nameof(Model1.Id));
-                Attribute(nameof(Model1.HomeAttribute));
-                BelongsTo<Model2Resource>(nameof(Model1.Model2), nameof(Model1.Model2Id));
-                HasMany<Model2Resource>(nameof(Model1.MoreModel2), nameof(Model1.MoreModel2Id));
+                WithId(nameof(ModelOne.Id));
+                Attribute(nameof(ModelOne.HomeAttribute));
+                BelongsTo<Model2Resource>(nameof(ModelOne.Model2), nameof(ModelOne.Model2Id));
+                HasMany<Model2Resource>(nameof(ModelOne.MoreModel2), nameof(ModelOne.MoreModel2Id));
             }
         }
-        public class Model1
+        public class ModelOne
         {
             public long Id { get; set; }
             public string HomeAttribute { get; set; }
@@ -86,26 +86,26 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
 
         [TestMethod] public void AddCollectionsToDocument()
         {
-            var data = new List<Model1>
+            var data = new List<ModelOne>
             {
-                new Model1
+                new ModelOne
                 {
                     HomeAttribute = "whatever"
                 },
-                new Model1
+                new ModelOne
                 {
                     HomeAttribute = "whatever2"
                 }
             };
-            var doc = JsonApiCollectionDocumentExtensions.CreateDocumentFromApiResource<Model1Resource>(data);
+            var doc = JsonApiCollectionDocumentExtensions.CreateDocumentFromApiResource<ModelOneResource>(data);
             var jsonString = JsonConvert.SerializeObject(doc, Formatting.Indented);
             var deserialized = JsonConvert.DeserializeObject<JsonApiCollectionDocument>(jsonString);
-            var res2 = deserialized.ToObject(Activator.CreateInstance<Model1Resource>(), typeof(Model1));
+            var res2 = deserialized.ToObject(Activator.CreateInstance<ModelOneResource>(), typeof(ModelOne));
         }
 
         [TestMethod] public void floTest()
         {
-            var data = new Model1
+            var data = new ModelOne
             {
                 Id = 1232385789,
                 HomeAttribute = "myhome",
@@ -136,13 +136,13 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
                 }
             };
 
-            var doc = JsonApiDocumentExtensions.CreateDocumentFromApiResource<Model1Resource>(data);
-            doc.IncludeRelation<Model1Resource>(data, $"{nameof(Model1.MoreModel2)},{nameof(Model1.Model2)}");
+            var doc = JsonApiDocumentExtensions.CreateDocumentFromApiResource<ModelOneResource>(data);
+            doc.IncludeRelation<ModelOneResource>(data, $"{nameof(ModelOne.MoreModel2)},{nameof(ModelOne.Model2)}");
 
             var jsonString = JsonConvert.SerializeObject(doc, Formatting.Indented);
             var deserialized = JsonConvert.DeserializeObject<JsonApiDocument>(jsonString);
             Func<string, bool> foundAttributes;
-            var resultData = deserialized.ToObject<Model1, Model1Resource>(out foundAttributes);
+            var resultData = deserialized.ToObject<ModelOne, ModelOneResource>(out foundAttributes);
 
             resultData.Model2 = deserialized.Included.GetResource(resultData.Model2Id, typeof(Model2))?.ToObject<Model2, Model2Resource>();
             resultData.MoreModel2 = resultData.MoreModel2Id?.Select(x => deserialized.Included.GetResource(x, typeof(Model2))?.ToObject<Model2, Model2Resource>());

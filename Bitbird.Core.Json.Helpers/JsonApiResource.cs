@@ -15,17 +15,20 @@ namespace Bitbird.Core.Json.Helpers.ApiResource
     /// </summary>
     public abstract class JsonApiResource
     {
+        public Func<string,string> TypeNamingStrategy { get; private set; }
         private static readonly ConcurrentDictionary<Type, JsonApiResource> Resources =
             new ConcurrentDictionary<Type, JsonApiResource>();
 
         private readonly List<ResourceAttribute> _attributes = new List<ResourceAttribute>();
         private readonly List<ResourceRelationship> _relationships = new List<ResourceRelationship>();
+        
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApiResource"/> class.
         /// </summary>
-        protected JsonApiResource()
+        protected JsonApiResource(Func<string, string> typeNamingStrategy = null)
         {
+            TypeNamingStrategy = (typeNamingStrategy != null) ? typeNamingStrategy : (s)=>s.ToDashed();
             var type = GetType();
 
             var name = type.Name;
@@ -122,7 +125,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource
         /// pluralized version of the type name)</param>
         protected void OfType(string value, string path)
         {
-            ResourceType = value.ToLowerInvariant();
+            ResourceType = TypeNamingStrategy(value);
             UrlPath = path.ToDashed().EnsureStartsWith("/");
         }
 
