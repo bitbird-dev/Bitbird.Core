@@ -119,7 +119,7 @@
             Represents a resource that can be consumed by clients.
             </summary>
         </member>
-        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource.#ctor">
+        <member name="M:Bitbird.Core.Json.Helpers.ApiResource.JsonApiResource.#ctor(System.Func{System.String,System.String})">
             <summary>
             Initializes a new instance of the <see cref="N:Bitbird.Core.Json.Helpers.ApiResource"/> class.
             </summary>
