@@ -53,7 +53,14 @@ namespace Bitbird.Core.WebApi.Net
 
                 using (benchmarks.CreateBenchmark("ConvertToJsonApiDoc"))
                 {
+                    string overridePrimaryType = null;
+
                     var value = objectContent.Value;
+                    if (value is IJsonApiOverridePrimaryType jsonApiOverridePrimaryType)
+                    {
+                        value = jsonApiOverridePrimaryType.Data;
+                        overridePrimaryType = jsonApiOverridePrimaryType.Type;
+                    }
                     if (value is IQueryResult queryResult)
                     {
                         meta.PageCount = queryResult.PageCount;
@@ -65,12 +72,17 @@ namespace Bitbird.Core.WebApi.Net
                     {
                         var apiCollectionDocument = new JsonApiCollectionDocument();
                         apiCollectionDocument.FromApiResource(collectionValue, resource);
+                        if (overridePrimaryType != null)
+                            foreach (var primaryDataEntry in apiCollectionDocument.Data)
+                                primaryDataEntry.Type = overridePrimaryType;
                         document = apiCollectionDocument;
                     }
                     else
                     {
                         var apiDocument = new JsonApiDocument();
                         apiDocument.FromApiResource(value, resource);
+                        if (overridePrimaryType != null)
+                            apiDocument.Data.Type = overridePrimaryType;
                         document = apiDocument;
                     }
 

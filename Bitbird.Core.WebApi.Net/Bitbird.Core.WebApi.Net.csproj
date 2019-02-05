@@ -91,6 +91,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ContentInfo.cs" />
+    <Compile Include="IJsonApiOverridePrimaryType.cs" />
     <Compile Include="IJsonApiResourceController.cs" />
     <Compile Include="IBenchmarkController.cs" />
     <Compile Include="JsonApiAttribute.cs" />
@@ -99,6 +100,7 @@
     <Compile Include="JsonApiErrorFilter.cs" />
     <Compile Include="JsonApiMediaTypeFormatter.cs" />
     <Compile Include="JsonApiMetaData.cs" />
+    <Compile Include="JsonApiOverridePrimaryType.cs" />
     <Compile Include="JsonApiResourceMappingAttribute.cs" />
     <Compile Include="JsonApiResultDelegatingHandler.cs" />
     <Compile Include="Models\JsonApiErrorLinks.cs" />

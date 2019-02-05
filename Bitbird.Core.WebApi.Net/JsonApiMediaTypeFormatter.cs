@@ -74,6 +74,14 @@ namespace Bitbird.Core.WebApi.Net
             {
                 try
                 {
+                    if (type == typeof(JToken))
+                    {
+                        using (JsonReader jsonReader = new JsonTextReader(reader))
+                        {
+                            jsonReader.DateParseHandling = DateParseHandling.None;
+                            return await JToken.LoadAsync(jsonReader);
+                        }
+                    }
                     if (type == typeof(JsonApiCollectionDocument) || typeof(IEnumerable).IsAssignableFrom(type))
                     {
                         JsonApiCollectionDocument document;
