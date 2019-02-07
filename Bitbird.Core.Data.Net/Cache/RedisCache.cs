@@ -263,6 +263,65 @@ namespace Bitbird.Core.Data.Net
         }
 
 
+        public void CheckConnected()
+        {
+            if (!IsConnected)
+                throw new Exception("Redis cache not connected");
+        }
+
+        public async Task LowLevelListAddAsync<T, TKey>(string prefix, TKey key, params T[] values)
+        {
+            if (values.Length == 0)
+                return;
+
+            var redisValues = values.Select(v => (RedisValue) SerializeObject(v)).ToArray();
+
+            if (values.Length == 1)
+                await Db.ListRightPushAsync(GetKey(prefix, key), redisValues[0], When.Always, CommandFlags.None);
+            else
+                await Db.ListRightPushAsync(GetKey(prefix, key), redisValues, CommandFlags.None);
+        }
+        public async Task LowLevelListRemoveAsync<T, TKey>(string prefix, TKey key, params T[] values)
+        {
+            if (values.Length == 0)
+                return;
+            
+            foreach (var value in values)
+                await Db.ListRemoveAsync(GetKey(prefix, key), SerializeObject(value), 0, CommandFlags.None);
+        }
+        public async Task LowLevelListClearAsync<TKey>(string prefix, TKey key)
+        {
+            await Db.KeyDeleteAsync(GetKey(prefix, key), CommandFlags.None);
+        }
+        public async Task<T[]> LowLevelListGetAsync<T, TKey>(string prefix, TKey key)
+        {
+            return (await Db.ListRangeAsync(GetKey(prefix, key))).Select(x => DeserializeObject<T>(x)).ToArray();
+        }
+
+        public async Task LowLevelSetAddAsync<T, TKey>(string prefix, TKey key, params T[] values)
+        {
+            if (values.Length == 0)
+                return;
+
+            var redisValues = values.Select(v => (RedisValue)SerializeObject(v)).ToArray();
+            await Db.SetAddAsync(GetKey(prefix, key), redisValues);
+        }
+        public async Task LowLevelSetRemoveAsync<T, TKey>(string prefix, TKey key, params T[] values)
+        {
+            if (values.Length == 0)
+                return;
+
+            var redisValues = values.Select(v => (RedisValue)SerializeObject(v)).ToArray();
+            await Db.SetRemoveAsync(GetKey(prefix, key), redisValues);
+        }
+        public async Task LowLevelSetClearAsync<TKey>(string prefix, TKey key)
+        {
+            await Db.KeyDeleteAsync(GetKey(prefix, key));
+        }
+        public async Task<T[]> LowLevelSetGetAsync<T, TKey>(string prefix, TKey key)
+        {
+            return (await Db.SetMembersAsync(GetKey(prefix, key))).Select(x => DeserializeObject<T>(x)).ToArray();
+        }
 
 
 
