@@ -1,6 +1,6 @@
 param(
 	[string] $ConfigFile,
-	[string] $OutputArchieve = "Documentation.zip"
+	[string] $OutputDir,
 	[string] $TempDir = "bin/docfx_build"
 )
 
@@ -27,4 +27,6 @@ $args = @($buildConfigPath);
 Remove-Item $buildConfigPath;
 Remove-Item $templatePath -Recurse;
 
-Compress-Archive -Path ([System.IO.Path]::Combine($TempDir, "*")) -DestinationPath $OutputArchieve;
+Get-ChildItem -Path $OutputDir -File | Remove-Item;
+Get-ChildItem -Path $OutputDir -File | Remove-Item -Recurse;
+Copy-Item ([System.IO.Path]::Combine($TempDir, "*")) -Destination $OutputDir -Recurse -Force;

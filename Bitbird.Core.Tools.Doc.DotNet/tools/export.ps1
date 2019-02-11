@@ -1,6 +1,6 @@
 param(
 	[string] $ConfigFile,
-	[string] $OutputArchieve = "Project_Documentation.zip"
+	[string] $OutputArchieve = "Project_Documentation.zip",
 	[string] $TempDir = "bin/docfx"
 )
 
