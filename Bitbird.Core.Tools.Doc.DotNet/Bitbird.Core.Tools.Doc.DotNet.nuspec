@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata minClientVersion="3.6">
     <id>Bitbird.Core.Tools.Doc.DotNet</id>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
     <title>Documentation for .NET projects (Bitbird.Core)</title>
     <authors>Bitbird GmbH</authors>
     <owners>Bitbird GmbH</owners>

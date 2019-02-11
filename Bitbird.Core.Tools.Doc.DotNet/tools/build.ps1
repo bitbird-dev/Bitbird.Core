@@ -46,11 +46,14 @@ try {
 	& "docfx.exe" $args;
 	
 	Write-Host "Delete docfx.build.json..";
-	Remove-Item $buildConfigPath;
+	Remove-Item $buildConfigPath | Out-Null;
 	Write-Host "Delete DocFxTemplate..";
-	Remove-Item $templatePath -Recurse -Force;
+	Remove-Item $templatePath -Recurse -Force | Out-Null;
 	
 	Write-Host "Write OutputArchive..";
+	if (test-path ($OutputArchive)) {
+		Remove-item $OutputArchive | Out-Null;
+	}
 	Compress-Archive -Path ([System.IO.Path]::Combine($TempDir, "build", "*")) -DestinationPath $OutputArchive;
 }
 catch {
