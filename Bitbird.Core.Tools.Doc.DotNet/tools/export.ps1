@@ -1,6 +1,6 @@
 param(
 	[string] $ConfigFile,
-	[string] $OutputArchieve = "Project_Documentation.zip",
+	[string] $OutputDir,
 	[string] $TempDir = "bin/docfx"
 )
 
@@ -41,4 +41,6 @@ foreach ($content in $config.content) {
 	Copy-Item ([System.IO.Path]::Combine((Get-Location), $content.src, "*")) -Destination $dst -Recurse -Force;
 }
 
-Compress-Archive -Path ([System.IO.Path]::Combine($TempDir, "*")) -DestinationPath $OutputArchieve;
+Get-ChildItem -Path $OutputDir -File | Remove-Item;
+Get-ChildItem -Path $OutputDir -File | Remove-Item -Recurse;
+Copy-Item ([System.IO.Path]::Combine($TempDir, "*")) -Destination $OutputDir -Recurse -Force;
