@@ -1,0 +1,26 @@
+{
+  "build": {
+    "content": [
+      {
+        "files": [ "**.yml", "**.md" ],
+        "cwd": "."
+      }
+    ],
+    "resource": [
+      {
+        "files": [ "**" ],
+        "cwd": ".",
+        "exclude": [ "**.yml", "**.md" ]
+      }
+    ],
+    "globalMetadata": {
+      "_appTitle": "{title}",
+      "_appFooter": "{footer}",
+      "_disableContribution": true
+    },
+    "dest": "_build",
+    "template": [
+      "DocFxTemplate"
+    ]
+  }
+}

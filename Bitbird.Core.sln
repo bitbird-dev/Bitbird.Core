@@ -55,6 +55,25 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitbird.Core.Api.AzureRepor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitbird.Core.Api.AzureReporting.Net.Tests", "Bitbird.Core.Api.AzureReporting.Net.Tests\Bitbird.Core.Api.AzureReporting.Net.Tests.csproj", "{122E59F4-32A5-4510-95D6-43DEB5FCF271}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Bitbird.Core.Tools.Doc.DotNet", "Bitbird.Core.Tools.Doc.DotNet", "{05112C9F-0231-4225-8B25-31E8CBC86D7F}"
+	ProjectSection(SolutionItems) = preProject
+		Bitbird.Core.Tools.Doc.DotNet\Bitbird.Core.Tools.Doc.DotNet.nuspec = Bitbird.Core.Tools.Doc.DotNet\Bitbird.Core.Tools.Doc.DotNet.nuspec
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "resources", "resources", "{6BDAE74C-3970-440B-9021-43C84AD5EAF2}"
+	ProjectSection(SolutionItems) = preProject
+		Bitbird.Core.Tools.Doc.DotNet\resources\build.json.tmpl = Bitbird.Core.Tools.Doc.DotNet\resources\build.json.tmpl
+		Bitbird.Core.Tools.Doc.DotNet\resources\export.metadata.item.json.tmpl = Bitbird.Core.Tools.Doc.DotNet\resources\export.metadata.item.json.tmpl
+		Bitbird.Core.Tools.Doc.DotNet\resources\export.metadata.json.tmpl = Bitbird.Core.Tools.Doc.DotNet\resources\export.metadata.json.tmpl
+		Bitbird.Core.Tools.Doc.DotNet\resources\filterConfig.yml = Bitbird.Core.Tools.Doc.DotNet\resources\filterConfig.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{0E13EF65-08A6-4800-81C9-96C46F271205}"
+	ProjectSection(SolutionItems) = preProject
+		Bitbird.Core.Tools.Doc.DotNet\tools\build.ps1 = Bitbird.Core.Tools.Doc.DotNet\tools\build.ps1
+		Bitbird.Core.Tools.Doc.DotNet\tools\export.ps1 = Bitbird.Core.Tools.Doc.DotNet\tools\export.ps1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -355,6 +374,8 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{565E511A-D8E4-403B-85ED-356ECC622ADF} = {5763AE6D-5D2B-416D-B4D8-5FE0AA5D12DF}
+		{6BDAE74C-3970-440B-9021-43C84AD5EAF2} = {05112C9F-0231-4225-8B25-31E8CBC86D7F}
+		{0E13EF65-08A6-4800-81C9-96C46F271205} = {05112C9F-0231-4225-8B25-31E8CBC86D7F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7F970483-6D84-4B58-9B0D-B4FB8745BD73}
