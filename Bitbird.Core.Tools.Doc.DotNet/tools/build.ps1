@@ -1,6 +1,7 @@
 param(
+	[string] $InputDir,
 	[string] $ConfigFile,
-	[string] $OutputArchieve = "Documentation.zip",
+	[string] $OutputArchive = "Documentation.zip",
 	[string] $TempDir = "bin/docfx_build"
 )
 
@@ -25,7 +26,8 @@ try {
 	[string] $build = $templateBuild;
 	$build = $build.Replace("{title}", $config.title);
 	$build = $build.Replace("{footer}", $config.footer.Replace("{year}",[System.DateTime]::Now.Year.ToString()));
-	$build = $build.Replace("{output}", [System.IO.Path]::Combine($TempDir, "build"));
+	$build = $build.Replace("{output}", [System.IO.Path]::Combine($TempDir, "build").Replace('\','/'));
+	$build = $build.Replace("{input}", $InputDir.Replace('\','/'));
 
 	[string] $buildConfigPath = [System.IO.Path]::Combine((Get-Location), "docfx.build.json");
 	$build | Out-File $buildConfigPath -Encoding utf8 -NoNewline;
@@ -44,12 +46,12 @@ try {
 	& "docfx.exe" $args;
 	
 	Write-Host "Delete docfx.build.json..";
-	Remove-Item $buildConfigPath | Out-Null;
+	Remove-Item $buildConfigPath;
 	Write-Host "Delete DocFxTemplate..";
-	Remove-Item $templatePath -Recurse -Force | Out-Null;
+	Remove-Item $templatePath -Recurse -Force;
 	
 	Write-Host "Write OutputArchive..";
-	Compress-Archive -Path ([System.IO.Path]::Combine($TempDir, "*")) -DestinationPath $OutputArchieve;
+	Compress-Archive -Path ([System.IO.Path]::Combine($TempDir, "build", "*")) -DestinationPath $OutputArchive;
 }
 catch {
 	throw;
