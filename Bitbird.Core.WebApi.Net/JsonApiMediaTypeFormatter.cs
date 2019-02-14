@@ -38,7 +38,7 @@ namespace Bitbird.Core.WebApi.Net
                     Type = t,
                     Attribute = t.GetCustomAttribute<JsonApiResourceMappingAttribute>()
                 })
-                .Where(t => t.Attribute != null)
+                .Where(t => t.Attribute != null && t.Attribute.IsDefaultDeserializer)
                 .ToDictionary(t => t.Attribute.Type, t => (JsonApiResource)Activator.CreateInstance(t.Type));
 
             SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/vnd.api+json"));
@@ -101,7 +101,7 @@ namespace Bitbird.Core.WebApi.Net
                         }
 
                         if (!JsonApiResourceMappings.TryGetValue(typeForResource, out var resource))
-                            throw new Exception($"No mapping from {typeForResource.FullName} to a {nameof(JsonApiResource)} was found.");
+                            throw new Exception($"No (default deserialization) mapping from {typeForResource.FullName} to a {nameof(JsonApiResource)} was found.");
 
                         return document.ToObject(resource, type, out var foundAttributes);
                     }
@@ -128,7 +128,7 @@ namespace Bitbird.Core.WebApi.Net
                         }
 
                         if (!JsonApiResourceMappings.TryGetValue(typeForResource, out var resource))
-                            throw new Exception($"No mapping from {typeForResource.FullName} to a {nameof(JsonApiResource)} was found.");
+                            throw new Exception($"No (default deserialization) mapping from {typeForResource.FullName} to a {nameof(JsonApiResource)} was found.");
 
                         var data = document.ToObject(resource, type, out var foundAttributes);
 
