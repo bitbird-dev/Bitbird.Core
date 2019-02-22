@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
@@ -128,19 +129,47 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
                     }
                     else
                     {
-                        var idProp = targetType.GetProperty(relationResource.IdPropertyName);
-                        // get inner type
-                        var innerType = idProp.PropertyType.GenericTypeArguments[0];
-                        var relationshipObject = relationship.Value as JsonApiToManyRelationshipObject;
+                        var idProp = targetType.GetProperty(relationResource.IdPropertyName)
+                            ?? throw new Exception($"{nameof(JsonApiResourceObjectExtensions)}: Could not find relation property {relationResource.IdPropertyName}");
+
+                        // get type of the id (e.g. long, string, ..)
+                        Type innerType;
+                        if (idProp.PropertyType.IsArray)
+                            innerType = idProp.PropertyType.GetElementType();
+                        else if (idProp.PropertyType.IsNonStringEnumerable())
+                            innerType = idProp.PropertyType.GenericTypeArguments[0];
+                        else
+                            throw new Exception($"{nameof(JsonApiResourceObjectExtensions)}: Trying to read the relation, could not find element-type of type {idProp.PropertyType.FullName}.");
+                        
+                        if (!(relationship.Value is JsonApiToManyRelationshipObject relationshipObject))
+                            throw new Exception($"{nameof(JsonApiResourceObjectExtensions)}: Expected a {nameof(JsonApiToManyRelationshipObject)}, found {relationship.Value?.GetType().FullName ?? "null"}");
+
                         // create List instance
-                        var listInstance = Activator.CreateInstance(typeof(List<>).MakeGenericType(innerType)) as IList;
-                        relationshipObject.Data.ForEach(i => listInstance.Add(BtbrdCoreIdConverters.ConvertFromString(i.Id, innerType)));
-                        idProp.SetValueFast(result, listInstance);
+                        //   get the below defined method GetIdCollection for T=innerType
+                        //   and executes it.
+                        var instance = (typeof(JsonApiResourceObjectExtensions)
+                            .GetMethod(nameof(GetIdCollection))
+                            ?.MakeGenericMethod(innerType) ?? throw new Exception($"{nameof(JsonApiResourceObjectExtensions)}: Method {nameof(GetIdCollection)} not found."))
+                            .Invoke(null, new object[]
+                            {
+                                /* IEnumerable<JsonApiResourceIdentifierObject> ids : */ relationshipObject.Data,
+                                /* bool makeArray : */ idProp.PropertyType.IsArray
+                            });
+
+                        idProp.SetValueFast(result, instance);
                     }
                 }
             }
             
             return result;
+        }
+        public static object GetIdCollection<T>(IEnumerable<JsonApiResourceIdentifierObject> ids, bool makeArray)
+        {
+            var @base = ids.Select(id => BtbrdCoreIdConverters.ConvertFromString<T>(id.Id));
+
+            if (makeArray)
+                return @base.ToArray();
+            return @base.ToList();
         }
 
         #endregion
