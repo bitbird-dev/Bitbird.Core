@@ -21,8 +21,8 @@ namespace Bitbird.Core.Json.Extensions
                 throw new ArgumentNullException(nameof(type), $"{nameof(TypeExtensions)}.{nameof(IsNonStringEnumerable)}: The passed {nameof(type)} was null.");
 
             return type != typeof(string)
-                   // get all interfaces that this type implements and look for IEnumerable<>
-                   && type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+                   // get all interfaces that this type implements and look for IEnumerable<> in those interfaces and the type itself
+                   && new [] { type }.Concat(type.GetInterfaces()).Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
         }
 
         public static bool IsPrimitiveOrString(this Type type)
