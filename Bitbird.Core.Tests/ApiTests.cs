@@ -12,6 +12,7 @@ using Bitbird.Core.Json.Helpers.JsonDataModel;
 using Bitbird.Core.Json.Helpers.JsonDataModel.Extensions;
 using Bitbird.Core.Json.Helpers.JsonDataModel.Utils;
 using Bitbird.Core.Json.Helpers.Base.Converters;
+using Newtonsoft.Json.Linq;
 
 namespace Bitbird.Core.Json.Tests
 {
@@ -173,23 +174,23 @@ namespace Bitbird.Core.Json.Tests
         {
             var model = GetSomeData().FirstOrDefault();
             var testApiDocument = new JsonApiCollectionDocument<Firma>(model);
-            JsonSerializerSettings settings = new JsonSerializerSettings()
+            var settings = new JsonSerializerSettings
             {
                 Formatting = Formatting.Indented
             };
-            string jsonString = JsonConvert.SerializeObject(testApiDocument, settings);
-
-            System.Diagnostics.Debug.WriteLine(jsonString);
-
+            var jsonString = JsonConvert.SerializeObject(testApiDocument, settings);
             var result = JsonConvert.DeserializeObject<JsonApiCollectionDocument<Firma>>(jsonString, settings);
-
             var deserialzedModel = result.ToObject()?.FirstOrDefault();
 
+            Console.WriteLine($"{nameof(model           )}{Environment.NewLine}{JToken.Parse(JsonConvert.SerializeObject(model           ))}{Environment.NewLine}");
+            Console.WriteLine($"{nameof(testApiDocument )}{Environment.NewLine}{JToken.Parse(JsonConvert.SerializeObject(testApiDocument ))}{Environment.NewLine}");
+            Console.WriteLine($"{nameof(jsonString      )}{Environment.NewLine}{JToken.Parse(JsonConvert.SerializeObject(jsonString      ))}{Environment.NewLine}");
+            Console.WriteLine($"{nameof(result          )}{Environment.NewLine}{JToken.Parse(JsonConvert.SerializeObject(result          ))}{Environment.NewLine}");
+            Console.WriteLine($"{nameof(deserialzedModel)}{Environment.NewLine}{JToken.Parse(JsonConvert.SerializeObject(deserialzedModel))}{Environment.NewLine}");
+
             Assert.IsNotNull(deserialzedModel);
-
-            Assert.AreEqual(deserialzedModel.Fahrer.Id, model.Fahrer.Id);
-
-            Assert.AreEqual(deserialzedModel.FahrZeuge.Count(), model.FahrZeuge.Count());
+            Assert.AreEqual(deserialzedModel.Fahrer.Id, model?.Fahrer.Id);
+            Assert.AreEqual(deserialzedModel.FahrZeuge.Count(), model?.FahrZeuge.Count());
         }
 
         [TestMethod]

@@ -4,6 +4,14 @@
         <name>Bitbird.Core.Json</name>
     </assembly>
     <members>
+        <member name="M:Bitbird.Core.Json.Extensions.TypeExtensions.IsNonStringEnumerable(System.Type)">
+            <summary>
+            Returns true if the passed type implements <see cref="T:System.Collections.Generic.IEnumerable`1"/> and is not a string.
+            Explicitly checks for the generic interface, <see cref="T:System.Collections.IEnumerable"/> is not enough.
+            </summary>
+            <param name="type">The type to check. Must not be null.</param>
+            <returns>Whether the passed type meets the spec.</returns>
+        </member>
         <member name="T:Bitbird.Core.Json.JsonApi.Attributes.JsonApiDataCollectionAttribute">
             <summary>
             Instructs the <see cref="T:Newtonsoft.Json.JsonSerializer"/> how to serialize the collection.
