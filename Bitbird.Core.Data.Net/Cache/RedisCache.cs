@@ -18,6 +18,7 @@ namespace Bitbird.Core.Data.Net
         private readonly Lazy<ConnectionMultiplexer> lazyConnection;
 
         public static bool WriteDebugOutput = false;
+        public static bool DeleteOnStartup = true;
 
         public RedisCache(string connectionString, IContractResolver contractResolver = null)
         {
@@ -25,7 +26,8 @@ namespace Bitbird.Core.Data.Net
             this.contractResolver = contractResolver;
             lazyConnection = new Lazy<ConnectionMultiplexer>(() => ConnectionMultiplexer.Connect(this.connectionString));
 
-            AsyncHelper.RunSync(async () => await ClearAsync());
+            if (DeleteOnStartup)
+                AsyncHelper.RunSync(async () => await ClearAsync());
         }
 
         public async Task<RedisCacheInfo> GetInfo()
