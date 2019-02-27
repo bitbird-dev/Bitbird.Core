@@ -16,7 +16,13 @@ namespace Bitbird.Core.Extensions
                 throw new Exception($"Cannot convert null to {t.FullName}.");
 
             var baseNullable = Nullable.GetUnderlyingType(t) ?? t;
-            var result = Convert.ChangeType(value, baseNullable);
+
+            object result;
+
+            if (baseNullable.IsEnum)
+                result = Enum.ToObject(baseNullable, Convert.ChangeType(value, Enum.GetUnderlyingType(baseNullable)));
+            else
+                result = Convert.ChangeType(value, baseNullable);
 
 
             if (baseNullable == typeof(DateTime))

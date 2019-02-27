@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Bitbird.Core.Json.Extensions;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Reflection;
+using System.Threading;
 
 namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 {
@@ -153,6 +155,91 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
     }
 
+    public static class ResourceCache
+    {
+        private static readonly Dictionary<Type, JsonApiResource> Instances = new Dictionary<Type, JsonApiResource>();
+        private static readonly Dictionary<Type, Dictionary<string, string>> RelationIdPropertiesToJsonProperties = new Dictionary<Type, Dictionary<string, string>>();
+
+        public static JsonApiResource GetInstance(Type tResource)
+        {
+            lock (Instances)
+            {
+                if (Instances.TryGetValue(tResource, out var found))
+                    return found;
+
+                try
+                {
+                    var created = (JsonApiResource)Activator.CreateInstance(tResource);
+                    Instances[tResource] = created;
+                    return created;
+                }
+                catch (Exception exception)
+                {
+                    throw new Exception($"{nameof(ResourceCache)}.{nameof(GetInstance)}: Could not create instance of {tResource.FullName} with no parameters.", exception);
+                }
+            }
+        }
+        public static TResource GetInstance<TResource>()
+            where TResource : JsonApiResource
+        {
+            lock (Instances)
+            {
+                if (Instances.TryGetValue(typeof(TResource), out var found))
+                    return (TResource)found;
+
+                try
+                {
+                    var created = Activator.CreateInstance<TResource>();
+                    Instances[typeof(TResource)] = created;
+                    return created;
+                }
+                catch (Exception exception)
+                {
+                    throw new Exception($"{nameof(ResourceCache)}.{nameof(GetInstance)}: Could not create instance of {typeof(TResource).FullName} with no parameters.", exception);
+                }
+            }
+        }
+        public static string GetRelationJsonPropertyNameByIdPropertyName<TResource>(string idPropertyName)
+            where TResource : JsonApiResource
+        {
+            lock (RelationIdPropertiesToJsonProperties)
+            {
+                if (RelationIdPropertiesToJsonProperties.TryGetValue(typeof(TResource), out var relations))
+                    return relations.TryGetValue(idPropertyName, out var found) ? found : null;
+
+                var resource = GetInstance<TResource>();
+                var created = resource.Relationships.ToDictionary(r => r.IdPropertyName, r => r.UrlPath.Trim('/', '\\').ToLowerInvariant());
+                RelationIdPropertiesToJsonProperties[typeof(TResource)] = created;
+
+                return created[idPropertyName];
+            }
+        }
+        public static string GetRelationJsonPropertyNameByIdPropertyName(Type tResource, string idPropertyName)
+        {
+            lock (RelationIdPropertiesToJsonProperties)
+            {
+                if (RelationIdPropertiesToJsonProperties.TryGetValue(tResource, out var relations))
+                    return relations.TryGetValue(idPropertyName, out var found) ? found : null;
+
+                var resource = GetInstance(tResource);
+                var created = resource.Relationships.ToDictionary(r => r.IdPropertyName, r => r.UrlPath.Trim('/', '\\').ToLowerInvariant());
+                RelationIdPropertiesToJsonProperties[tResource] = created;
+
+                return created[idPropertyName];
+            }
+        }
+
+        public static string ToRelationshipName<TResource>(this string idPropertyName) 
+            where TResource : JsonApiResource
+        {
+            return GetRelationJsonPropertyNameByIdPropertyName<TResource>(idPropertyName)?.ToJsonRelationshipName();
+        }
+        public static string ToRelationshipName(this string idPropertyName, Type tResource)
+        {
+            return GetRelationJsonPropertyNameByIdPropertyName(tResource, idPropertyName)?.ToJsonRelationshipName();
+        }
+    }
+
     public static class JsonApiCollectionDocumentExtensions
     {
         #region CreateDocumentFromApiResource
@@ -203,14 +290,11 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             return primaryResourceObjects.Select(r => r.ToObject<TResult, TResource>()).ToList();
         }
 
+
+
         public static IEnumerable<TResult> ToObjectCollection<TResult, TResource>(this JsonApiCollectionDocument document, out Func<int, string, bool> foundAttributes) where TResource : JsonApiResource
         {
-            string ToRelationshipName(string attrName)
-            {
-                return (attrName.EndsWith("Id") ? attrName.Substring(0, attrName.Length - "Id".Length) : attrName).ToJsonRelationshipName();
-            }
-
-            foundAttributes = (idx, attrName) => (document.Data.ElementAt(idx)?.Attributes?.ContainsKey(attrName.ToJsonAttributeName()) ?? false) || (document.Data.ElementAt(idx)?.Relationships?.ContainsKey(ToRelationshipName(attrName)) ?? false);
+            foundAttributes = (idx, attrName) => (document.Data.ElementAt(idx)?.Attributes?.ContainsKey(attrName.ToJsonAttributeName()) ?? false) || (document.Data.ElementAt(idx)?.Relationships?.ContainsKey(attrName.ToRelationshipName<TResource>()) ?? false);
 
             return document.ToObjectCollection<TResult, TResource>();
         }
@@ -246,11 +330,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
         internal static object ToObjectInternal(this JsonApiCollectionDocument document, JsonApiResource apiResource, Type targetType, out Func<int, string, bool> foundAttributes)
         {
-            string ToRelationshipName(string attrName)
-            {
-                return (attrName.EndsWith("Id") ? attrName.Substring(0, attrName.Length - "Id".Length) : attrName).ToJsonRelationshipName();
-            }
-            foundAttributes = (idx, attrName) => (document.Data.ElementAt(idx)?.Attributes?.ContainsKey(attrName.ToJsonAttributeName()) ?? false) || (document.Data.ElementAt(idx)?.Relationships?.ContainsKey(ToRelationshipName(attrName)) ?? false);
+            foundAttributes = (idx, attrName) => (document.Data.ElementAt(idx)?.Attributes?.ContainsKey(attrName.ToJsonAttributeName()) ?? false) || (document.Data.ElementAt(idx)?.Relationships?.ContainsKey(attrName.ToRelationshipName(apiResource.GetType())) ?? false);
             return document.ToObjectInternal(apiResource, targetType);
         }
 
@@ -358,11 +438,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         /// </example>
         public static TResult ToObject<TResult, TResource>(this JsonApiDocument document, out Func<string, bool> foundAttributes) where TResource : JsonApiResource
         {
-            string ToRelationshipName(string attrName)
-            {
-                return (attrName.EndsWith("Id") ? attrName.Substring(0, attrName.Length - "Id".Length) : attrName).ToJsonRelationshipName();
-            }
-            foundAttributes = (attrName) => (document.Data.Attributes?.ContainsKey(attrName.ToJsonAttributeName()) ?? false) || (document.Data.Relationships?.ContainsKey(ToRelationshipName(attrName)) ?? false);
+            foundAttributes = (attrName) => (document.Data.Attributes?.ContainsKey(attrName.ToJsonAttributeName()) ?? false) || (document.Data.Relationships?.ContainsKey(attrName.ToRelationshipName<TResource>()) ?? false);
 
             return document.ToObject<TResult, TResource>();
         }
@@ -409,13 +485,9 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         /// </example>
         public static object ToObjectInternal(this JsonApiDocument document, JsonApiResource apiResource, Type targetType, out Func<int, string, bool> foundAttributes)
         {
-            string ToRelationshipName(string attrName)
-            {
-                return (attrName.EndsWith("Id") ? attrName.Substring(0, attrName.Length - "Id".Length) : attrName).ToJsonRelationshipName();
-            }
             var attrs = document.Data.Attributes;
             var relations = document.Data.Relationships;
-            foundAttributes = (idx, attrName) => (attrs?.ContainsKey(attrName.ToJsonAttributeName()) ?? false) ||(relations?.ContainsKey(ToRelationshipName(attrName)) ?? false);
+            foundAttributes = (idx, attrName) => (attrs?.ContainsKey(attrName.ToJsonAttributeName()) ?? false) ||(relations?.ContainsKey(attrName.ToRelationshipName(apiResource.GetType())) ?? false);
             return document.ToObject(apiResource, targetType);
         }
 
@@ -432,11 +504,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         
         public static IEnumerable<TResult> ToObjectCollection<TResult, TResource>(this JsonApiDocument document, out Func<string, bool> foundAttributes) where TResource : JsonApiResource
         {
-            string ToRelationshipName(string attrName)
-            {
-                return (attrName.EndsWith("Id") ? attrName.Substring(0, attrName.Length - "Id".Length) : attrName).ToJsonRelationshipName();
-            }
-            foundAttributes = (attrName) => (document.Data.Attributes?.ContainsKey(attrName.ToJsonAttributeName()) ?? false) || (document.Data.Relationships?.ContainsKey(ToRelationshipName(attrName)) ?? false);
+            foundAttributes = (attrName) => (document.Data.Attributes?.ContainsKey(attrName.ToJsonAttributeName()) ?? false) || (document.Data.Relationships?.ContainsKey(attrName.ToRelationshipName<TResource>()) ?? false);
             return document.ToObjectCollection<TResult, TResource>();
         }
 
@@ -467,11 +535,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         
         public static object ToObjectCollection(this JsonApiDocument document, JsonApiResource apiResource, Type targetType, out Func<string, bool> foundAttributes)
         {
-            string ToRelationshipName(string attrName)
-            {
-                return (attrName.EndsWith("Id") ? attrName.Substring(0, attrName.Length - "Id".Length) : attrName).ToJsonRelationshipName();
-            }
-            foundAttributes = (attrName) => (document.Data.Attributes?.ContainsKey(attrName.ToJsonAttributeName()) ?? false) || (document.Data.Relationships?.ContainsKey(ToRelationshipName(attrName)) ?? false);
+            foundAttributes = (attrName) => (document.Data.Attributes?.ContainsKey(attrName.ToJsonAttributeName()) ?? false) || (document.Data.Relationships?.ContainsKey(attrName.ToRelationshipName(apiResource.GetType())) ?? false);
             return document.ToObjectCollection(apiResource, targetType);
         }
 
