@@ -15,11 +15,14 @@ namespace Bitbird.Core.Extensions
             if (value == null)
                 throw new Exception($"Cannot convert null to {t.FullName}.");
 
-            var baseNullable = Nullable.GetUnderlyingType(t);
-            if (baseNullable != null)
-                return Convert.ChangeType(value, baseNullable);
+            var baseNullable = Nullable.GetUnderlyingType(t) ?? t;
+            var result = Convert.ChangeType(value, baseNullable);
 
-            return Convert.ChangeType(value, t);
+
+            if (baseNullable == typeof(DateTime))
+                result = ((DateTime)result).ToUniversalTime();
+
+            return result;
         }
         public static T ParseAs<T>(this string value)
         {
