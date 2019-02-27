@@ -70,9 +70,10 @@ namespace Bitbird.Core.WebApi.Net
         {
             if (type == typeof(QueryInfo))
                 return null;
-
+#if DEBUG
             var sw = new Stopwatch();
             sw.Start();
+#endif
             using (var reader = new StreamReader(readStream))
             {
                 try
@@ -148,12 +149,14 @@ namespace Bitbird.Core.WebApi.Net
                 {
                     throw new HttpResponseException(e.ToJsonApiErrorResponseMessage());
                 }
+#if DEBUG
                 finally
                 {
                     sw.Stop();
 
                     Debug.WriteLine($"Deserialization took {sw.ElapsedMilliseconds} ms");
                 }
+#endif
             }
         }
     }

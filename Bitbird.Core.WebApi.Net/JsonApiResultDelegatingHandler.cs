@@ -13,7 +13,6 @@ using Bitbird.Core.Json.Helpers.ApiResource.Extensions;
 using Bitbird.Core.Json.JsonApi;
 using Bitbird.Core.Query;
 using Newtonsoft.Json;
-using JsonSerializer = Utf8Json.JsonSerializer;
 
 namespace Bitbird.Core.WebApi.Net
 {
@@ -105,10 +104,6 @@ namespace Bitbird.Core.WebApi.Net
                 using (benchmarkSerialization.CreateBenchmark("Serialization"))
                 {
 #endif
-                    /*var content = new ByteArrayContent(serializeDocument());
-                    content.Headers.Remove("Content-Type");
-                    content.Headers.Add("Content-Type", "application/vnd.api+json; charset=utf-8");
-                    result.Content = content;*/
                     result.Content = new StringContent(serializeDocument(), Encoding.UTF8, "application/vnd.api+json");
 #if DEBUG
                 }
