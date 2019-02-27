@@ -1,7 +1,5 @@
 ﻿using Bitbird.Core.Json.JsonApi.Dictionaries;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Bitbird.Core.Json.JsonApi
 {

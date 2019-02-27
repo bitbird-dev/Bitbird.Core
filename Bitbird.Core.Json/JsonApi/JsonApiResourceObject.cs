@@ -1,14 +1,6 @@
-﻿using Bitbird.Core.Json.Extensions;
-using Bitbird.Core.Json.JsonApi.Attributes;
-using Bitbird.Core.Json.Utils;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
+using System.Runtime.Serialization;
 
 namespace Bitbird.Core.Json.JsonApi
 {
@@ -16,18 +8,23 @@ namespace Bitbird.Core.Json.JsonApi
     public class JsonApiResourceObject
     {
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "id")]
         public string Id { get; set; }
 
         [JsonProperty("type", NullValueHandling = NullValueHandling.Include)]
+        [DataMember(Name = "type")]
         public string Type { get; set; }
 
         [JsonProperty("attributes", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "attributes")]
         public Dictionary<string, object> Attributes { get; set; }
 
         [JsonProperty("relationships", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "relationships")]
         public Dictionary<string, JsonApiRelationshipObjectBase> Relationships { get; set; }
 
         [JsonProperty("links", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "links")]
         public JsonApiLinksObject Links { get; set; }
     }
 

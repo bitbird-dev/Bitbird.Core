@@ -1,9 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Runtime.Serialization;
 
 namespace Bitbird.Core.Json.JsonApi
 {
@@ -21,21 +17,27 @@ namespace Bitbird.Core.Json.JsonApi
         }
         
         [JsonProperty("self",NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "self")]
         public JsonApiLink Self { get; set; }
         
         [JsonProperty("related", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "related")]
         public JsonApiLink Related { get; set; }
         
         [JsonProperty("prev", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "prev")]
         public JsonApiLink Prev { get; set; }
         
         [JsonProperty("next", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "next")]
         public JsonApiLink Next { get; set; }
         
         [JsonProperty("first", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "first")]
         public JsonApiLink First { get; set; }
         
         [JsonProperty("last", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "last")]
         public JsonApiLink Last { get; set; }
     }
 }

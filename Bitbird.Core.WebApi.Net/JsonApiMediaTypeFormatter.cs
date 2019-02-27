@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -70,6 +71,8 @@ namespace Bitbird.Core.WebApi.Net
             if (type == typeof(QueryInfo))
                 return null;
 
+            var sw = new Stopwatch();
+            sw.Start();
             using (var reader = new StreamReader(readStream))
             {
                 try
@@ -82,6 +85,7 @@ namespace Bitbird.Core.WebApi.Net
                             return await JToken.LoadAsync(jsonReader);
                         }
                     }
+
                     if (type == typeof(JsonApiCollectionDocument) || typeof(IEnumerable).IsAssignableFrom(type))
                     {
                         JsonApiCollectionDocument document;
@@ -90,6 +94,7 @@ namespace Bitbird.Core.WebApi.Net
                             jsonReader.DateParseHandling = DateParseHandling.None;
                             document = (await JToken.LoadAsync(jsonReader)).ToObject<JsonApiCollectionDocument>();
                         }
+
                         if (type == typeof(JsonApiCollectionDocument))
                             return document;
 
@@ -101,7 +106,8 @@ namespace Bitbird.Core.WebApi.Net
                         }
 
                         if (!JsonApiResourceMappings.TryGetValue(typeForResource, out var resource))
-                            throw new Exception($"No (default deserialization) mapping from {typeForResource.FullName} to a {nameof(JsonApiResource)} was found.");
+                            throw new Exception(
+                                $"No (default deserialization) mapping from {typeForResource.FullName} to a {nameof(JsonApiResource)} was found.");
 
                         return document.ToObject(resource, type, out var foundAttributes);
                     }
@@ -113,6 +119,7 @@ namespace Bitbird.Core.WebApi.Net
                             jsonReader.DateParseHandling = DateParseHandling.None;
                             document = (await JToken.LoadAsync(jsonReader)).ToObject<JsonApiDocument>();
                         }
+
                         if (type == typeof(JsonApiDocument))
                             return document;
 
@@ -122,13 +129,15 @@ namespace Bitbird.Core.WebApi.Net
                         if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ContentInfo<>))
                         {
                             var contentInfoType = type;
-                            packContent = (o, d, p) => Activator.CreateInstance(contentInfoType, o, d, (Func<string, bool>)(prop => p(0,prop)));
+                            packContent = (o, d, p) => Activator.CreateInstance(contentInfoType, o, d,
+                                (Func<string, bool>) (prop => p(0, prop)));
                             type = type.GetGenericArguments()[0];
                             typeForResource = type;
                         }
 
                         if (!JsonApiResourceMappings.TryGetValue(typeForResource, out var resource))
-                            throw new Exception($"No (default deserialization) mapping from {typeForResource.FullName} to a {nameof(JsonApiResource)} was found.");
+                            throw new Exception(
+                                $"No (default deserialization) mapping from {typeForResource.FullName} to a {nameof(JsonApiResource)} was found.");
 
                         var data = document.ToObject(resource, type, out var foundAttributes);
 
@@ -138,6 +147,12 @@ namespace Bitbird.Core.WebApi.Net
                 catch (Exception e)
                 {
                     throw new HttpResponseException(e.ToJsonApiErrorResponseMessage());
+                }
+                finally
+                {
+                    sw.Stop();
+
+                    Debug.WriteLine($"Deserialization took {sw.ElapsedMilliseconds} ms");
                 }
             }
         }

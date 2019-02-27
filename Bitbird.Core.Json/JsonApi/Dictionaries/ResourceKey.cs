@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Runtime.Serialization;
 
 namespace Bitbird.Core.Json.JsonApi.Dictionaries
 {
     public class ResourceKey
     {
+        [DataMember(Name = "id")]
         public string Id { get; private set; }
+
+        [DataMember(Name = "type")]
         public string Type { get; private set; }
 
         public ResourceKey(string id, string type)

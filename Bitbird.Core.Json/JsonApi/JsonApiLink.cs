@@ -1,9 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Runtime.Serialization;
 
 namespace Bitbird.Core.Json.JsonApi
 {
@@ -34,8 +32,10 @@ namespace Bitbird.Core.Json.JsonApi
 
         }
 
+        [DataMember(Name = "href")]
         public string Href { get; set; }
-        
+
+        [DataMember(Name = "meta")]
         public object Meta { get; set; }
     }
 

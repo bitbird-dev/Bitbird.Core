@@ -1,8 +1,13 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Utf8Json;
+using JsonReader = Newtonsoft.Json.JsonReader;
+using JsonSerializer = Newtonsoft.Json.JsonSerializer;
+using JsonToken = Newtonsoft.Json.JsonToken;
+using JsonWriter = Newtonsoft.Json.JsonWriter;
 
 namespace Bitbird.Core.Json.JsonApi
 {
@@ -73,15 +78,19 @@ namespace Bitbird.Core.Json.JsonApi
             writer.WriteStartObject();
             // write "data:"
             writer.WritePropertyName("data");
-            if(value.GetType() == typeof(JsonApiToOneRelationshipObject))
-            {
-                WriteToOneRelationship(writer, value as JsonApiToOneRelationshipObject, serializer);
-            }
-            else
-            {
-                WriteToManyRelationship(writer, value as JsonApiToManyRelationshipObject, serializer);
 
+            switch (value)
+            {
+                case JsonApiToOneRelationshipObject valueToOne:
+                    WriteToOneRelationship(writer, valueToOne, serializer);
+                    break;
+                case JsonApiToManyRelationshipObject valueToMany:
+                    WriteToManyRelationship(writer, valueToMany, serializer);
+                    break;
+                default:
+                    throw new ArgumentException($"{nameof(JsonApiRelationshipObjectConverter)}.{nameof(WriteJson)}: {nameof(value)} does not have a supported type. Found type: {value.GetType().Name}", nameof(value));
             }
+
             if(value.Links != null)
             {
                 // write "links:"
@@ -102,9 +111,11 @@ namespace Bitbird.Core.Json.JsonApi
     public class JsonApiRelationshipLinksObject
     {
         [JsonProperty("self", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "self")]
         public JsonApiLink Self { get; set; }
 
         [JsonProperty("related", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "related")]
         public JsonApiLink Related { get; set; }
     }
 
@@ -112,21 +123,25 @@ namespace Bitbird.Core.Json.JsonApi
     public abstract class JsonApiRelationshipObjectBase
     {
         [JsonProperty("links", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "links")]
         public JsonApiRelationshipLinksObject Links { get; set; }
 
         [JsonProperty("meta", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "meta")]
         public object Meta { get; set; }
     }
 
     public class JsonApiToOneRelationshipObject : JsonApiRelationshipObjectBase
     {
         [JsonProperty("data", NullValueHandling = NullValueHandling.Include)]
+        [DataMember(Name = "data")]
         public JsonApiResourceIdentifierObject Data { get; set; }
     }
 
     public class JsonApiToManyRelationshipObject : JsonApiRelationshipObjectBase
     {
         [JsonProperty("data")]
+        [DataMember(Name = "data")]
         public List<JsonApiResourceIdentifierObject> Data { get; set; } = new List<JsonApiResourceIdentifierObject>();
     }
 }

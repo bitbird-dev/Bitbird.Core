@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Bitbird.Core.Json.JsonApi
 {
@@ -39,20 +40,25 @@ namespace Bitbird.Core.Json.JsonApi
     {
         //[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         //public JObject JsonApi => new JObject(new JProperty("version", "1.0"));
-        
-        [JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)]
-        public JsonApiResourceObject Data { get; set; }
-        
-        [JsonProperty("errors", NullValueHandling = NullValueHandling.Ignore)]
-        public IEnumerable<JsonApiErrorObject> Errors { get; set; }
 
         [JsonProperty("meta", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "meta")]
         public object Meta { get; set; }
 
-        [JsonProperty("links", NullValueHandling = NullValueHandling.Ignore)]
-        public JsonApiLinksObject Links { get; set; }
+        [JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "data")]
+        public JsonApiResourceObject Data { get; set; }
 
         [JsonProperty("included", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "included")]
         public JsonApiResourceObjectDictionary Included { get; set; }
+
+        [JsonProperty("errors", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "errors")]
+        public IEnumerable<JsonApiErrorObject> Errors { get; set; }
+
+        [JsonProperty("links", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "links")]
+        public JsonApiLinksObject Links { get; set; }
     }
 }

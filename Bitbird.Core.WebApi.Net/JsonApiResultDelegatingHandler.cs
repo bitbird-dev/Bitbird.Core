@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -12,6 +13,7 @@ using Bitbird.Core.Json.Helpers.ApiResource.Extensions;
 using Bitbird.Core.Json.JsonApi;
 using Bitbird.Core.Query;
 using Newtonsoft.Json;
+using JsonSerializer = Utf8Json.JsonSerializer;
 
 namespace Bitbird.Core.WebApi.Net
 {
@@ -49,7 +51,7 @@ namespace Bitbird.Core.WebApi.Net
 
             try
             {
-                IJsonApiDocument document;
+                Func<string> serializeDocument;
 
                 using (benchmarks.CreateBenchmark("ConvertToJsonApiDoc"))
                 {
@@ -68,6 +70,7 @@ namespace Bitbird.Core.WebApi.Net
                         value = queryResult.Data;
                     }
 
+                    IJsonApiDocument document;
                     if (value is IEnumerable collectionValue)
                     {
                         var apiCollectionDocument = new JsonApiCollectionDocument();
@@ -76,6 +79,7 @@ namespace Bitbird.Core.WebApi.Net
                             foreach (var primaryDataEntry in apiCollectionDocument.Data)
                                 primaryDataEntry.Type = overridePrimaryType;
                         document = apiCollectionDocument;
+                        serializeDocument = () => JsonConvert.SerializeObject(apiCollectionDocument, Config.Formatter.SerializerSettings);
                     }
                     else
                     {
@@ -84,6 +88,7 @@ namespace Bitbird.Core.WebApi.Net
                         if (overridePrimaryType != null)
                             apiDocument.Data.Type = overridePrimaryType;
                         document = apiDocument;
+                        serializeDocument = () => JsonConvert.SerializeObject(apiDocument, Config.Formatter.SerializerSettings);
                     }
 
                     if (request.Properties.TryGetValue(nameof(QueryInfo), out var queryInfoUntyped) && queryInfoUntyped is QueryInfo queryInfo && queryInfo.Includes != null)
@@ -93,9 +98,23 @@ namespace Bitbird.Core.WebApi.Net
                     document.Meta = meta;
                 }
 
+#if DEBUG
                 meta.Benchmarks = benchmarks?.Benchmarks?.Select(b => $"{b.Name}:{b.Duration}");
-                
-                result.Content = new StringContent(JsonConvert.SerializeObject(document, Config.Formatter.SerializerSettings), Encoding.UTF8, "application/vnd.api+json");
+
+                var benchmarkSerialization = new BenchmarkCollection();
+                using (benchmarkSerialization.CreateBenchmark("Serialization"))
+                {
+#endif
+                    /*var content = new ByteArrayContent(serializeDocument());
+                    content.Headers.Remove("Content-Type");
+                    content.Headers.Add("Content-Type", "application/vnd.api+json; charset=utf-8");
+                    result.Content = content;*/
+                    result.Content = new StringContent(serializeDocument(), Encoding.UTF8, "application/vnd.api+json");
+#if DEBUG
+                }
+                foreach (var benchmark in benchmarkSerialization.Benchmarks)
+                    Debug.WriteLine($"{benchmark.Name} took {benchmark.Duration} ms");
+#endif
 
                 return result;
             }

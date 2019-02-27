@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -21,7 +22,11 @@ namespace Bitbird.Core.WebApi.Net
         private static readonly Regex FilterValueInRegex = new Regex("IN[(](?<Values>.*)[)]", RegexOptions.Compiled);
         private static readonly Regex FilterValueFreeTextRegex = new Regex("FREETEXT[(](?<Pattern>.*)[)]", RegexOptions.Compiled);
 
+        private static readonly bool UseBenchmarks = Convert.ToBoolean(CloudConfigurationManager.GetSetting("Benchmarks") ?? false.ToString());
+
+
         public readonly Func<IHttpController, JsonApiResource> ReturnResourceGetter;
+
 
         public JsonApiAttribute(Type returnResourceType = null)
         {
@@ -69,7 +74,7 @@ namespace Bitbird.Core.WebApi.Net
             var filter = new List<QueryFilter>();
 
             var returnResource = ReturnResourceGetter?.Invoke(actionContext.ControllerContext.Controller);
-
+            
             foreach (var queryParam in actionContext.Request.GetQueryNameValuePairs())
             {
                 if (queryParam.Key.Equals("page.number"))
@@ -127,37 +132,24 @@ namespace Bitbird.Core.WebApi.Net
                     filter.Add(QueryFilter.Exact(property, queryParam.Value));
                 }
             }
+            
+            var queryInfo = new QueryInfo(sort, 
+                                          filter.Count == 0 ? 
+                                              null : 
+                                              filter.ToArray(),
+                                          pageSize.HasValue ? 
+                                              new QueryPaging(pageSize.Value, pageNumber ?? 0) : 
+                                              null, 
+                                          includes);
 
-            QueryPaging paging = null;
-            if (pageNumber.HasValue || pageSize.HasValue)
-                paging = new QueryPaging(pageSize ?? 20, pageNumber ?? 0);
-
-            if (filter.Count == 0)
-                filter = null;
-
-            var queryInfo = new QueryInfo(sort, filter?.ToArray(), paging, includes);
+            var benchmarks = new BenchmarkCollection(UseBenchmarks);
 
             actionContext.Request.Properties[nameof(QueryInfo)] = queryInfo;
             actionContext.Request.Properties[nameof(ReturnResourceGetter)] = returnResource;
-
-            var useBenchmarks = Convert.ToBoolean(CloudConfigurationManager.GetSetting("Benchmarks") ?? false.ToString());
-            var benchmarks = new BenchmarkCollection(useBenchmarks);
-
             actionContext.Request.Properties[nameof(BenchmarkCollection)] = benchmarks;
 
-
-            foreach (var parameter in actionContext.ActionDescriptor.GetParameters())
-            {
-                if (parameter.ParameterType == typeof(QueryInfo))
-                    actionContext.ActionArguments[parameter.ParameterName] = queryInfo;
-                if (parameter.ParameterType == typeof(BenchmarkCollection))
-                    actionContext.ActionArguments[parameter.ParameterName] = benchmarks;
-            }
-
             if (actionContext.ControllerContext.Controller is IBenchmarkController benchmarkController)
-            {
                 benchmarkController.Benchmarks = benchmarks;
-            }
 
             base.OnActionExecuting(actionContext);
         }
