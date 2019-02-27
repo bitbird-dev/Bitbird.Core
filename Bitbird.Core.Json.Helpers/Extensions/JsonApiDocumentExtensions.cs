@@ -205,7 +205,13 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
         public static IEnumerable<TResult> ToObjectCollection<TResult, TResource>(this JsonApiCollectionDocument document, out Func<int, string, bool> foundAttributes) where TResource : JsonApiResource
         {
-            foundAttributes = (idx, attrName) => (document.Data.ElementAt(idx)?.Attributes?.ContainsKey(attrName.ToJsonAttributeName())).Value;
+            string ToRelationshipName(string attrName)
+            {
+                return (attrName.EndsWith("Id") ? attrName.Substring(0, attrName.Length - "Id".Length) : attrName).ToJsonRelationshipName();
+            }
+
+            foundAttributes = (idx, attrName) => (document.Data.ElementAt(idx)?.Attributes?.ContainsKey(attrName.ToJsonAttributeName()) ?? false) || (document.Data.ElementAt(idx)?.Relationships?.ContainsKey(ToRelationshipName(attrName)) ?? false);
+
             return document.ToObjectCollection<TResult, TResource>();
         }
 
@@ -240,7 +246,11 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 
         internal static object ToObjectInternal(this JsonApiCollectionDocument document, JsonApiResource apiResource, Type targetType, out Func<int, string, bool> foundAttributes)
         {
-            foundAttributes = (idx, attrName) => (document.Data.ElementAt(idx)?.Attributes?.ContainsKey(attrName.ToJsonAttributeName())).Value;
+            string ToRelationshipName(string attrName)
+            {
+                return (attrName.EndsWith("Id") ? attrName.Substring(0, attrName.Length - "Id".Length) : attrName).ToJsonRelationshipName();
+            }
+            foundAttributes = (idx, attrName) => (document.Data.ElementAt(idx)?.Attributes?.ContainsKey(attrName.ToJsonAttributeName()) ?? false) || (document.Data.ElementAt(idx)?.Relationships?.ContainsKey(ToRelationshipName(attrName)) ?? false);
             return document.ToObjectInternal(apiResource, targetType);
         }
 
@@ -348,8 +358,12 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         /// </example>
         public static TResult ToObject<TResult, TResource>(this JsonApiDocument document, out Func<string, bool> foundAttributes) where TResource : JsonApiResource
         {
-            var attrs = document.Data.Attributes;
-            foundAttributes = (attrName) => attrs?.ContainsKey(attrName.ToJsonAttributeName()) ?? false;
+            string ToRelationshipName(string attrName)
+            {
+                return (attrName.EndsWith("Id") ? attrName.Substring(0, attrName.Length - "Id".Length) : attrName).ToJsonRelationshipName();
+            }
+            foundAttributes = (attrName) => (document.Data.Attributes?.ContainsKey(attrName.ToJsonAttributeName()) ?? false) || (document.Data.Relationships?.ContainsKey(ToRelationshipName(attrName)) ?? false);
+
             return document.ToObject<TResult, TResource>();
         }
 
@@ -395,8 +409,13 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         /// </example>
         public static object ToObjectInternal(this JsonApiDocument document, JsonApiResource apiResource, Type targetType, out Func<int, string, bool> foundAttributes)
         {
+            string ToRelationshipName(string attrName)
+            {
+                return (attrName.EndsWith("Id") ? attrName.Substring(0, attrName.Length - "Id".Length) : attrName).ToJsonRelationshipName();
+            }
             var attrs = document.Data.Attributes;
-            foundAttributes = (idx, attrName) => attrs?.ContainsKey(attrName.ToJsonAttributeName()) ?? false;
+            var relations = document.Data.Relationships;
+            foundAttributes = (idx, attrName) => (attrs?.ContainsKey(attrName.ToJsonAttributeName()) ?? false) ||(relations?.ContainsKey(ToRelationshipName(attrName)) ?? false);
             return document.ToObject(apiResource, targetType);
         }
 
@@ -413,7 +432,11 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         
         public static IEnumerable<TResult> ToObjectCollection<TResult, TResource>(this JsonApiDocument document, out Func<string, bool> foundAttributes) where TResource : JsonApiResource
         {
-            foundAttributes = (attrName) => (document.Data?.Attributes?.ContainsKey(attrName.ToJsonAttributeName())).Value;
+            string ToRelationshipName(string attrName)
+            {
+                return (attrName.EndsWith("Id") ? attrName.Substring(0, attrName.Length - "Id".Length) : attrName).ToJsonRelationshipName();
+            }
+            foundAttributes = (attrName) => (document.Data.Attributes?.ContainsKey(attrName.ToJsonAttributeName()) ?? false) || (document.Data.Relationships?.ContainsKey(ToRelationshipName(attrName)) ?? false);
             return document.ToObjectCollection<TResult, TResource>();
         }
 
@@ -444,7 +467,11 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         
         public static object ToObjectCollection(this JsonApiDocument document, JsonApiResource apiResource, Type targetType, out Func<string, bool> foundAttributes)
         {
-            foundAttributes = (attrName) => (document.Data.Attributes?.ContainsKey(attrName.ToJsonAttributeName())).Value;
+            string ToRelationshipName(string attrName)
+            {
+                return (attrName.EndsWith("Id") ? attrName.Substring(0, attrName.Length - "Id".Length) : attrName).ToJsonRelationshipName();
+            }
+            foundAttributes = (attrName) => (document.Data.Attributes?.ContainsKey(attrName.ToJsonAttributeName()) ?? false) || (document.Data.Relationships?.ContainsKey(ToRelationshipName(attrName)) ?? false);
             return document.ToObjectCollection(apiResource, targetType);
         }
 
