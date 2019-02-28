@@ -8,11 +8,11 @@ $ErrorActionPreference = 'Stop'
 
 try {
 	Write-Host "Read Templates..";
-	[string] $templateMetaData = Get-Content ([System.IO.Path]::Combine($PSScriptRoot, "..", "resources", "export.metadata.json.tmpl")) -Raw;
-	[string] $templateMetaDataItem = Get-Content ([System.IO.Path]::Combine($PSScriptRoot, "..", "resources", "export.metadata.item.json.tmpl")) -Raw;
+	[string] $templateMetaData = [System.IO.File]::ReadAllText([System.IO.Path]::Combine($PSScriptRoot, "..", "resources", "export.metadata.json.tmpl"));
+	[string] $templateMetaDataItem = [System.IO.File]::ReadAllText([System.IO.Path]::Combine($PSScriptRoot, "..", "resources", "export.metadata.item.json.tmpl"));
 
 	Write-Host "Read Config..";
-	$config = Get-Content -Raw -Path $ConfigFile | ConvertFrom-Json;
+	$config = [System.IO.File]::ReadAllText($ConfigFile) | ConvertFrom-Json;
 	
 	Write-Host "Create TempDir..";
 	if (!(test-path ([System.IO.Path]::Combine($TempDir, "export")))) {
