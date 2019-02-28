@@ -12,7 +12,7 @@ try {
 	[string] $templateMetaDataItem = Get-Content ([System.IO.Path]::Combine($PSScriptRoot, "..", "resources", "export.metadata.item.json.tmpl")) -Raw;
 
 	Write-Host "Read Config..";
-	$config = Get-Content -Raw -Path $ConfigFile | ConvertFrom-Json;
+	$config = Get-Content ($ConfigFile) -Raw | ConvertFrom-Json;
 	
 	Write-Host "Create TempDir..";
 	if (!(test-path ([System.IO.Path]::Combine($TempDir, "export")))) {
