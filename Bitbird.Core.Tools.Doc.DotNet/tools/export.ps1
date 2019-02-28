@@ -8,11 +8,11 @@ $ErrorActionPreference = 'Stop'
 
 try {
 	Write-Host "Read Templates..";
-	[string] $templateMetaData = [System.IO.File]::ReadAllText([System.IO.Path]::Combine($PSScriptRoot, "..", "resources", "export.metadata.json.tmpl"));
-	[string] $templateMetaDataItem = [System.IO.File]::ReadAllText([System.IO.Path]::Combine($PSScriptRoot, "..", "resources", "export.metadata.item.json.tmpl"));
+	[string] $templateMetaData = Get-Content ([System.IO.Path]::Combine($PSScriptRoot, "..", "resources", "export.metadata.json.tmpl")) -Raw;
+	[string] $templateMetaDataItem = Get-Content ([System.IO.Path]::Combine($PSScriptRoot, "..", "resources", "export.metadata.item.json.tmpl")) -Raw;
 
 	Write-Host "Read Config..";
-	$config = [System.IO.File]::ReadAllText($ConfigFile) | ConvertFrom-Json;
+	$config = Get-Content -Raw -Path $ConfigFile | ConvertFrom-Json;
 	
 	Write-Host "Create TempDir..";
 	if (!(test-path ([System.IO.Path]::Combine($TempDir, "export")))) {
@@ -45,7 +45,9 @@ try {
 
 	Write-Host "Exec docfx..";
 	$args = @($metaDataConfigPath);
-	& "docfx.exe" $args;
+	$docFxPath = [System.IO.Path]::Combine([Environment]::GetEnvironmentVariable("ChocolateyInstall"), "bin", "docfx.exe");
+	Write-Host ("  " + $docFxPath);
+	& ($docFxPath) $args;
 
 	Write-Host "Delete docfx.metadata.json..";
 	Remove-Item $metaDataConfigPath | Out-Null;
