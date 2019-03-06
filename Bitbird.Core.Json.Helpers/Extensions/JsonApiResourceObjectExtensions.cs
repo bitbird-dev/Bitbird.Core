@@ -96,12 +96,17 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
                     var underlying = Nullable.GetUnderlyingType(targetProperty.PropertyType) ?? targetProperty.PropertyType;
 
                     var value = attribute.Value;
-                    if (underlying == typeof(DateTime) && attribute.Value != null)
-                        value = DateTime.Parse(value.ToString());
-                    else if (underlying == typeof(DateTimeOffset) && attribute.Value != null)
-                        value = DateTimeOffset.Parse(value.ToString());
-                    else if (underlying.IsEnum && attribute.Value != null)
-                        value = Enum.Parse(underlying, value.ToString());
+                    if (value != null)
+                    {
+                        if (underlying == typeof(DateTime))
+                            value = DateTime.Parse(value.ToString());
+                        else if (underlying == typeof(DateTimeOffset))
+                            value = DateTimeOffset.Parse(value.ToString());
+                        else if (underlying.IsEnum)
+                            value = Enum.ToObject(underlying, Convert.ChangeType(value, Enum.GetUnderlyingType(underlying)));
+                        else
+                            value = Convert.ChangeType(value, underlying);
+                    }
 
                     targetProperty.SetValueFast(result, value);
                 }

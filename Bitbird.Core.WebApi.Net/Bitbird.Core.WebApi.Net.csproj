@@ -97,6 +97,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ContentInfo.cs" />
+    <Compile Include="IContentInfo.cs" />
     <Compile Include="IJsonApiOverridePrimaryType.cs" />
     <Compile Include="IJsonApiResourceController.cs" />
     <Compile Include="IBenchmarkController.cs" />

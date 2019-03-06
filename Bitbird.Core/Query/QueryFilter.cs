@@ -1,10 +1,10 @@
 ﻿namespace Bitbird.Core.Query
 {
-    public class QueryFilter
+    public abstract class QueryFilter
     {
         public readonly string PropertyName;
 
-        public QueryFilter(string propertyName)
+        protected QueryFilter(string propertyName)
         {
             PropertyName = propertyName;
         }
@@ -13,6 +13,8 @@
         {
             return $"{nameof(PropertyName)}: {PropertyName}";
         }
+
+        public abstract string ValueExpression { get; }
 
         public static QueryFilter Exact(string property, string value)
             => new QueryExactFilter(property, value);

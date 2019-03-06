@@ -13,5 +13,7 @@
         {
             return $"{nameof(Value)}: {Value}";
         }
+
+        public override string ValueExpression => Value;
     }
 }

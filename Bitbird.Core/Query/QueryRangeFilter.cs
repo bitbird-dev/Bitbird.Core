@@ -15,5 +15,7 @@
         {
             return $"{nameof(Lower)}: {Lower}, {nameof(Upper)}: {Upper}";
         }
+
+        public override string ValueExpression => $"RANGE({Lower};{Upper})";
     }
 }

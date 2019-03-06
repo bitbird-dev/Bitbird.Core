@@ -13,5 +13,7 @@
         {
             return $"{base.ToString()}, {nameof(Pattern)}: {Pattern}";
         }
+
+        public override string ValueExpression => $"FREETEXT({Pattern})";
     }
 }

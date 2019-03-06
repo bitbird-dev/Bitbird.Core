@@ -4,9 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Bitbird.Core.Json.Extensions;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Reflection;
-using System.Threading;
 
 namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
 {
