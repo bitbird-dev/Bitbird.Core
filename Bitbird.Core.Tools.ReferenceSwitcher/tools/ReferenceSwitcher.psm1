@@ -27,7 +27,7 @@
 [string] $script:templateProjectReference = "`r`n    <Reference Include=""INCLUDE"">`r`n      <HintPath>HINTPATH</HintPath>`r`n    </Reference>";
 [string] $script:templateProjectItemGroup = "`r`n  <ItemGroup>`r`n  </ItemGroup>";
 [int] $script:templateProjectItemGroupInsertIndex = "`r`n  <ItemGroup>".Length;
-[string] $script:patternProjectPropertyGroupEnd = '<[/]PropertyGroup>';
+[string] $script:patternProjectPropertyGroupEnd = '<[/]PropertyGroup>(?!\s*<PropertyGroup)';
 [string] $script:patternProjectReference = '[<]\s*[rR]eference\s*[iI]nclude\s*=\s*"NAME,.*\s*.*\s*[<][/]\s*[rR]eference\s*[>]\s*';
 [string] $script:patternProjectProjectReference = '[<]\s*[pP]roject[rR]eference\s+.*\s*[<][pP]roject.*\s*[<]\s*[nN]ame\s*[>]NAME[<][/]\s*[nN]ame\s*[>]\s*[<][/]\s*[pP]roject[rR]eference\s*[>]\s*';
 [string] $script:templateProjectProjectReference = "`r`n    <ProjectReference Include=""INCLUDE"">`r`n      <Project>{PROJECT}</Project>`r`n      <Name>NAME</Name>`r`n    </ProjectReference>";
@@ -490,7 +490,7 @@ function Add-ProjectItemGroup {
 	if ($matches.Count -eq 0){
 		throw [System.Exception] "Add-ProjectItemGroup: Project file is ill-formatted, cannot find <PropertyGroup>-end-tag"
 	} 
-	[int] $insertPosition = $matches[$matches.Count - 1].Index + $matches[$matches.Count - 1].Length;
+	[int] $insertPosition = $matches[0].Index + $matches[0].Length;
 
 	[string] $insertContent = $script:templateProjectItemGroup;
 	$Content = $Content.insert($insertPosition, $insertContent);	
