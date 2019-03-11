@@ -20,6 +20,7 @@ namespace Bitbird.Core.WebApi.Net
         private static readonly Regex FilterValueRangeRegex = new Regex("RANGE[(](?<LowerBound>.*)[;](?<UpperBound>.*)[)]", RegexOptions.Compiled);
         private static readonly Regex FilterValueInRegex = new Regex("IN[(](?<Values>.*)[)]", RegexOptions.Compiled);
         private static readonly Regex FilterValueFreeTextRegex = new Regex("FREETEXT[(](?<Pattern>.*)[)]", RegexOptions.Compiled);
+        private static readonly Regex FilterValueGtLt = new Regex("(?:(?<gte>GTE)|(?<gt>GT)|(?<lte>LTE)|(?<lt>LT))[(](?<Bound>.*)[)]", RegexOptions.Compiled);
 
         private static readonly bool UseBenchmarks = Convert.ToBoolean(CloudConfigurationManager.GetSetting("Benchmarks") ?? false.ToString());
 
@@ -115,6 +116,19 @@ namespace Bitbird.Core.WebApi.Net
                         if (match.Success)
                         {
                             filter.Add(QueryFilter.Range(property, match.Groups["LowerBound"].Value, match.Groups["UpperBound"].Value));
+                            continue;
+                        }
+                        match = FilterValueGtLt.Match(queryParam.Value);
+                        if (match.Success)
+                        {
+                            if (match.Groups["gt"].Success)
+                                filter.Add(QueryFilter.GreaterThan(property, match.Groups["Bound"].Value));
+                            else if (match.Groups["gte"].Success)
+                                filter.Add(QueryFilter.GreaterThanEqual(property, match.Groups["Bound"].Value));
+                            else if (match.Groups["lt"].Success)
+                                filter.Add(QueryFilter.LessThan(property, match.Groups["Bound"].Value));
+                            else if (match.Groups["lte"].Success)
+                                filter.Add(QueryFilter.LessThanEqual(property, match.Groups["Bound"].Value));
                             continue;
                         }
 
