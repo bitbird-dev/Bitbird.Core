@@ -18,6 +18,14 @@
 
         public static QueryFilter Exact(string property, string value)
             => new QueryExactFilter(property, value);
+        public static QueryFilter GreaterThan(string property, string lower)
+            => new QueryGtFilter(property, lower);
+        public static QueryFilter GreaterThanEqual(string property, string lower)
+            => new QueryGteFilter(property, lower);
+        public static QueryFilter LessThan(string property, string upper)
+            => new QueryLtFilter(property, upper);
+        public static QueryFilter LessThanEqual(string property, string upper)
+            => new QueryLteFilter(property, upper);
         public static QueryFilter Range(string property, string lower, string upper)
             => new QueryRangeFilter(property, lower, upper);
         public static QueryFilter In(string property, string[] values)
