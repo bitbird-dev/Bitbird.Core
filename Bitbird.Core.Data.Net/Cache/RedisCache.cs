@@ -42,7 +42,7 @@ namespace Bitbird.Core.Data.Net
             lock (this)
             {
                 if (!isSubscribed)
-                    throw new Exception($"{nameof(RedisSubscription)} tried to unsubscribe, but is not subscribed.");
+                    return;
 
                 isSubscribed = false;
             }
@@ -101,7 +101,7 @@ namespace Bitbird.Core.Data.Net
             lock (this)
             {
                 if (!isSubscribed)
-                    throw new Exception($"{nameof(RedisSubscription)} tried to unsubscribe, but is not subscribed.");
+                    return;
 
                 isSubscribed = false;
             }
@@ -162,7 +162,6 @@ namespace Bitbird.Core.Data.Net
 
         public Task PublishAsync(RedisValue message)
         {
-            
             return redis.Subscriber.PublishAsync(channel, message);
         }
         public Task PublishAsync(string message)
