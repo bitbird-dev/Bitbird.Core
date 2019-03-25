@@ -11,23 +11,206 @@ using StackExchange.Redis;
 
 namespace Bitbird.Core.Data.Net
 {
-    public class RedisCache
+    public class RedisSubscription<TMessage> : IDisposable
     {
-        private readonly string connectionString;
-        private readonly IContractResolver contractResolver;
-        private readonly Lazy<ConnectionMultiplexer> lazyConnection;
+        private bool isSubscribed = false;
+        private readonly RedisCache redis;
+        private readonly RedisChannel channel;
 
+        public event Action<TMessage> Message;
+
+        public RedisSubscription(RedisCache redis, string channel)
+        {
+            this.redis = redis;
+            this.channel = new RedisChannel(channel, RedisChannel.PatternMode.Literal);
+        }
+
+        public async Task SubscribeAsync()
+        {
+            lock (this)
+            {
+                if (isSubscribed)
+                    throw new Exception($"{nameof(RedisSubscription)} is already subscribed.");
+
+                isSubscribed = true;
+            }
+            await redis.Subscriber.SubscribeAsync(channel, OnMessage);
+        }
+
+        public async Task UnsubscribeAsync()
+        {
+            lock (this)
+            {
+                if (!isSubscribed)
+                    throw new Exception($"{nameof(RedisSubscription)} tried to unsubscribe, but is not subscribed.");
+
+                isSubscribed = false;
+            }
+            await redis.Subscriber.UnsubscribeAsync(channel, OnMessage);
+        }
+
+        private void OnMessage(RedisChannel channel, RedisValue value)
+        {
+            try
+            {
+                var message = redis.DeserializeObject<TMessage>(value);
+                Message?.Invoke(message);
+            }
+            catch
+            {
+                /* ignored */
+                // TODO: log
+            }
+        }
+
+        public void Dispose()
+            => AsyncHelper.RunSync(UnsubscribeAsync);
+    }
+
+    public class RedisSubscription : IDisposable
+    {
+        private bool isSubscribed = false;
+        private readonly RedisCache redis;
+        private readonly RedisChannel channel;
+
+        public event Action<RedisChannel, RedisValue> Message;
+
+        public RedisSubscription(RedisCache redis, string channel)
+            : this(redis, new RedisChannel(channel, RedisChannel.PatternMode.Literal))
+        { }
+        public RedisSubscription(RedisCache redis, RedisChannel channel)
+        {
+            this.redis = redis;
+            this.channel = channel;
+        }
+
+        public async Task SubscribeAsync()
+        {
+            lock (this)
+            {
+                if (isSubscribed)
+                    throw new Exception($"{nameof(RedisSubscription)} is already subscribed.");
+
+                isSubscribed = true;
+            }
+            await redis.Subscriber.SubscribeAsync(channel, OnMessage);
+        }
+
+        public async Task UnsubscribeAsync()
+        {
+            lock (this)
+            {
+                if (!isSubscribed)
+                    throw new Exception($"{nameof(RedisSubscription)} tried to unsubscribe, but is not subscribed.");
+
+                isSubscribed = false;
+            }
+            await redis.Subscriber.UnsubscribeAsync(channel, OnMessage);
+        }
+
+        private void OnMessage(RedisChannel channel, RedisValue value)
+        {
+            try
+            {
+                Message?.Invoke(channel, value);
+            }
+            catch
+            {
+                /* ignored */
+                // TODO: log
+            }
+        }
+
+        public void Dispose()
+            => AsyncHelper.RunSync(UnsubscribeAsync);
+    }
+
+    public class RedisPublisher<TMessage>
+    {
+        private readonly RedisCache redis;
+        private readonly RedisChannel channel;
+
+        public RedisPublisher(RedisCache redis, string channel)
+            : this(redis, new RedisChannel(channel, RedisChannel.PatternMode.Literal))
+        { }
+        public RedisPublisher(RedisCache redis, RedisChannel channel)
+        {
+            this.redis = redis;
+            this.channel = channel;
+        }
+
+        public Task PublishAsync(TMessage message)
+        {
+            var redisValue = redis.SerializeObject(message);
+            return redis.Subscriber.PublishAsync(channel, redisValue);
+        }
+    }
+
+    public class RedisPublisher
+    {
+        private readonly RedisCache redis;
+        private readonly RedisChannel channel;
+
+        public RedisPublisher(RedisCache redis, string channel)
+            : this(redis, new RedisChannel(channel, RedisChannel.PatternMode.Literal))
+        { }
+        public RedisPublisher(RedisCache redis, RedisChannel channel)
+        {
+            this.redis = redis;
+            this.channel = channel;
+        }
+
+        public Task PublishAsync(RedisValue message)
+        {
+            
+            return redis.Subscriber.PublishAsync(channel, message);
+        }
+        public Task PublishAsync(string message)
+        {
+            return PublishAsync((RedisValue) message);
+        }
+    }
+
+    public class RedisCache : IDisposable
+    {
         public static bool WriteDebugOutput = false;
         public static bool DeleteOnStartup = true;
 
-        public RedisCache(string connectionString, IContractResolver contractResolver = null)
+        private readonly string connectionString;
+        private readonly IContractResolver contractResolver;
+        private readonly ConnectionMultiplexer connection;
+        internal readonly ISubscriber Subscriber;
+        private bool isDisposed = false;
+
+        public static async Task<RedisCache> ConnectAsync(string connectionString, IContractResolver contractResolver = null)
+        {
+            var connection = await ConnectionMultiplexer.ConnectAsync(connectionString);
+            var redis = new RedisCache(connectionString, contractResolver, connection);
+
+            if (DeleteOnStartup)
+                await redis.ClearAsync();
+
+            return redis;
+        }
+
+        public RedisCache(string connectionString, IContractResolver contractResolver, ConnectionMultiplexer connection)
         {
             this.connectionString = connectionString;
             this.contractResolver = contractResolver;
-            lazyConnection = new Lazy<ConnectionMultiplexer>(() => ConnectionMultiplexer.Connect(this.connectionString));
+            this.connection = connection;
+            Subscriber = connection.GetSubscriber();
+        }
 
-            if (DeleteOnStartup)
-                AsyncHelper.RunSync(async () => await ClearAsync());
+        public void Dispose()
+        {
+            lock (this)
+            {
+                if (isDisposed)
+                    throw new ObjectDisposedException(nameof(RedisCache));
+
+                isDisposed = true;
+                connection.Dispose();
+            }
         }
 
         public async Task<RedisCacheInfo> GetInfo()
@@ -69,13 +252,10 @@ namespace Bitbird.Core.Data.Net
 
             return ret;
         }
-
-        private ConnectionMultiplexer Connection 
-            => lazyConnection.Value;
         private IDatabase Db 
-            => Connection.GetDatabase();
+            => connection.GetDatabase();
         private bool IsConnected 
-            => Connection.IsConnected;
+            => connection.IsConnected;
 
         public async Task<bool> ClearAsync()
         {
@@ -90,7 +270,7 @@ namespace Bitbird.Core.Data.Net
 
         public async Task<long> DeleteAllAsync(string prefix)
         {
-            var server = Connection.GetServer(connectionString.Split(',')[0]);
+            var server = connection.GetServer(connectionString.Split(',')[0]);
             if (!server.IsConnected)
                 return -1;
 
@@ -337,13 +517,13 @@ namespace Bitbird.Core.Data.Net
                 TypeNameHandling = TypeNameHandling.All,
                 ContractResolver = contractResolver
             });
-        private string SerializeObject(object objectToCache)
+        internal string SerializeObject(object objectToCache)
         {
             return JsonConvert.SerializeObject(objectToCache
                 , Formatting.Indented
                 , SerializerSettings);
         }
-        private T DeserializeObject<T>(string serializedObject)
+        internal T DeserializeObject<T>(string serializedObject)
         {
             return JsonConvert.DeserializeObject<T>(serializedObject
                 , SerializerSettings);
