@@ -1,13 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Bitbird.Core.Benchmarks
 {
-    public class BenchmarkSection
+    public class BenchmarkSection : ActiveMeasuring
     {
         public readonly List<BenchmarkResult> Benchmarks;
         internal readonly string Prefix;
 
         public BenchmarkSection(List<BenchmarkResult> benchmarks, string prefix)
+            : base(benchmarks, prefix)
         {
             Benchmarks = benchmarks;
             Prefix = prefix;

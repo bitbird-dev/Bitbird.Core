@@ -1,4 +1,8 @@
-﻿namespace Bitbird.Core.Data.Net.DbContext.Hooks
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+
+namespace Bitbird.Core.Data.Net.DbContext.Hooks
 {
     public class EntityHookEvent<T>
     {
@@ -9,6 +13,20 @@
         {
             OldEntity = oldEntity;
             NewEntity = newEntity;
+        }
+
+        public bool HasChanged<TProp>(Func<T, TProp> propertySelector)
+        {
+            if (OldEntity == null || NewEntity == null)
+                return true;
+
+            var oldValue = propertySelector(OldEntity);
+            var newValue = propertySelector(NewEntity);
+
+            if (!EqualityComparer<TProp>.Default.Equals(oldValue, newValue))
+                return true;
+
+            return false;
         }
     }
 

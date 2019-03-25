@@ -60,7 +60,7 @@ namespace Bitbird.Core.WebApi.Net
         public override MediaTypeFormatter GetPerRequestFormatterInstance(Type type, HttpRequestMessage request, MediaTypeHeaderValue mediaType)
             => new JsonApiMediaTypeFormatter(Config, request, JsonApiResourceMappings);
 
-
+        
         /// <inheritdoc/>
         public override async Task<object> ReadFromStreamAsync(
             Type type,
@@ -68,8 +68,6 @@ namespace Bitbird.Core.WebApi.Net
             HttpContent content,
             IFormatterLogger formatterLogger)
         {
-            if (type == typeof(QueryInfo))
-                return null;
 #if DEBUG
             var sw = new Stopwatch();
             sw.Start();
@@ -115,11 +113,14 @@ namespace Bitbird.Core.WebApi.Net
                     else
                     {
                         JsonApiDocument document;
-                        using (JsonReader jsonReader = new JsonTextReader(reader))
-                        {
-                            jsonReader.DateParseHandling = DateParseHandling.None;
-                            document = (await JToken.LoadAsync(jsonReader)).ToObject<JsonApiDocument>();
-                        }
+                        var result = await reader.ReadToEndAsync();
+                        document = JsonConvert.DeserializeObject<JsonApiDocument>(result);
+                        reader.Close(); /*
+                    using (JsonReader jsonReader = new JsonTextReader(reader))
+                    {
+                        jsonReader.DateParseHandling = DateParseHandling.None;
+                        document = (await JToken.LoadAsync(jsonReader)).ToObject<JsonApiDocument>();
+                    }*/
 
                         if (type == typeof(JsonApiDocument))
                             return document;
@@ -130,7 +131,7 @@ namespace Bitbird.Core.WebApi.Net
                         if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ContentInfo<>))
                         {
                             var contentInfoType = type;
-                            packContent = (o, d, p) => Activator.CreateInstance(contentInfoType, o, d,
+                            packContent = (o, d, p) => Activator.CreateInstance(contentInfoType, o, 
                                 (Func<string, bool>) (prop => p(0, prop)));
                             type = type.GetGenericArguments()[0];
                             typeForResource = type;
@@ -142,7 +143,9 @@ namespace Bitbird.Core.WebApi.Net
 
                         var data = document.ToObject(resource, type, out var foundAttributes);
 
-                        return packContent(data, document, foundAttributes);
+                        var returnValue = packContent(data, document, foundAttributes);
+
+                        return returnValue;
                     }
                 }
                 catch (Exception e)

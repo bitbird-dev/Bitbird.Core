@@ -33,41 +33,31 @@ namespace Bitbird.Core.Data.Net.DbContext.Hooks
         public void AddPreEventAsyncHandler(Func<TDataContext, EntityHookEvent<T>[], HookEventType, Task> handler)
             => preEventAsyncHandlers.Add(handler);
 
-        public async Task InvokePreInsertAsync(TDataContext db, EntityHookEvent[] entities)
+        public Task InvokePreInsertAsync(TDataContext db, EntityHookEvent[] entities) => InvokePreAsync(db, entities, HookEventType.Insert);
+        public Task InvokePostInsertAsync(TDataContext db, EntityHookEvent[] entities) => InvokePostAsync(db, entities, HookEventType.Insert);
+        public Task InvokePreDeleteAsync(TDataContext db, EntityHookEvent[] entities) => InvokePreAsync(db, entities, HookEventType.Delete);
+        public Task InvokePostDeleteAsync(TDataContext db, EntityHookEvent[] entities) => InvokePostAsync(db, entities, HookEventType.Delete);
+        public Task InvokePreUpdateAsync(TDataContext db, EntityHookEvent[] entities) => InvokePreAsync(db, entities, HookEventType.Update);
+        public Task InvokePostUpdateAsync(TDataContext db, EntityHookEvent[] entities) => InvokePostAsync(db, entities, HookEventType.Update);
+
+
+        private async Task InvokePreAsync(TDataContext db, EntityHookEvent[] entities, HookEventType type)
         {
-            var data = entities.Select(entity => entity.ToTyped<T>()).ToArray();
+            var data = entities
+                .Select(entity => entity.ToTyped<T>())
+                .ToArray();
+
             foreach (var a in preEventAsyncHandlers)
-                await a(db, data, HookEventType.Insert);
+                await a(db, data, type); // Don't use Task.WhenAll. Don't run in parallel. The Entity Framework data context does not allow parallel queries.
         }
-        public async Task InvokePostInsertAsync(TDataContext db, EntityHookEvent[] entities)
+        private async Task InvokePostAsync(TDataContext db, EntityHookEvent[] entities, HookEventType type)
         {
-            var data = entities.Select(entity => entity.ToTyped<T>()).ToArray();
+            var data = entities
+                .Select(entity => entity.ToTyped<T>())
+                .ToArray();
+
             foreach (var a in postEventAsyncHandlers)
-                await a(db, data, HookEventType.Insert);
-        }
-        public async Task InvokePreDeleteAsync(TDataContext db, EntityHookEvent[] entities)
-        {
-            var data = entities.Select(entity => entity.ToTyped<T>()).ToArray();
-            foreach (var a in preEventAsyncHandlers)
-                await a(db, data, HookEventType.Delete);
-        }
-        public async Task InvokePostDeleteAsync(TDataContext db, EntityHookEvent[] entities)
-        {
-            var data = entities.Select(entity => entity.ToTyped<T>()).ToArray();
-            foreach (var a in postEventAsyncHandlers)
-                await a(db, data, HookEventType.Delete);
-        }
-        public async Task InvokePreUpdateAsync(TDataContext db, EntityHookEvent[] entities)
-        {
-            var data = entities.Select(entity => entity.ToTyped<T>()).ToArray();
-            foreach (var a in preEventAsyncHandlers)
-                await a(db, data, HookEventType.Update);
-        }
-        public async Task InvokePostUpdateAsync(TDataContext db, EntityHookEvent[] entities)
-        {
-            var data = entities.Select(entity => entity.ToTyped<T>()).ToArray();
-            foreach (var a in postEventAsyncHandlers)
-                await a(db, data, HookEventType.Update);
+                await a(db, data, type); // Don't use Task.WhenAll. Don't run in parallel. The Entity Framework data context does not allow parallel queries.
         }
     }
 }
