@@ -59,7 +59,7 @@ namespace Bitbird.Core.Data.Net
 
         private static IQueryable<T> OfNotDeleted<T>(this IQueryable<T> query) where T : class, IIsDeletedFlagEntity
         {
-            return query.Where(_ => !_.IsDeleted);
+            return query.Where(_ => _.IsDeleted == false);
         }
 
         private static IEnumerable<T> OfDeleted<T>(this IEnumerable<T> query) where T : class, IIsDeletedFlagEntity
@@ -69,7 +69,7 @@ namespace Bitbird.Core.Data.Net
 
         private static IEnumerable<T> OfNotDeleted<T>(this IEnumerable<T> query) where T : class, IIsDeletedFlagEntity
         {
-            return query.Where(_ => !_.IsDeleted);
+            return query.Where(_ => _.IsDeleted == false);
         }
     }
 }

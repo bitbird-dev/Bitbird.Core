@@ -22,7 +22,7 @@ namespace Bitbird.Core.Data.Net
         public RedisSubscription(RedisCache redis, string channel)
         {
             this.redis = redis;
-            this.channel = new RedisChannel(channel, RedisChannel.PatternMode.Literal);
+            this.channel = new RedisChannel(redis.FormatChannelForCurrentDb(channel), RedisChannel.PatternMode.Literal);
         }
 
         public async Task SubscribeAsync()
@@ -76,7 +76,7 @@ namespace Bitbird.Core.Data.Net
         public event Action<RedisChannel, RedisValue> Message;
 
         public RedisSubscription(RedisCache redis, string channel)
-            : this(redis, new RedisChannel(channel, RedisChannel.PatternMode.Literal))
+            : this(redis, new RedisChannel(redis.FormatChannelForCurrentDb(channel), RedisChannel.PatternMode.Literal))
         { }
         public RedisSubscription(RedisCache redis, RedisChannel channel)
         {
@@ -131,7 +131,7 @@ namespace Bitbird.Core.Data.Net
         private readonly RedisChannel channel;
 
         public RedisPublisher(RedisCache redis, string channel)
-            : this(redis, new RedisChannel(channel, RedisChannel.PatternMode.Literal))
+            : this(redis, new RedisChannel(redis.FormatChannelForCurrentDb(channel), RedisChannel.PatternMode.Literal))
         { }
         public RedisPublisher(RedisCache redis, RedisChannel channel)
         {
@@ -152,7 +152,7 @@ namespace Bitbird.Core.Data.Net
         private readonly RedisChannel channel;
 
         public RedisPublisher(RedisCache redis, string channel)
-            : this(redis, new RedisChannel(channel, RedisChannel.PatternMode.Literal))
+            : this(redis, new RedisChannel(redis.FormatChannelForCurrentDb(channel), RedisChannel.PatternMode.Literal))
         { }
         public RedisPublisher(RedisCache redis, RedisChannel channel)
         {
@@ -180,6 +180,8 @@ namespace Bitbird.Core.Data.Net
         private readonly ConnectionMultiplexer connection;
         internal readonly ISubscriber Subscriber;
         private bool isDisposed = false;
+
+        public string FormatChannelForCurrentDb(string channel) => $"Db[{Db.Database}].{channel}";
 
         public static async Task<RedisCache> ConnectAsync(string connectionString, IContractResolver contractResolver = null)
         {
@@ -251,10 +253,8 @@ namespace Bitbird.Core.Data.Net
 
             return ret;
         }
-        private IDatabase Db 
-            => connection.GetDatabase();
-        private bool IsConnected 
-            => connection.IsConnected;
+        internal IDatabase Db => connection.GetDatabase();
+        private bool IsConnected => connection.IsConnected;
 
         public async Task<bool> ClearAsync()
         {
@@ -262,8 +262,9 @@ namespace Bitbird.Core.Data.Net
                 return false;
 
             if (WriteDebugOutput) Debug.WriteLine("RedisCache.Clear");
+
             // ReSharper disable once StringLiteralTypo
-            await Db.ExecuteAsync("FLUSHALL");
+            await Db.ExecuteAsync("FLUSHDB");
             return true;
         }
 
