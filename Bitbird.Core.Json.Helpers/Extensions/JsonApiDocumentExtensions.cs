@@ -230,11 +230,11 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         public static string ToRelationshipName<TResource>(this string idPropertyName) 
             where TResource : JsonApiResource
         {
-            return GetRelationJsonPropertyNameByIdPropertyName<TResource>(idPropertyName)?.ToJsonRelationshipName();
+            return GetRelationJsonPropertyNameByIdPropertyName<TResource>(idPropertyName)?.ToJsonRelationshipName() ?? string.Empty;
         }
         public static string ToRelationshipName(this string idPropertyName, Type tResource)
         {
-            return GetRelationJsonPropertyNameByIdPropertyName(tResource, idPropertyName)?.ToJsonRelationshipName();
+            return GetRelationJsonPropertyNameByIdPropertyName(tResource, idPropertyName)?.ToJsonRelationshipName() ?? string.Empty;
         }
     }
 
