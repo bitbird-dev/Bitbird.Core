@@ -11,7 +11,7 @@
 
         public override string ToString()
         {
-            return $"{nameof(Value)}: {Value}";
+            return $"{PropertyName} == {Value}";
         }
 
         public override string ValueExpression => Value;

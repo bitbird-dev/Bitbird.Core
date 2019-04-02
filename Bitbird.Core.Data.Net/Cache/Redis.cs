@@ -4,189 +4,28 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Bitbird.Core.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using StackExchange.Redis;
 
 namespace Bitbird.Core.Data.Net
 {
-    public class RedisSubscription<TMessage> : IDisposable
-    {
-        private bool isSubscribed = false;
-        private readonly RedisCache redis;
-        private readonly RedisChannel channel;
-
-        public event Action<TMessage> Message;
-
-        public RedisSubscription(RedisCache redis, string channel)
-        {
-            this.redis = redis;
-            this.channel = new RedisChannel(redis.FormatChannelForCurrentDb(channel), RedisChannel.PatternMode.Literal);
-        }
-
-        public async Task SubscribeAsync()
-        {
-            lock (this)
-            {
-                if (isSubscribed)
-                    throw new Exception($"{nameof(RedisSubscription)} is already subscribed.");
-
-                isSubscribed = true;
-            }
-            await redis.Subscriber.SubscribeAsync(channel, OnMessage);
-        }
-
-        public async Task UnsubscribeAsync()
-        {
-            lock (this)
-            {
-                if (!isSubscribed)
-                    return;
-
-                isSubscribed = false;
-            }
-            await redis.Subscriber.UnsubscribeAsync(channel, OnMessage);
-        }
-
-        private void OnMessage(RedisChannel channel, RedisValue value)
-        {
-            try
-            {
-                var message = redis.DeserializeObject<TMessage>(value);
-                Message?.Invoke(message);
-            }
-            catch
-            {
-                /* ignored */
-                // TODO: log
-            }
-        }
-
-        public void Dispose()
-            => AsyncHelper.RunSync(UnsubscribeAsync);
-    }
-
-    public class RedisSubscription : IDisposable
-    {
-        private bool isSubscribed = false;
-        private readonly RedisCache redis;
-        private readonly RedisChannel channel;
-
-        public event Action<RedisChannel, RedisValue> Message;
-
-        public RedisSubscription(RedisCache redis, string channel)
-            : this(redis, new RedisChannel(redis.FormatChannelForCurrentDb(channel), RedisChannel.PatternMode.Literal))
-        { }
-        public RedisSubscription(RedisCache redis, RedisChannel channel)
-        {
-            this.redis = redis;
-            this.channel = channel;
-        }
-
-        public async Task SubscribeAsync()
-        {
-            lock (this)
-            {
-                if (isSubscribed)
-                    throw new Exception($"{nameof(RedisSubscription)} is already subscribed.");
-
-                isSubscribed = true;
-            }
-            await redis.Subscriber.SubscribeAsync(channel, OnMessage);
-        }
-
-        public async Task UnsubscribeAsync()
-        {
-            lock (this)
-            {
-                if (!isSubscribed)
-                    return;
-
-                isSubscribed = false;
-            }
-            await redis.Subscriber.UnsubscribeAsync(channel, OnMessage);
-        }
-
-        private void OnMessage(RedisChannel channel, RedisValue value)
-        {
-            try
-            {
-                Message?.Invoke(channel, value);
-            }
-            catch
-            {
-                /* ignored */
-                // TODO: log
-            }
-        }
-
-        public void Dispose()
-            => AsyncHelper.RunSync(UnsubscribeAsync);
-    }
-
-    public class RedisPublisher<TMessage>
-    {
-        private readonly RedisCache redis;
-        private readonly RedisChannel channel;
-
-        public RedisPublisher(RedisCache redis, string channel)
-            : this(redis, new RedisChannel(redis.FormatChannelForCurrentDb(channel), RedisChannel.PatternMode.Literal))
-        { }
-        public RedisPublisher(RedisCache redis, RedisChannel channel)
-        {
-            this.redis = redis;
-            this.channel = channel;
-        }
-
-        public Task PublishAsync(TMessage message)
-        {
-            var redisValue = redis.SerializeObject(message);
-            return redis.Subscriber.PublishAsync(channel, redisValue);
-        }
-    }
-
-    public class RedisPublisher
-    {
-        private readonly RedisCache redis;
-        private readonly RedisChannel channel;
-
-        public RedisPublisher(RedisCache redis, string channel)
-            : this(redis, new RedisChannel(redis.FormatChannelForCurrentDb(channel), RedisChannel.PatternMode.Literal))
-        { }
-        public RedisPublisher(RedisCache redis, RedisChannel channel)
-        {
-            this.redis = redis;
-            this.channel = channel;
-        }
-
-        public Task PublishAsync(RedisValue message)
-        {
-            return redis.Subscriber.PublishAsync(channel, message);
-        }
-        public Task PublishAsync(string message)
-        {
-            return PublishAsync((RedisValue) message);
-        }
-    }
-
-    public class RedisCache : IDisposable
+    public class Redis : IDisposable
     {
         public static bool WriteDebugOutput = false;
         public static bool DeleteOnStartup = true;
 
         private readonly string connectionString;
         private readonly IContractResolver contractResolver;
-        private readonly ConnectionMultiplexer connection;
-        internal readonly ISubscriber Subscriber;
+        internal readonly ConnectionMultiplexer Connection;
         private bool isDisposed = false;
 
         public string FormatChannelForCurrentDb(string channel) => $"Db[{Db.Database}].{channel}";
 
-        public static async Task<RedisCache> ConnectAsync(string connectionString, IContractResolver contractResolver = null)
+        public static async Task<Redis> ConnectAsync(string connectionString, IContractResolver contractResolver = null)
         {
             var connection = await ConnectionMultiplexer.ConnectAsync(connectionString);
-            var redis = new RedisCache(connectionString, contractResolver, connection);
+            var redis = new Redis(connectionString, contractResolver, connection);
 
             if (DeleteOnStartup)
                 await redis.ClearAsync();
@@ -194,12 +33,11 @@ namespace Bitbird.Core.Data.Net
             return redis;
         }
 
-        public RedisCache(string connectionString, IContractResolver contractResolver, ConnectionMultiplexer connection)
+        public Redis(string connectionString, IContractResolver contractResolver, ConnectionMultiplexer connection)
         {
             this.connectionString = connectionString;
             this.contractResolver = contractResolver;
-            this.connection = connection;
-            Subscriber = connection.GetSubscriber();
+            Connection = connection;
         }
 
         public void Dispose()
@@ -207,10 +45,10 @@ namespace Bitbird.Core.Data.Net
             lock (this)
             {
                 if (isDisposed)
-                    throw new ObjectDisposedException(nameof(RedisCache));
+                    throw new ObjectDisposedException(nameof(Redis));
 
                 isDisposed = true;
-                connection.Dispose();
+                Connection.Dispose();
             }
         }
 
@@ -253,8 +91,14 @@ namespace Bitbird.Core.Data.Net
 
             return ret;
         }
-        internal IDatabase Db => connection.GetDatabase();
-        private bool IsConnected => connection.IsConnected;
+        internal IDatabase Db => Connection.GetDatabase();
+        private bool IsConnected => Connection.IsConnected;
+
+        private static RedisKey GetKey<TKey>(string prefix, TKey id)
+            => $"{prefix}:{id?.ToString().ToLowerInvariant()}";
+
+        private static RedisKey GetKey(string key)
+            => key;
 
         public async Task<bool> ClearAsync()
         {
@@ -270,7 +114,7 @@ namespace Bitbird.Core.Data.Net
 
         public async Task<long> DeleteAllAsync(string prefix)
         {
-            var server = connection.GetServer(connectionString.Split(',')[0]);
+            var server = Connection.GetServer(connectionString.Split(',')[0]);
             if (!server.IsConnected)
                 return -1;
 
@@ -282,17 +126,34 @@ namespace Bitbird.Core.Data.Net
 
             return await Db.KeyDeleteAsync(keys);
         }
-        public async Task<bool> DeleteAsync<TKey>(string prefix, TKey id)
+
+        public async Task<bool> DeleteAsync(RedisKey key)
         {
             if (!IsConnected)
                 return false;
-
-            var key = GetKey(prefix, id);
 
             if (WriteDebugOutput) Debug.WriteLine($"RedisCache.Delete {key}");
 
             return !(await Db.KeyExistsAsync(key)) || await Db.KeyDeleteAsync(key);
         }
+        public Task<bool> DeleteAsync(string key)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(key));
+
+            return DeleteAsync(GetKey(key));
+        }
+
+        public Task<bool> DeleteAsync<TKey>(string prefix, TKey id)
+        {
+            if (id == null)
+                throw new ArgumentNullException(nameof(id));
+            if (string.IsNullOrWhiteSpace(prefix))
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(prefix));
+
+            return DeleteAsync(GetKey(prefix, id));
+        }
+        
         public async Task<long> DeleteManyAsync<TKey>(string prefix, TKey[] ids)
         {
             if (!IsConnected)
@@ -307,11 +168,8 @@ namespace Bitbird.Core.Data.Net
             return await Db.KeyDeleteAsync(keys);
         }
 
-        private static RedisKey GetKey<TKey>(string prefix, TKey id) 
-            => $"{prefix}:{id}";
 
-
-        private async Task<bool> SetAsync<T>(RedisKey key, T item)
+        public async Task<bool> SetAsync<T>(RedisKey key, T item)
         {
             if (!IsConnected)
                 return false;
@@ -322,14 +180,23 @@ namespace Bitbird.Core.Data.Net
 
             return await Db.StringSetAsync(key, value);
         }
-        private async Task<bool> SetAsync<TKey, T>(string prefix, TKey id, T item)
+        public Task<bool> SetAsync<TKey, T>(string prefix, TKey id, T item)
         {
             if (id == null)
                 throw new ArgumentNullException(nameof(id));
+            if (string.IsNullOrWhiteSpace(prefix))
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(prefix));
 
-            var key = GetKey(prefix, id);
-            return await SetAsync(key, item);
+            return SetAsync(GetKey(prefix, id), item);
         }
+        public Task<bool> SetAsync<TKey, T>(string key, T item)
+        {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+
+            return SetAsync(GetKey(key), item);
+        }
+
         private async Task<bool> SetManyAsync<TKey, T>(string prefix, IDictionary<TKey, T> itemsById)
         {
             if (itemsById == null)
@@ -347,38 +214,98 @@ namespace Bitbird.Core.Data.Net
         }
 
         public Task AddOrUpdateAsync<TKey, T>(string prefix, TKey id, T item)
-            => SetAsync(prefix, id, item);
+            => SetAsync(GetKey(prefix, id), item);
+        public Task AddOrUpdateAsync<T>(string key, T item)
+            => SetAsync(GetKey(key), item);
         public Task AddOrUpdateManyAsync<TKey, T>(string prefix, Dictionary<TKey, T> itemsById)
             => SetManyAsync(prefix, itemsById);
 
-        public async Task<T> GetOrAddAsync<TKey, T>(string prefix, TKey id, Func<TKey, Task<T>> valueFactory)
+
+        public async Task<(T value, bool exists)> GetAsync<T>(RedisKey key)
         {
-            if (id == null)
-                throw new ArgumentNullException(nameof(id));
-            if (valueFactory == null)
-                throw new ArgumentNullException(nameof(valueFactory));
-
             if (!IsConnected)
-                return await valueFactory(id);
+                return (default, false);
 
-            var key = GetKey(prefix, id);
-
-            if (WriteDebugOutput) Debug.WriteLine($"RedisCache.GetOrAdd {key}");
+            if (WriteDebugOutput) Debug.WriteLine($"RedisCache.Get {key}");
 
             var value = await Db.StringGetAsync(key);
             if (value.HasValue)
-            { 
+            {
                 try
                 {
-                    return DeserializeObject<T>(value);
+                    return (DeserializeObject<T>(value), true);
                 }
                 catch { /* ignored - cannot deserialize - must be refreshed */ }
             }
 
-            var newVal = await valueFactory(id);
+            return (default, false);
+        }
+        public Task<(T value, bool exists)> GetAsync<TKey, T>(string prefix, TKey id)
+        {
+            if (id == null)
+                throw new ArgumentNullException(nameof(id));
+
+            return GetAsync<T>(GetKey(prefix, id));
+        }
+        public Task<(T value, bool exists)> GetAsync<TKey, T>(string key)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(key));
+
+            return GetAsync<T>(GetKey(key));
+        }
+        public async Task<T> GetAsync<T>(RedisKey key, T valueIfNotExists)
+        {
+            var (value, exists) = await GetAsync<T>(key);
+            return exists ? value : valueIfNotExists;
+        }
+        public Task<T> GetAsync<TKey, T>(string prefix, TKey id, T valueIfNotExists)
+        {
+            if (id == null)
+                throw new ArgumentNullException(nameof(id));
+
+            return GetAsync(GetKey(prefix, id), valueIfNotExists);
+        }
+        public Task<T> GetAsync<TKey, T>(string key, T valueIfNotExists)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(key));
+
+            return GetAsync(GetKey(key), valueIfNotExists);
+        }
+
+        public async Task<T> GetOrAddAsync<T>(RedisKey key, Func<Task<T>> valueFactory)
+        {
+            if (valueFactory == null)
+                throw new ArgumentNullException(nameof(valueFactory));
+
+            if (!IsConnected)
+                return await valueFactory();
+
+            if (WriteDebugOutput) Debug.WriteLine($"RedisCache.GetOrAdd {key}");
+
+            var (value, exists) = await GetAsync<T>(key);
+            if (exists)
+                return value;
+
+            var newVal = await valueFactory();
             if (newVal != null)
-                await SetAsync(prefix, id, newVal);
+                await SetAsync(key, newVal);
             return newVal;
+        }
+        public Task<T> GetOrAddAsync<TKey, T>(string prefix, TKey id, Func<TKey, Task<T>> valueFactory)
+        {
+            if (id == null)
+                throw new ArgumentNullException(nameof(id));
+
+            return GetOrAddAsync(GetKey(prefix, id), () => valueFactory(id));
+        }
+        public Task<T> GetOrAddAsync<TKey, T>(string key, Func<TKey, Task<T>> valueFactory)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(key));
+
+            return GetOrAddAsync(GetKey(key), valueFactory);
         }
         public async Task<T[]> GetOrAddManyAsync<TKey, T>(string prefix, TKey[] ids, Func<TKey[], Task<T[]>> valueFactory)
         {

@@ -11,7 +11,7 @@
 
         public override string ToString()
         {
-            return $"{nameof(Upper)}: {Upper}";
+            return $"{PropertyName} < {Upper}";
         }
 
         public override string ValueExpression => $"LT({Upper})";

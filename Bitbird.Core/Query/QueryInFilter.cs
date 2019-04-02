@@ -13,7 +13,7 @@ namespace Bitbird.Core.Query
 
         public override string ToString()
         {
-            return $"{base.ToString()}, {nameof(Values)}: {Values.SequenceToString(", ")}";
+            return $"{PropertyName} IN ({Values.SequenceToString(", ")})";
         }
 
         public override string ValueExpression => $"IN({string.Join(";", Values)})";

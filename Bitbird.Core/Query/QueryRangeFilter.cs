@@ -13,7 +13,7 @@
 
         public override string ToString()
         {
-            return $"{nameof(Lower)}: {Lower}, {nameof(Upper)}: {Upper}";
+            return $"{PropertyName} > {Lower} && {PropertyName} < {Upper}";
         }
 
         public override string ValueExpression => $"RANGE({Lower};{Upper})";

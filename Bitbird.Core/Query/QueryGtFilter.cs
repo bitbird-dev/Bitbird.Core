@@ -11,7 +11,7 @@
 
         public override string ToString()
         {
-            return $"{nameof(Lower)}: {Lower}";
+            return $"{PropertyName} > {Lower}";
         }
 
         public override string ValueExpression => $"GT({Lower})";

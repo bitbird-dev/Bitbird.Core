@@ -11,7 +11,7 @@
 
         public override string ToString()
         {
-            return $"{base.ToString()}, {nameof(Pattern)}: {Pattern}";
+            return $"{PropertyName} LIKE {Pattern}";
         }
 
         public override string ValueExpression => $"FREETEXT({Pattern})";

@@ -93,8 +93,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Cache\RedisCache.cs" />
+    <Compile Include="Cache\Redis.cs" />
     <Compile Include="Cache\RedisCacheInfo.cs" />
+    <Compile Include="Cache\RedisPublisher.cs" />
+    <Compile Include="Cache\RedisSubscription.cs" />
     <Compile Include="Context\ArithAbortOnInterceptor.cs" />
     <Compile Include="DbContext\DbContextExtensions.cs" />
     <Compile Include="DbContext\Hooks\DataContextEntityHookEvents.cs" />

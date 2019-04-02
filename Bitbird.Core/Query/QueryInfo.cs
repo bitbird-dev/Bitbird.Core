@@ -1,8 +1,62 @@
 ﻿using System;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace Bitbird.Core.Query
 {
+    public class QueryInfo<T> : QueryInfo
+    {
+        public QueryInfo(
+            QuerySortProperty<T>[] sortProperties = null, 
+            Expression<Func<T,bool>> filterExpression = null, 
+            QueryPaging paging = null, 
+            Expression<Func<T,object>>[] includes = null)
+        : this(
+            sortProperties,
+            filterExpression == null ? null : QueryFilter.Parse(filterExpression),
+            paging,
+            includes == null ? null : includes.Select(include => EncodeMemberExpression((MemberExpression)include.Body, include.Parameters[0])).ToArray())
+        {
+        }
+        private QueryInfo(
+            QuerySortProperty<T>[] sortProperties = null,
+            QueryFilter[] filters = null,
+            QueryPaging paging = null,
+            string[] includes = null)
+            : base(
+                sortProperties,
+                filters,
+                paging,
+                includes)
+        {
+        }
+
+        public QueryInfo<T> AddFilter(Expression<Func<T, bool>> filterExpression)
+        {
+            return new QueryInfo<T>(
+                SortProperties?.Cast<QuerySortProperty<T>>().ToArray(), 
+                (Filters ?? new QueryFilter[0]).Concat(QueryFilter.Parse(filterExpression)).ToArray(),
+                Paging,
+                Includes);
+        }
+        public QueryInfo<T> AddIncludes(params Expression<Func<T, object>>[] includeExpression)
+        {
+            return new QueryInfo<T>(
+                SortProperties?.Cast<QuerySortProperty<T>>().ToArray(),
+                Filters,
+                Paging,
+                (Includes ?? new string[0]).Concat(includeExpression.Select(e => QueryInfo.EncodeMemberExpression((MemberExpression)e.Body, e.Parameters[0]))).ToArray());
+        }
+        public QueryInfo<T> AddPaging(int pageSize, int page)
+        {
+            return new QueryInfo<T>(
+                SortProperties?.Cast<QuerySortProperty<T>>().ToArray(),
+                Filters,
+                new QueryPaging(pageSize, page),
+                Includes);
+        }
+    }
     public class QueryInfo
     {
         public readonly QuerySortProperty[] SortProperties;
@@ -89,6 +143,26 @@ namespace Bitbird.Core.Query
             }
 
             return sb.ToString();
+        }
+
+
+        internal static string EncodeMemberExpression(MemberExpression memberExpression, ParameterExpression parameter)
+        {
+            string instance = null;
+            switch (memberExpression.Expression)
+            {
+                case MemberExpression instanceMemberExpression:
+                    instance = EncodeMemberExpression(instanceMemberExpression, parameter);
+                    break;
+                case ParameterExpression parameterExpression:
+                    if (parameter != null && (parameterExpression.Name != parameter.Name || parameterExpression.Type != parameter.Type))
+                        throw new Exception($"{nameof(EncodeMemberExpression)}: Unknown parameter found: {parameterExpression.Name} of Type {parameterExpression.Type}. The only known parameter is {parameter.Name} of Type {parameter.Type}.");
+                    break;
+            }
+
+            return instance != null
+                ? $"{instance}.{memberExpression.Member.Name}"
+                : memberExpression.Member.Name;
         }
     }
 }
