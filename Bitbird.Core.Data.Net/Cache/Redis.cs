@@ -10,6 +10,56 @@ using StackExchange.Redis;
 
 namespace Bitbird.Core.Data.Net
 {
+    public class DeferredRedisOperations
+    {
+        private readonly Redis redis;
+        private readonly List<DeferredRedisDeleteOperation> deleted = new List<DeferredRedisDeleteOperation>();
+
+        internal DeferredRedisOperations(Redis redis)
+        {
+            this.redis = redis;
+        }
+
+        internal void PushOperation(DeferredRedisDeleteOperation operation)
+        {
+            lock (deleted)
+            {
+                deleted.Add(operation);
+            }
+        }
+
+        internal DeferredRedisDeleteOperation PopDeleteOperations()
+        {
+            DeferredRedisDeleteOperation[] data;
+            lock (deleted)
+            {
+                data = deleted.ToArray();
+                deleted.Clear();
+            }
+
+            return new DeferredRedisDeleteOperation(
+                data.SelectMany(x => x.Keys)
+                    .Distinct()
+                    .ToArray());
+        }
+
+        public async Task ExecuteAsync()
+        {
+            var delete = PopDeleteOperations();
+            await redis.DeleteManyAsync(delete.Keys);
+        }
+    }
+
+    internal class DeferredRedisDeleteOperation
+    {
+        public readonly RedisKey[] Keys;
+
+        public DeferredRedisDeleteOperation(params RedisKey[] keys)
+        {
+            Keys = keys;
+        }
+    }
+
     public class Redis : IDisposable
     {
         public static bool WriteDebugOutput = false;
@@ -94,6 +144,12 @@ namespace Bitbird.Core.Data.Net
         internal IDatabase Db => Connection.GetDatabase();
         private bool IsConnected => Connection.IsConnected;
 
+
+        public DeferredRedisOperations StartDeferred()
+        {
+            return new DeferredRedisOperations(this);
+        }
+
         private static RedisKey GetKey<TKey>(string prefix, TKey id)
             => $"{prefix}:{id?.ToString().ToLowerInvariant()}";
 
@@ -124,18 +180,9 @@ namespace Bitbird.Core.Data.Net
 
             if (WriteDebugOutput) Debug.WriteLine($"RedisCache.DeleteAll {prefix}");
 
-            return await Db.KeyDeleteAsync(keys);
+            return await DeleteManyAsync(keys);
         }
 
-        public async Task<bool> DeleteAsync(RedisKey key)
-        {
-            if (!IsConnected)
-                return false;
-
-            if (WriteDebugOutput) Debug.WriteLine($"RedisCache.Delete {key}");
-
-            return !(await Db.KeyExistsAsync(key)) || await Db.KeyDeleteAsync(key);
-        }
         public Task<bool> DeleteAsync(string key)
         {
             if (string.IsNullOrWhiteSpace(key))
@@ -143,7 +190,6 @@ namespace Bitbird.Core.Data.Net
 
             return DeleteAsync(GetKey(key));
         }
-
         public Task<bool> DeleteAsync<TKey>(string prefix, TKey id)
         {
             if (id == null)
@@ -153,7 +199,11 @@ namespace Bitbird.Core.Data.Net
 
             return DeleteAsync(GetKey(prefix, id));
         }
-        
+        public void DeferredDelete<TKey>(DeferredRedisOperations deferredOperations, string prefix, TKey id)
+        {
+            deferredOperations.PushOperation(new DeferredRedisDeleteOperation(GetKey(prefix, id)));
+        }
+
         public async Task<long> DeleteManyAsync<TKey>(string prefix, TKey[] ids)
         {
             if (!IsConnected)
@@ -165,6 +215,29 @@ namespace Bitbird.Core.Data.Net
 
             if (WriteDebugOutput) Debug.WriteLine($"RedisCache.DeleteMany {string.Join(",", keys.Select(k => k.ToString()))}");
 
+            return await DeleteManyAsync(keys);
+        }
+        public void DeferredDeleteMany<TKey>(DeferredRedisOperations deferredOperations, string prefix, TKey[] ids)
+        {
+            var keys = ids
+                .Select(id => GetKey(prefix, id))
+                .ToArray();
+
+            deferredOperations.PushOperation(new DeferredRedisDeleteOperation(keys));
+        }
+
+
+        internal async Task<bool> DeleteAsync(RedisKey key)
+        {
+            if (!IsConnected) return false;
+            if (WriteDebugOutput) Debug.WriteLine($"RedisCache.Delete {key}");
+            return await Db.KeyDeleteAsync(key);
+        }
+        internal async Task<long> DeleteManyAsync(RedisKey[] keys)
+        {
+            if (keys == null) throw new ArgumentNullException(nameof(keys));
+            if (!IsConnected) return 0;
+            if (WriteDebugOutput) Debug.WriteLine($"RedisCache.DeleteMany {string.Join(",", keys.Select(k => k.ToString()))}");
             return await Db.KeyDeleteAsync(keys);
         }
 

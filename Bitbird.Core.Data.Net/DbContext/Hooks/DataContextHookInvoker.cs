@@ -5,19 +5,21 @@ using System.Threading.Tasks;
 
 namespace Bitbird.Core.Data.Net.DbContext.Hooks
 {
-    public class DataContextHookInvoker<TDataContext>
+    public class DataContextHookInvoker<TDataContext, TState>
         where TDataContext : System.Data.Entity.DbContext
     {
         private readonly TDataContext context;
-        private readonly DataContextHookCollection<TDataContext> hooks;
+        private readonly DataContextHookCollection<TDataContext, TState> hooks;
+        private readonly TState state;
         private readonly EntityHookEvent[] addedEntries;
         private readonly EntityHookEvent[] modifiedEntries;
         private readonly EntityHookEvent[] deletedEntries;
 
-        public DataContextHookInvoker(TDataContext context, DataContextHookCollection<TDataContext> hooks)
+        public DataContextHookInvoker(TDataContext context, DataContextHookCollection<TDataContext, TState> hooks, TState state)
         {
             this.context = context;
             this.hooks = hooks;
+            this.state = state;
 
             if (hooks == null)
             {
@@ -59,13 +61,13 @@ namespace Bitbird.Core.Data.Net.DbContext.Hooks
                 return;
 
             if (addedEntries.Length != 0)
-                await hooks.InvokePreInsertAsync(context, addedEntries);
+                await hooks.InvokePreInsertAsync(context, state, addedEntries);
 
             if (modifiedEntries.Length != 0)
-                await hooks.InvokePreUpdateAsync(context, modifiedEntries);
+                await hooks.InvokePreUpdateAsync(context, state, modifiedEntries);
 
             if (deletedEntries.Length != 0)
-                await hooks.InvokePreDeleteAsync(context, deletedEntries);
+                await hooks.InvokePreDeleteAsync(context, state, deletedEntries);
         }
 
         public async Task InvokePostHooksAsync()
@@ -74,13 +76,13 @@ namespace Bitbird.Core.Data.Net.DbContext.Hooks
                 return;
 
             if (addedEntries.Length != 0)
-                await hooks.InvokePostInsertAsync(context, addedEntries);
+                await hooks.InvokePostInsertAsync(context, state, addedEntries);
 
             if (modifiedEntries.Length != 0)
-                await hooks.InvokePostUpdateAsync(context, modifiedEntries);
+                await hooks.InvokePostUpdateAsync(context, state, modifiedEntries);
 
             if (deletedEntries.Length != 0)
-                await hooks.InvokePostDeleteAsync(context, deletedEntries);
+                await hooks.InvokePostDeleteAsync(context, state, deletedEntries);
         }
     }
 }
