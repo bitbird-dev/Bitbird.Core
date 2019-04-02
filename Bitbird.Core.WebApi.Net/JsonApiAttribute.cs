@@ -76,89 +76,85 @@ namespace Bitbird.Core.WebApi.Net
 
             var returnResource = ReturnResourceGetter?.Invoke(actionContext.ControllerContext.Controller);
 
-            QueryInfo queryInfo = null;
-            if (SupportsQuery)
+            foreach (var queryParam in actionContext.Request.GetQueryNameValuePairs())
             {
-                foreach (var queryParam in actionContext.Request.GetQueryNameValuePairs())
+                if (queryParam.Key.Equals("page.number"))
                 {
-                    if (queryParam.Key.Equals("page.number"))
-                    {
-                        pageNumber = Convert.ToInt32(queryParam.Value);
-                        continue;
-                    }
-                    if (queryParam.Key.Equals("page.size"))
-                    {
-                        pageSize = Convert.ToInt32(queryParam.Value);
-                        continue;
-                    }
-                    if (queryParam.Key.Equals("sort"))
-                    {
-                        sort = queryParam.Value
-                            .Split(',')
-                            .Select(f => f.StartsWith("-") ? new QuerySortProperty(f.Substring(1), false) : new QuerySortProperty(f, true))
-                            .ToArray();
-                        continue;
-                    }
-                    if (queryParam.Key.Equals("include"))
-                    {
-                        includes = queryParam.Value
-                            .Split(',')
-                            .ToArray();
-                        continue;
-                    }
-
-                    var match = FilterKeyRegex.Match(queryParam.Key);
-                    if (match.Success)
-                    {
-                        var property = match.Groups["Property"].Value;
-
-                        match = FilterValueRangeRegex.Match(queryParam.Value);
-                        if (match.Success)
-                        {
-                            filter.Add(QueryFilter.Range(property, match.Groups["LowerBound"].Value, match.Groups["UpperBound"].Value));
-                            continue;
-                        }
-                        match = FilterValueGtLt.Match(queryParam.Value);
-                        if (match.Success)
-                        {
-                            if (match.Groups["gt"].Success)
-                                filter.Add(QueryFilter.GreaterThan(property, match.Groups["Bound"].Value));
-                            else if (match.Groups["gte"].Success)
-                                filter.Add(QueryFilter.GreaterThanEqual(property, match.Groups["Bound"].Value));
-                            else if (match.Groups["lt"].Success)
-                                filter.Add(QueryFilter.LessThan(property, match.Groups["Bound"].Value));
-                            else if (match.Groups["lte"].Success)
-                                filter.Add(QueryFilter.LessThanEqual(property, match.Groups["Bound"].Value));
-                            continue;
-                        }
-
-                        match = FilterValueInRegex.Match(queryParam.Value);
-                        if (match.Success)
-                        {
-                            filter.Add(QueryFilter.In(property, match.Groups["Values"].Value.Split(';')));
-                            continue;
-                        }
-
-                        match = FilterValueFreeTextRegex.Match(queryParam.Value);
-                        if (match.Success)
-                        {
-                            filter.Add(QueryFilter.FreeText(property, match.Groups["Pattern"].Value));
-                            continue;
-                        }
-
-                        filter.Add(QueryFilter.Exact(property, queryParam.Value));
-                    }
+                    pageNumber = Convert.ToInt32(queryParam.Value);
+                    continue;
+                }
+                if (queryParam.Key.Equals("page.size"))
+                {
+                    pageSize = Convert.ToInt32(queryParam.Value);
+                    continue;
+                }
+                if (queryParam.Key.Equals("sort"))
+                {
+                    sort = queryParam.Value
+                        .Split(',')
+                        .Select(f => f.StartsWith("-") ? new QuerySortProperty(f.Substring(1), false) : new QuerySortProperty(f, true))
+                        .ToArray();
+                    continue;
+                }
+                if (queryParam.Key.Equals("include"))
+                {
+                    includes = queryParam.Value
+                        .Split(',')
+                        .ToArray();
+                    continue;
                 }
 
-                queryInfo = new QueryInfo(sort,
-                    filter.Count == 0 ?
-                        null :
-                        filter.ToArray(),
-                    pageSize.HasValue ?
-                        new QueryPaging(pageSize.Value, pageNumber ?? 0) :
-                        null,
-                    includes);
+                var match = FilterKeyRegex.Match(queryParam.Key);
+                if (match.Success)
+                {
+                    var property = match.Groups["Property"].Value;
+
+                    match = FilterValueRangeRegex.Match(queryParam.Value);
+                    if (match.Success)
+                    {
+                        filter.Add(QueryFilter.Range(property, match.Groups["LowerBound"].Value, match.Groups["UpperBound"].Value));
+                        continue;
+                    }
+                    match = FilterValueGtLt.Match(queryParam.Value);
+                    if (match.Success)
+                    {
+                        if (match.Groups["gt"].Success)
+                            filter.Add(QueryFilter.GreaterThan(property, match.Groups["Bound"].Value));
+                        else if (match.Groups["gte"].Success)
+                            filter.Add(QueryFilter.GreaterThanEqual(property, match.Groups["Bound"].Value));
+                        else if (match.Groups["lt"].Success)
+                            filter.Add(QueryFilter.LessThan(property, match.Groups["Bound"].Value));
+                        else if (match.Groups["lte"].Success)
+                            filter.Add(QueryFilter.LessThanEqual(property, match.Groups["Bound"].Value));
+                        continue;
+                    }
+
+                    match = FilterValueInRegex.Match(queryParam.Value);
+                    if (match.Success)
+                    {
+                        filter.Add(QueryFilter.In(property, match.Groups["Values"].Value.Split(';')));
+                        continue;
+                    }
+
+                    match = FilterValueFreeTextRegex.Match(queryParam.Value);
+                    if (match.Success)
+                    {
+                        filter.Add(QueryFilter.FreeText(property, match.Groups["Pattern"].Value));
+                        continue;
+                    }
+
+                    filter.Add(QueryFilter.Exact(property, queryParam.Value));
+                }
             }
+
+            var queryInfo = new QueryInfo(sort,
+                filter.Count == 0 ?
+                    null :
+                    filter.ToArray(),
+                pageSize.HasValue ?
+                    new QueryPaging(pageSize.Value, pageNumber ?? 0) :
+                    null,
+                includes);
 
             var benchmarks = new BenchmarkCollection(UseBenchmarks);
 
