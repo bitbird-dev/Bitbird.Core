@@ -242,7 +242,7 @@ namespace Bitbird.Core.Data.Net
         }
 
 
-        public async Task<bool> SetAsync<T>(RedisKey key, T item)
+        private async Task<bool> SetAsync<T>(RedisKey key, T item, TimeSpan? expireTime)
         {
             if (!IsConnected)
                 return false;
@@ -251,26 +251,31 @@ namespace Bitbird.Core.Data.Net
 
             if (WriteDebugOutput) Debug.WriteLine($"RedisCache.Set {key}: {value}");
 
-            return await Db.StringSetAsync(key, value);
+            var result = await Db.StringSetAsync(key, value);
+
+            if (expireTime.HasValue)
+                await Db.KeyExpireAsync(key, expireTime);
+
+            return result;
         }
-        public Task<bool> SetAsync<TKey, T>(string prefix, TKey id, T item)
+        public Task<bool> SetAsync<TKey, T>(string prefix, TKey id, T item, TimeSpan? expireTime)
         {
             if (id == null)
                 throw new ArgumentNullException(nameof(id));
             if (string.IsNullOrWhiteSpace(prefix))
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(prefix));
 
-            return SetAsync(GetKey(prefix, id), item);
+            return SetAsync(GetKey(prefix, id), item, expireTime);
         }
-        public Task<bool> SetAsync<TKey, T>(string key, T item)
+        public Task<bool> SetAsync<TKey, T>(string key, T item, TimeSpan? expireTime)
         {
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
 
-            return SetAsync(GetKey(key), item);
+            return SetAsync(GetKey(key), item, expireTime);
         }
 
-        private async Task<bool> SetManyAsync<TKey, T>(string prefix, IDictionary<TKey, T> itemsById)
+        private async Task<bool> SetManyAsync<T>(KeyValuePair<RedisKey, T>[] itemsById, TimeSpan? expireTime)
         {
             if (itemsById == null)
                 throw new ArgumentNullException(nameof(itemsById));
@@ -279,19 +284,38 @@ namespace Bitbird.Core.Data.Net
                 return false;
 
             var data = itemsById
-                .Select(item => new KeyValuePair<RedisKey, RedisValue>(GetKey(prefix, item.Key), SerializeObject(item.Value)))
+                .Select(item => new KeyValuePair<RedisKey, RedisValue>(item.Key, SerializeObject(item.Value)))
                 .ToArray();
 
             if (WriteDebugOutput) Debug.WriteLine($"RedisCache.SetMany {string.Join(",\n", data.Select(kvp => $"{kvp.Key}: {kvp.Value}"))}");
-            return await Db.StringSetAsync(data);
+            var result = await Db.StringSetAsync(data);
+
+            if (expireTime.HasValue)
+                await Task.WhenAll(
+                    data
+                        .Select(item => Db.KeyExpireAsync(item.Key, expireTime))
+                        .ToArray());
+
+            return result;
+        }
+        public Task<bool> SetManyAsync<TKey, T>(string prefix, IDictionary<TKey, T> itemsById, TimeSpan? expireTime)
+        {
+            if (itemsById == null)
+                throw new ArgumentNullException(nameof(itemsById));
+
+            var data = itemsById
+                .Select(item => new KeyValuePair<RedisKey, T>(GetKey(prefix, item.Key), item.Value))
+                .ToArray();
+
+            return SetManyAsync(data, expireTime);
         }
 
-        public Task AddOrUpdateAsync<TKey, T>(string prefix, TKey id, T item)
-            => SetAsync(GetKey(prefix, id), item);
-        public Task AddOrUpdateAsync<T>(string key, T item)
-            => SetAsync(GetKey(key), item);
-        public Task AddOrUpdateManyAsync<TKey, T>(string prefix, Dictionary<TKey, T> itemsById)
-            => SetManyAsync(prefix, itemsById);
+        public Task AddOrUpdateAsync<TKey, T>(string prefix, TKey id, T item, TimeSpan? expireTime)
+            => SetAsync(GetKey(prefix, id), item, expireTime);
+        public Task AddOrUpdateAsync<T>(string key, T item, TimeSpan? expireTime)
+            => SetAsync(GetKey(key), item, expireTime);
+        public Task AddOrUpdateManyAsync<TKey, T>(string prefix, Dictionary<TKey, T> itemsById, TimeSpan? expireTime)
+            => SetManyAsync(prefix, itemsById, expireTime);
 
 
         public async Task<(T value, bool exists)> GetAsync<T>(RedisKey key)
@@ -347,7 +371,7 @@ namespace Bitbird.Core.Data.Net
             return GetAsync(GetKey(key), valueIfNotExists);
         }
 
-        public async Task<T> GetOrAddAsync<T>(RedisKey key, Func<Task<T>> valueFactory)
+        public async Task<T> GetOrAddAsync<T>(RedisKey key, Func<Task<T>> valueFactory, TimeSpan? expireTime)
         {
             if (valueFactory == null)
                 throw new ArgumentNullException(nameof(valueFactory));
@@ -363,24 +387,24 @@ namespace Bitbird.Core.Data.Net
 
             var newVal = await valueFactory();
             if (newVal != null)
-                await SetAsync(key, newVal);
+                await SetAsync(key, newVal, expireTime);
             return newVal;
         }
-        public Task<T> GetOrAddAsync<TKey, T>(string prefix, TKey id, Func<TKey, Task<T>> valueFactory)
+        public Task<T> GetOrAddAsync<TKey, T>(string prefix, TKey id, Func<TKey, Task<T>> valueFactory, TimeSpan? expireTime)
         {
             if (id == null)
                 throw new ArgumentNullException(nameof(id));
 
-            return GetOrAddAsync(GetKey(prefix, id), () => valueFactory(id));
+            return GetOrAddAsync(GetKey(prefix, id), () => valueFactory(id), expireTime);
         }
-        public Task<T> GetOrAddAsync<TKey, T>(string key, Func<TKey, Task<T>> valueFactory)
+        public Task<T> GetOrAddAsync<TKey, T>(string key, Func<TKey, Task<T>> valueFactory, TimeSpan? expireTime)
         {
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(key));
 
-            return GetOrAddAsync(GetKey(key), valueFactory);
+            return GetOrAddAsync(GetKey(key), valueFactory, expireTime);
         }
-        public async Task<T[]> GetOrAddManyAsync<TKey, T>(string prefix, TKey[] ids, Func<TKey[], Task<T[]>> valueFactory)
+        public async Task<T[]> GetOrAddManyAsync<TKey, T>(string prefix, TKey[] ids, Func<TKey[], Task<T[]>> valueFactory, TimeSpan? expireTime)
         {
             if (ids == null)
                 throw new ArgumentNullException(nameof(ids));
@@ -438,7 +462,7 @@ namespace Bitbird.Core.Data.Net
                         Value = missingElements[idx]
                     })
                     .GroupBy(x => x.Key)
-                    .ToDictionary(x => x.Key, x => x.First()));
+                    .ToDictionary(x => x.Key, x => x.First()), expireTime);
             }
 
             return ret;
