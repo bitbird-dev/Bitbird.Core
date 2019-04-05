@@ -8,13 +8,24 @@ using System.Web.Http;
 using Bitbird.Core.Extensions;
 using Bitbird.Core.Json.Extensions;
 using Bitbird.Core.WebApi.Net.Models;
+using Microsoft.Azure;
 using Newtonsoft.Json.Serialization;
 
 namespace Bitbird.Core.WebApi.Net
 {
     public static class JsonApiErrorExtensions
     {
-        public static bool LogDetailledMessages = false;
+        public static bool LogDetailledMessages;
+
+        static JsonApiErrorExtensions()
+        {
+            var setting = CloudConfigurationManager.GetSetting(nameof(LogDetailledMessages));
+
+            if (setting == null)
+                LogDetailledMessages = false;
+            else
+                LogDetailledMessages = bool.TryParse(setting, out var result) ? result : throw new Exception($"Could not parse application setting '{nameof(LogDetailledMessages)}' as boolean.");
+        }
 
         public static HttpResponseMessage ToJsonApiErrorResponseMessage(this Exception exc)
         {

@@ -97,14 +97,14 @@ namespace Bitbird.Core.WebApi.Net
                     document.Meta = meta;
                 }
 
-#if DEBUG
                 meta.Benchmarks = benchmarks?.Benchmarks?.Select(b => $"{b.Name}:{b.Duration}");
+#if DEBUG
 
                 var benchmarkSerialization = new BenchmarkCollection();
                 using (benchmarkSerialization.CreateBenchmark("Serialization"))
                 {
 #endif
-                    result.Content = new StringContent(serializeDocument(), Encoding.UTF8, "application/vnd.api+json");
+                result.Content = new StringContent(serializeDocument(), Encoding.UTF8, "application/vnd.api+json");
 #if DEBUG
                 }
                 foreach (var benchmark in benchmarkSerialization.Benchmarks)
