@@ -40,6 +40,14 @@ namespace Bitbird.Core.Query
                 Paging,
                 Includes);
         }
+        public QueryInfo<T> AddFilter(params QueryFilter[] filters)
+        {
+            return new QueryInfo<T>(
+                SortProperties?.Cast<QuerySortProperty<T>>().ToArray(),
+                (Filters ?? new QueryFilter[0]).Concat(filters).ToArray(),
+                Paging,
+                Includes);
+        }
         public QueryInfo<T> AddIncludes(params Expression<Func<T, object>>[] includeExpression)
         {
             return new QueryInfo<T>(
@@ -57,6 +65,7 @@ namespace Bitbird.Core.Query
                 Includes);
         }
     }
+
     public class QueryInfo
     {
         public readonly QuerySortProperty[] SortProperties;
@@ -144,7 +153,7 @@ namespace Bitbird.Core.Query
 
             return sb.ToString();
         }
-
+        
 
         internal static string EncodeMemberExpression(MemberExpression memberExpression, ParameterExpression parameter)
         {
@@ -163,6 +172,39 @@ namespace Bitbird.Core.Query
             return instance != null
                 ? $"{instance}.{memberExpression.Member.Name}"
                 : memberExpression.Member.Name;
+        }
+    }
+
+    public static class QueryInfoExtensions
+    {
+        public static QueryInfo PopFilterIfExists(this QueryInfo queryInfo, string propertyExpression, out QueryFilter foundFilter)
+        {
+            if (queryInfo == null)
+            {
+                foundFilter = null;
+                return queryInfo;
+            }
+
+            var foundFilters = queryInfo.Filters?
+                .Where(f => string.Equals(f.PropertyName, propertyExpression,
+                    StringComparison.InvariantCultureIgnoreCase))
+                .ToArray();
+
+            if (foundFilters == null || foundFilters.Length == 0)
+            {
+                foundFilter = null;
+                return queryInfo;
+            }
+
+            if (foundFilters.Length > 1)
+                throw new Exception($"{nameof(QueryInfo)}: Two filters for the same property have been found. Property: {propertyExpression}. Found filters: {string.Join("|", foundFilters.AsEnumerable())}. Since this property is processed manually, only one filter is allowed.");
+
+            foundFilter = foundFilters[0];
+            return new QueryInfo(
+                queryInfo.SortProperties, 
+                queryInfo.Filters.Except(foundFilters).ToArray(),
+                queryInfo.Paging,
+                queryInfo.Includes);
         }
     }
 }
