@@ -41,6 +41,26 @@ namespace Bitbird.Core.Data.Net.DbContext.Hooks
                         addedEntriesList.Add(new EntityHookEvent(null, entry.Entity));
                         break;
                     case EntityState.Modified:
+                        if (entry.Entity is IIsDeletedFlagEntity)
+                        {
+                            var oldIsDeleted = (bool)entry.OriginalValues[nameof(IIsDeletedFlagEntity.IsDeleted)];
+                            var newIsDeleted = (bool)entry.CurrentValues[nameof(IIsDeletedFlagEntity.IsDeleted)];
+
+                            if (oldIsDeleted != newIsDeleted)
+                            {
+                                if (newIsDeleted)
+                                {
+                                    deletedEntriesList.Add(new EntityHookEvent(entry.Entity, null));
+                                }
+                                else
+                                {
+                                    addedEntriesList.Add(new EntityHookEvent(null, entry.Entity));
+                                }
+
+                                break;
+                            }
+                        }
+
                         var original = entry.OriginalValues.ToObject();
                         modifiedEntriesList.Add(new EntityHookEvent(context.Entry(original).Entity, entry.Entity));
                         break;
