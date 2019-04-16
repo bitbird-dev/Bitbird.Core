@@ -4,6 +4,8 @@ namespace Bitbird.Core
 {
     public enum ApiErrorType
     {
+        [HttpStatusCode(StatusCode = 418)]
+        ApiVersionMismatch,
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.Forbidden)]
         ForbiddenNoLogin,
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.Forbidden)]
