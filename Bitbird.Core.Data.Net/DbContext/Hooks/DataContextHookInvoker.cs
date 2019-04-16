@@ -38,8 +38,16 @@ namespace Bitbird.Core.Data.Net.DbContext.Hooks
                 switch (entry.State)
                 {
                     case EntityState.Added:
+                        if (entry.Entity is IIsDeletedFlagEntity)
+                        {
+                            var newIsDeleted = (bool)entry.CurrentValues[nameof(IIsDeletedFlagEntity.IsDeleted)];
+                            if (newIsDeleted)
+                                break;
+                        }
+
                         addedEntriesList.Add(new EntityHookEvent(null, entry.Entity));
                         break;
+
                     case EntityState.Modified:
                         if (entry.Entity is IIsDeletedFlagEntity)
                         {
@@ -49,13 +57,9 @@ namespace Bitbird.Core.Data.Net.DbContext.Hooks
                             if (oldIsDeleted != newIsDeleted)
                             {
                                 if (newIsDeleted)
-                                {
                                     deletedEntriesList.Add(new EntityHookEvent(entry.Entity, null));
-                                }
                                 else
-                                {
                                     addedEntriesList.Add(new EntityHookEvent(null, entry.Entity));
-                                }
 
                                 break;
                             }
@@ -64,7 +68,15 @@ namespace Bitbird.Core.Data.Net.DbContext.Hooks
                         var original = entry.OriginalValues.ToObject();
                         modifiedEntriesList.Add(new EntityHookEvent(context.Entry(original).Entity, entry.Entity));
                         break;
+
                     case EntityState.Deleted:
+                        if (entry.Entity is IIsDeletedFlagEntity)
+                        {
+                            var oldIsDeleted = (bool)entry.OriginalValues[nameof(IIsDeletedFlagEntity.IsDeleted)];
+                            if (oldIsDeleted)
+                                break;
+                        }
+
                         deletedEntriesList.Add(new EntityHookEvent(entry.Entity, null));
                         break;
                 }
