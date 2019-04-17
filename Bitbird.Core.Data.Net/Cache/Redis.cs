@@ -190,6 +190,10 @@ namespace Bitbird.Core.Data.Net
 
             return DeleteAsync(GetKey(key));
         }
+        public void DeferredDelete(DeferredRedisOperations deferredOperations, string key)
+        {
+            deferredOperations.PushOperation(new DeferredRedisDeleteOperation(GetKey(key)));
+        }
         public Task<bool> DeleteAsync<TKey>(string prefix, TKey id)
         {
             if (id == null)
@@ -267,7 +271,7 @@ namespace Bitbird.Core.Data.Net
 
             return SetAsync(GetKey(prefix, id), item, expireTime);
         }
-        public Task<bool> SetAsync<TKey, T>(string key, T item, TimeSpan? expireTime)
+        public Task<bool> SetAsync<T>(string key, T item, TimeSpan? expireTime)
         {
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
@@ -318,7 +322,7 @@ namespace Bitbird.Core.Data.Net
             => SetManyAsync(prefix, itemsById, expireTime);
 
 
-        public async Task<(T value, bool exists)> GetAsync<T>(RedisKey key)
+        private async Task<(T value, bool exists)> GetAsync<T>(RedisKey key)
         {
             if (!IsConnected)
                 return (default, false);
@@ -344,14 +348,14 @@ namespace Bitbird.Core.Data.Net
 
             return GetAsync<T>(GetKey(prefix, id));
         }
-        public Task<(T value, bool exists)> GetAsync<TKey, T>(string key)
+        public Task<(T value, bool exists)> GetAsync<T>(string key)
         {
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(key));
 
             return GetAsync<T>(GetKey(key));
         }
-        public async Task<T> GetAsync<T>(RedisKey key, T valueIfNotExists)
+        private async Task<T> GetAsync<T>(RedisKey key, T valueIfNotExists)
         {
             var (value, exists) = await GetAsync<T>(key);
             return exists ? value : valueIfNotExists;
@@ -397,7 +401,7 @@ namespace Bitbird.Core.Data.Net
 
             return GetOrAddAsync(GetKey(prefix, id), () => valueFactory(id), expireTime);
         }
-        public Task<T> GetOrAddAsync<TKey, T>(string key, Func<TKey, Task<T>> valueFactory, TimeSpan? expireTime)
+        public Task<T> GetOrAddAsync<T>(string key, Func<Task<T>> valueFactory, TimeSpan? expireTime)
         {
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(key));
