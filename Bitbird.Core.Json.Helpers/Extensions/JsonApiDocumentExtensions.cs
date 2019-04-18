@@ -114,6 +114,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
                     if (document.Included == null) { document.Included = new JsonApi.Dictionaries.JsonApiResourceObjectDictionary(); }
                     foreach (var item in collection)
                     {
+                        if (item == null) continue;
                         var jsonResourceObject = new JsonApiResourceObject();
                         jsonResourceObject.FromApiResource(item, relationship.RelatedResource, baseUrl);
                         document.Included.AddResource(jsonResourceObject);
