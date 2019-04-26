@@ -49,10 +49,14 @@
   <ItemGroup>
     <Compile Include="Calls\CallBase.cs" />
     <Compile Include="Calls\IPermissionValidation.cs" />
+    <Compile Include="EntityChanges\EntityChangeType.cs" />
+    <Compile Include="Helper\TokenHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Properties\CodeAnnotations.cs" />
+    <Compile Include="UnitOfWork\BaseUnitOfWork.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

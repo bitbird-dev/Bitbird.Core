@@ -93,11 +93,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cache\Cache.cs" />
+    <Compile Include="Cache\CacheById.cs" />
+    <Compile Include="Cache\CacheHelper.cs" />
+    <Compile Include="Cache\DeferredRedisDeleteOperation.cs" />
+    <Compile Include="Cache\DeferredRedisOperations.cs" />
     <Compile Include="Cache\Redis.cs" />
     <Compile Include="Cache\RedisCacheInfo.cs" />
     <Compile Include="Cache\RedisPublisher.cs" />
     <Compile Include="Cache\RedisSubscription.cs" />
-    <Compile Include="Context\ArithAbortOnInterceptor.cs" />
+    <Compile Include="Cache\SimpleCacheContractResolver.cs" />
+    <Compile Include="DbContext\HookedDataContext.cs" />
+    <Compile Include="DbContext\Interceptors\ArithAbortOnInterceptor.cs" />
     <Compile Include="DbContext\DbContextExtensions.cs" />
     <Compile Include="DbContext\Hooks\DataContextEntityHookEvents.cs" />
     <Compile Include="DbContext\Hooks\DataContextHookCollection.cs" />
@@ -105,6 +112,7 @@
     <Compile Include="DbContext\Hooks\HookEventType.cs" />
     <Compile Include="DbContext\Hooks\IDataContextEntityHookEvents.cs" />
     <Compile Include="DbContext\Hooks\EntityHookEvent.cs" />
+    <Compile Include="DbContext\IOptimisticLockable.cs" />
     <Compile Include="IsActive\ActiveState.cs" />
     <Compile Include="IsActive\IIsActiveFlagEntity.cs" />
     <Compile Include="IsActive\IsActiveFlagExtensions.cs" />
@@ -118,11 +126,22 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Properties\CodeAnnotations.cs" />
     <Compile Include="Query\BuiltQuery.cs" />
     <Compile Include="Query\IQueryResult.cs" />
+    <Compile Include="Query\Mapping\DbMappingExpressionAttribute.cs" />
+    <Compile Include="Query\Mapping\ModelMetaData.cs" />
+    <Compile Include="Query\Mapping\ModelMetaDataPropertyToDbMapping.cs" />
+    <Compile Include="Query\Mapping\ModelMetaDataToDbMapping.cs" />
+    <Compile Include="Query\Mapping\ModelsMetaData.cs" />
+    <Compile Include="Query\QueryBuilder.cs" />
     <Compile Include="Query\QueryResult.cs" />
+    <Compile Include="Security\AccessType.cs" />
+    <Compile Include="Security\IPermissionResolver.cs" />
+    <Compile Include="Security\PermissionResolverHelper.cs" />
     <Compile Include="Token\IToken.cs" />
     <Compile Include="Token\IUserToken.cs" />
+    <Compile Include="Token\TokenBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -133,6 +152,9 @@
       <Project>{b882b7ff-75e0-4a51-91e0-d67f4d01211c}</Project>
       <Name>Bitbird.Core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Context\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

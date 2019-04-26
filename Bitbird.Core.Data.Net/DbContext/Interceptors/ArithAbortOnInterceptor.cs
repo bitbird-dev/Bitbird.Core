@@ -1,7 +1,7 @@
 ﻿using System.Data.Common;
 using System.Data.Entity.Infrastructure.Interception;
 
-namespace Bitbird.Core.Data.Net
+namespace Bitbird.Core.Data.Net.DbContext.Interceptors
 {
     public class ArithAbortOnInterceptor : IDbCommandInterceptor
     {

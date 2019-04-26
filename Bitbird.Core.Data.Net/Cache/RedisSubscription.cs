@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Bitbird.Core.Tasks;
 using StackExchange.Redis;
 
-namespace Bitbird.Core.Data.Net
+namespace Bitbird.Core.Data.Net.Cache
 {
     public class RedisSubscription<TMessage> : IDisposable
     {

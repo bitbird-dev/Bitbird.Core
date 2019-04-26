@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using StackExchange.Redis;
 
-namespace Bitbird.Core.Data.Net
+namespace Bitbird.Core.Data.Net.Cache
 {
     public class RedisPublisher<TMessage>
     {

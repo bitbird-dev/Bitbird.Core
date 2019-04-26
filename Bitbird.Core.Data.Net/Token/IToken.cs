@@ -18,6 +18,7 @@ namespace Bitbird.Core.Data.Net
         /// Uniquely identifies this token among other tokens of the same type.
         /// </summary>]
         string TokenKey { get; }
+
         /// <summary>
         /// The timestamp until which this token is valid.
         /// </summary>

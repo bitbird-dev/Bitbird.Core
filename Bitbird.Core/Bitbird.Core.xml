@@ -15,6 +15,14 @@
             An id that uniquely identifies this object among other objects of the same type.
             </summary>
         </member>
+        <member name="T:Bitbird.Core.IIdSetter`1">
+            <inheritdoc />
+        </member>
+        <member name="P:Bitbird.Core.IIdSetter`1.Id">
+            <summary>
+            See <see cref="T:Bitbird.Core.IId`1"/>.
+            </summary>
+        </member>
         <member name="T:Bitbird.Core.Tasks.AsyncHelper">
             <summary>
             See <see href="https://stackoverflow.com/questions/5095183/how-would-i-run-an-async-taskt-method-synchronously"/>.

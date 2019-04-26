@@ -121,6 +121,7 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Properties\CodeAnnotations.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bitbird.Core.Data.Net\Bitbird.Core.Data.Net.csproj">
