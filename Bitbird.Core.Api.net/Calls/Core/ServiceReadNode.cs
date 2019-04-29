@@ -105,7 +105,7 @@ namespace Bitbird.Core.Api.Net.Calls.Core
         /// Is used to create the api model.
         /// </summary>
         [NotNull]
-        internal abstract IQueryable<TDbMetaData> SelectDbMetaData(
+        public abstract IQueryable<TDbMetaData> SelectDbMetaData(
             [NotNull] TDbContext db,
             [NotNull] TSession session,
             [NotNull] IQueryable<TDbModel> query);
@@ -116,7 +116,7 @@ namespace Bitbird.Core.Api.Net.Calls.Core
         /// <param name="dbMetaData">Meta data. Can be null.</param>
         /// <returns>An api model.</returns>
         [NotNull]
-        internal abstract TModel DbModelToModel([NotNull] TDbMetaData dbMetaData);
+        public abstract TModel DbModelToModel([NotNull] TDbMetaData dbMetaData);
 
         /// <summary>
         /// Returns a new api error for the given api error.

@@ -52,7 +52,7 @@ namespace Bitbird.Core.Api.Net.Models.Base
         /// <param name="service">The api service to attach.</param>
         /// <param name="session">The session to attach.</param>
         /// <param name="recursive">True if the passed objects should also be attached to all queried, related <see cref="ModelBase{TService, TSession, TDbContext, TState, TEntityChangeModel, TEntityTypeId, TId}"/> instances.</param>
-        internal void AttachService(
+        public void AttachService(
             // ReSharper disable once ParameterHidesMember
             [NotNull] TService service,
             // ReSharper disable once ParameterHidesMember

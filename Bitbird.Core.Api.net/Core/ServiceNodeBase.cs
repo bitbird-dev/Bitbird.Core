@@ -4,7 +4,7 @@ namespace Bitbird.Core.Api.Net.Core
 {
     public abstract class ServiceNodeBase<TService>
     {
-        [NotNull] protected readonly TService Service;
+        [NotNull] public readonly TService Service;
 
         protected ServiceNodeBase([NotNull] TService service)
         {
