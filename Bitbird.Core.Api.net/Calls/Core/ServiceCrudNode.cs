@@ -303,8 +303,11 @@ namespace Bitbird.Core.Api.Net.Calls.Core
                 TModel currentModel;
                 using (benchmarkSection.CreateBenchmark("Query Current Models"))
                 {
+                    var whereExpressionParam = Expression.Parameter(typeof(TDbModel), "x");
+                    var whereExpressionBody = Expression.Equal(Expression.Property(whereExpressionParam, nameof(IId<TId>.Id)), Expression.Constant(id, typeof(TId)));
+
                     var dbModelQuery = FilterDbModelCollection(GetDbSet(db))
-                        .Where(d => d.Id.Equals(id));
+                        .Where(Expression.Lambda<Func<TDbModel, bool>>(whereExpressionBody, whereExpressionParam));
                     var dbMetaDataQuery = SelectDbMetaData(db, session, dbModelQuery);
 
                     var currentModelData = (await dbModelQuery
@@ -511,8 +514,11 @@ namespace Bitbird.Core.Api.Net.Calls.Core
                 TModel currentModel;
                 using (benchmarkSection.CreateBenchmark("Query Current Models"))
                 {
+                    var whereExpressionParam = Expression.Parameter(typeof(TDbModel), "x");
+                    var whereExpressionBody = Expression.Equal(Expression.Property(whereExpressionParam, nameof(IId<TId>.Id)), Expression.Constant(id, typeof(TId)));
+
                     var dbModelQuery = FilterDbModelCollection(GetDbSet(db))
-                        .Where(d => d.Id.Equals(id)); // TODO: check
+                        .Where(Expression.Lambda<Func<TDbModel, bool>>(whereExpressionBody, whereExpressionParam)); // TODO: check
                     var dbMetaDataQuery = SelectDbMetaData(db, session, dbModelQuery);
 
                     var currentModelData = (await dbModelQuery

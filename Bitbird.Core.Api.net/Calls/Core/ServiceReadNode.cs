@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data.Entity;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Bitbird.Core.Api.Net.Core;
 using Bitbird.Core.Api.Net.Models.Base;
@@ -51,7 +52,7 @@ namespace Bitbird.Core.Api.Net.Calls.Core
                 if (!RaiseChangedEvents && type == HookEventType.Insert)
                     return Task.CompletedTask;
                 
-                var ids = entities.Select(e => e.OldEntity.Id != null ? e.OldEntity.Id : e.NewEntity.Id).ToArray();
+                var ids = entities.Select(e => e.OldEntity != null ? e.OldEntity.Id : e.NewEntity.Id).ToArray();
 
                 if (RaiseChangedEvents)
                     state.PushEntityChangeNotifications(EntityType, ids, type.ToEntityChangeType());
@@ -147,7 +148,10 @@ namespace Bitbird.Core.Api.Net.Calls.Core
             {
                 var dbSet = GetDbSet(db).AsNoTracking();
                 var dbDataQuery = FilterForDirectReadDbModelCollection(dbSet);
-                dbDataQuery = dbDataQuery.Where(d => d.Id.Equals(idParam)); // TODO: check
+
+                var whereExpressionParam = Expression.Parameter(typeof(TDbModel), "x");
+                var whereExpressionBody = Expression.Equal(Expression.Property(whereExpressionParam, nameof(IId<TId>.Id)), Expression.Constant(idParam, typeof(TId)));
+                dbDataQuery = dbDataQuery.Where(Expression.Lambda<Func<TDbModel, bool>>(whereExpressionBody, whereExpressionParam));
                 var dataMetaDataQuery = SelectDbMetaData(db, session, dbDataQuery);
 
                 var dbResult = await dataMetaDataQuery.SingleOrDefaultAsync();

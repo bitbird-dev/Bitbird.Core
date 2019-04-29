@@ -1,0 +1,134 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{DBFA3BF3-76C6-472A-8CFF-444ED3461075}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Bitbird.Core.Tools.Doc.DotNet</RootNamespace>
+    <AssemblyName>Bitbird.Core.Tools.Doc.DotNet</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Bitbird.Core.Ide.Tools.Doc.DotNet.nuspec" />
+    <None Include="resources\build.json.tmpl" />
+    <None Include="resources\DocFxTemplate\conceptual.html.primary.tmpl" />
+    <None Include="resources\DocFxTemplate\fonts\glyphicons-halflings-regular.eot" />
+    <None Include="resources\DocFxTemplate\fonts\glyphicons-halflings-regular.ttf" />
+    <None Include="resources\DocFxTemplate\fonts\glyphicons-halflings-regular.woff" />
+    <None Include="resources\DocFxTemplate\fonts\glyphicons-halflings-regular.woff2" />
+    <None Include="resources\DocFxTemplate\layout\_master.tmpl" />
+    <None Include="resources\DocFxTemplate\ManagedReference.html.primary.tmpl" />
+    <None Include="resources\DocFxTemplate\partials\affix.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\breadcrumb.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\class.header.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\class.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\classSubtitle.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\customMREFContent.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\dd-li.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\enum.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\footer.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\head.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\li.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\logo.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\namespace.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\namespaceSubtitle.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\navbar.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\rest.child.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\rest.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\scripts.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\searchResults.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\title.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\toc.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\uref\class.header.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\uref\class.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\uref\enum.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\uref\parameters.tmpl.partial" />
+    <None Include="resources\DocFxTemplate\partials\_affix.liquid" />
+    <None Include="resources\DocFxTemplate\partials\_breadcrumb.liquid" />
+    <None Include="resources\DocFxTemplate\partials\_footer.liquid" />
+    <None Include="resources\DocFxTemplate\partials\_head.liquid" />
+    <None Include="resources\DocFxTemplate\partials\_logo.liquid" />
+    <None Include="resources\DocFxTemplate\partials\_navbar.liquid" />
+    <None Include="resources\DocFxTemplate\partials\_scripts.liquid" />
+    <None Include="resources\DocFxTemplate\partials\_toc.liquid" />
+    <None Include="resources\DocFxTemplate\RestApi.html.primary.tmpl" />
+    <None Include="resources\DocFxTemplate\search-stopwords.json" />
+    <None Include="resources\DocFxTemplate\toc.html.tmpl" />
+    <None Include="resources\DocFxTemplate\token.json" />
+    <None Include="resources\DocFxTemplate\UniversalReference.html.primary.tmpl" />
+    <None Include="resources\export.metadata.item.json.tmpl" />
+    <None Include="resources\export.metadata.json.tmpl" />
+    <None Include="resources\filterConfig.yml" />
+    <None Include="tools\build.ps1" />
+    <None Include="tools\export.ps1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="resources\DocFxTemplate\common.js" />
+    <Content Include="resources\DocFxTemplate\conceptual.extension.js" />
+    <Content Include="resources\DocFxTemplate\conceptual.html.primary.js" />
+    <Content Include="resources\DocFxTemplate\favicon.ico" />
+    <Content Include="resources\DocFxTemplate\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="resources\DocFxTemplate\logo.svg" />
+    <Content Include="resources\DocFxTemplate\ManagedReference.common.js" />
+    <Content Include="resources\DocFxTemplate\ManagedReference.extension.js" />
+    <Content Include="resources\DocFxTemplate\ManagedReference.html.primary.js" />
+    <Content Include="resources\DocFxTemplate\RestApi.common.js" />
+    <Content Include="resources\DocFxTemplate\RestApi.extension.js" />
+    <Content Include="resources\DocFxTemplate\RestApi.html.primary.js" />
+    <Content Include="resources\DocFxTemplate\styles\docfx.css" />
+    <Content Include="resources\DocFxTemplate\styles\docfx.js" />
+    <Content Include="resources\DocFxTemplate\styles\docfx.vendor.css" />
+    <Content Include="resources\DocFxTemplate\styles\docfx.vendor.js" />
+    <Content Include="resources\DocFxTemplate\styles\lunr.js" />
+    <Content Include="resources\DocFxTemplate\styles\lunr.min.js" />
+    <Content Include="resources\DocFxTemplate\styles\main.css" />
+    <Content Include="resources\DocFxTemplate\styles\main.js" />
+    <Content Include="resources\DocFxTemplate\styles\search-worker.js" />
+    <Content Include="resources\DocFxTemplate\toc.extension.js" />
+    <Content Include="resources\DocFxTemplate\toc.html.js" />
+    <Content Include="resources\DocFxTemplate\UniversalReference.common.js" />
+    <Content Include="resources\DocFxTemplate\UniversalReference.extension.js" />
+    <Content Include="resources\DocFxTemplate\UniversalReference.html.primary.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Dummy.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
