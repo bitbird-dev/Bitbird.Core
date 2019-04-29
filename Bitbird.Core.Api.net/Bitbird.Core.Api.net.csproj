@@ -37,6 +37,9 @@
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CommonMark, Version=0.1.0.0, Culture=neutral, PublicKeyToken=001ef8810438905d, processorArchitecture=MSIL">
+      <HintPath>..\packages\CommonMark.NET.0.15.1\lib\net45\CommonMark.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
@@ -75,6 +78,7 @@
     <Compile Include="Core\ServiceNodeBase.cs" />
     <Compile Include="Core\TypePermissions.cs" />
     <Compile Include="EntityChanges\EntityChangeType.cs" />
+    <Compile Include="Helper\MarkupHelper.cs" />
     <Compile Include="Helper\TokenHelper.cs" />
     <Compile Include="IApiService.cs" />
     <Compile Include="IApiSession.cs" />
