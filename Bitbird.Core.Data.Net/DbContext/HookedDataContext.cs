@@ -23,7 +23,9 @@ namespace Bitbird.Core.Data.Net.DbContext
     /// For more information about <see cref="DbContext"/> see the architecture of entity framework.
     /// </summary>
     /// <inheritdoc cref="DbContext" />
-    public abstract class HookedStateDataContext<TDataContext, TState> : System.Data.Entity.DbContext 
+    public abstract class HookedStateDataContext<TDataContext, TState> 
+        : System.Data.Entity.DbContext 
+        , IHookedStateDataContext<TState>
         where TDataContext : System.Data.Entity.DbContext
     {
         /// <summary>

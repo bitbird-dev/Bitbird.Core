@@ -1,6 +1,6 @@
 ﻿namespace Bitbird.Core.Api.Net
 {
-    public interface IPermissionValidation
+    public interface IPermissionParameter
     {
         void CheckIsPermitted();
     }

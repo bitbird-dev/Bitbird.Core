@@ -104,6 +104,7 @@
     <Compile Include="Cache\RedisSubscription.cs" />
     <Compile Include="Cache\SimpleCacheContractResolver.cs" />
     <Compile Include="DbContext\HookedDataContext.cs" />
+    <Compile Include="DbContext\IHookedStateDataContext.cs" />
     <Compile Include="DbContext\Interceptors\ArithAbortOnInterceptor.cs" />
     <Compile Include="DbContext\DbContextExtensions.cs" />
     <Compile Include="DbContext\Hooks\DataContextEntityHookEvents.cs" />

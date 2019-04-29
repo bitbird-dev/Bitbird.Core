@@ -37,7 +37,11 @@
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -48,15 +52,75 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Calls\CallBase.cs" />
-    <Compile Include="Calls\IPermissionValidation.cs" />
+    <Compile Include="Calls\Core\CreateCall.cs" />
+    <Compile Include="Calls\Core\CreateManyCall.cs" />
+    <Compile Include="Calls\Core\DeleteCall.cs" />
+    <Compile Include="Calls\Core\GetByIdCall.cs" />
+    <Compile Include="Calls\Core\GetManyCall.cs" />
+    <Compile Include="Calls\Core\IdAndField.cs" />
+    <Compile Include="Calls\Core\IInternalCrudModelSet.cs" />
+    <Compile Include="Calls\Core\IInternalReadNode.cs" />
+    <Compile Include="Calls\Core\IServiceCrudNode.cs" />
+    <Compile Include="Calls\Core\IServiceReadNode.cs" />
+    <Compile Include="Calls\Core\ServiceCrudNode.cs" />
+    <Compile Include="Calls\Core\ServiceReadNode.cs" />
+    <Compile Include="Calls\Core\UpdateCall.cs" />
+    <Compile Include="Calls\IPermissionParameter.cs" />
+    <Compile Include="Core\ApiSessionData.cs" />
+    <Compile Include="Core\CallData.cs" />
+    <Compile Include="Core\HookEventTypeExtensions.cs" />
+    <Compile Include="Core\PermissionCondition.cs" />
+    <Compile Include="Core\Permissions.cs" />
+    <Compile Include="Core\RightPermissions.cs" />
+    <Compile Include="Core\ServiceNodeBase.cs" />
+    <Compile Include="Core\TypePermissions.cs" />
     <Compile Include="EntityChanges\EntityChangeType.cs" />
     <Compile Include="Helper\TokenHelper.cs" />
+    <Compile Include="IApiService.cs" />
+    <Compile Include="IApiSession.cs" />
+    <Compile Include="Models\Base\IOptimisticLockableModel.cs" />
+    <Compile Include="Models\Base\ModelBase.cs" />
+    <Compile Include="Models\Base\OptimisticLockingHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Properties\CodeAnnotations.cs" />
-    <Compile Include="UnitOfWork\BaseUnitOfWork.cs" />
+    <Compile Include="Properties\Resources.de.Designer.cs">
+      <DependentUpon>Resources.de.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="BaseUnitOfWork.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Bitbird.Core.Data.Net\Bitbird.Core.Data.Net.csproj">
+      <Project>{4AE82B23-34A5-47FD-BFBA-5BC50210CC5E}</Project>
+      <Name>Bitbird.Core.Data.Net</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Bitbird.Core\Bitbird.Core.csproj">
+      <Project>{0d5fffa2-2406-40d0-b44c-97a3cce180d5}</Project>
+      <Name>Bitbird.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.de.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.de.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
