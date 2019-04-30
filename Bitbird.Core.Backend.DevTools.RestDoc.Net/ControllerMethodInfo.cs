@@ -1,4 +1,4 @@
-﻿namespace Bitbird.Core.Backend.DevTools.RestDoc
+﻿namespace Bitbird.Core.Backend.DevTools.RestDoc.Net
 {
     public class ControllerMethodInfo
     {

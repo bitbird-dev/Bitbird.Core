@@ -14,9 +14,9 @@ using Bitbird.Core.WebApi.Net.Controllers;
 using Bitbird.Core.WebApi.Net.JsonApi;
 using Bitbird.Core.WebApi.Net.Models;
 
-namespace Bitbird.Core.Backend.DevTools.RestDoc
+namespace Bitbird.Core.Backend.DevTools.RestDoc.Net
 {
-    public class RestDocGenerator
+    public static class RestDocGenerator
     {
         public static void Export(params Type[] assemblyTypes)
         {
