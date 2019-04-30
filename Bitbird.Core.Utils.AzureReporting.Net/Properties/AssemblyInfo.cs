@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("Bitbird.Core.Api.AzureReporting.Net")]
+[assembly: AssemblyTitle("Bitbird.Core.Utils.AzureReporting.Net")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyCulture("")]
 

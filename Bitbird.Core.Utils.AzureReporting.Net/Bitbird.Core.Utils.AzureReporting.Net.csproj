@@ -7,8 +7,8 @@
     <ProjectGuid>{8CD9A562-2E60-4F0D-8443-19026329F022}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Bitbird.Core.Api.AzureReporting.Net</RootNamespace>
-    <AssemblyName>Bitbird.Core.Api.AzureReporting.Net</AssemblyName>
+    <RootNamespace>Bitbird.Core.Utils.AzureReporting.Net</RootNamespace>
+    <AssemblyName>Bitbird.Core.Utils.AzureReporting.Net</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -21,7 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\Bitbird.Core.Api.AzureReporting.Net.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\Bitbird.Core.Utils.AzureReporting.Net.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -31,7 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\Bitbird.Core.Api.AzureReporting.Net.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\Bitbird.Core.Utils.AzureReporting.Net.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
