@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure.Interception;
-using System.Data.Entity.SqlServer;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -205,7 +204,7 @@ namespace Bitbird.Core.Data.Net.DbContext
         /// <inheritdoc />
         static HookedStateDataContext()
         {
-            var type = typeof(SqlProviderServices);
+            var type = typeof(System.Data.Entity.SqlServer.SqlProviderServices);
             if (type == null)
                 throw new Exception("Do not remove, ensures static reference to System.Data.Entity.SqlServer");
 
