@@ -16,7 +16,7 @@ using Bitbird.Core.Json.JsonApi;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Bitbird.Core.WebApi.Net.JsonApi
+namespace Bitbird.Core.WebApi.JsonApi
 {
     public class JsonApiMediaTypeFormatter : MediaTypeFormatter
     {

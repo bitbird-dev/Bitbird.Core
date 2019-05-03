@@ -1,4 +1,4 @@
-﻿namespace Bitbird.Core.WebApi.Net.JsonApi.Models
+﻿namespace Bitbird.Core.WebApi.JsonApi.Models
 {
     public class JsonApiErrors
     {

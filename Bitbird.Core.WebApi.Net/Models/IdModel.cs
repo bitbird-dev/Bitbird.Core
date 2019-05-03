@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace Bitbird.Core.WebApi.Net.Models
+namespace Bitbird.Core.WebApi.Models
 {
     /// <summary>
     /// A model used to store ids.

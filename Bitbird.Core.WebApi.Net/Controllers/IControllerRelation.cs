@@ -1,7 +1,7 @@
 ﻿using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
 
-namespace Bitbird.Core.WebApi.Net.Controllers
+namespace Bitbird.Core.WebApi.Controllers
 {
     public interface IControllerRelation
     {

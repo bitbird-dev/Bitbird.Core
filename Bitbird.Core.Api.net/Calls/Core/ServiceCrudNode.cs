@@ -1,18 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+#if NET_CORE
+using Microsoft.EntityFrameworkCore;
+#else
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Validation;
+#endif
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Bitbird.Core.Api.Net.Models.Base;
+using Bitbird.Core.Api.Models.Base;
 using Bitbird.Core.Benchmarks;
-using Bitbird.Core.Data.Net;
-using Bitbird.Core.Data.Net.DbContext;
+using Bitbird.Core.Data;
+using Bitbird.Core.Data.DbContext;
 using JetBrains.Annotations;
 
-namespace Bitbird.Core.Api.Net.Calls.Core
+namespace Bitbird.Core.Api.Calls.Core
 {
     public abstract partial class ServiceCrudNode<TService, TSession, TDbContext, TState, TModel, TDbModel, TDbMetaData, TRightId, TEntityTypeId, TEntityChangeModel, TId> 
         : ServiceReadNode<TService, TSession, TDbContext, TState, TModel, TDbModel, TDbMetaData, TRightId, TEntityTypeId, TEntityChangeModel, TId>
@@ -21,7 +25,7 @@ namespace Bitbird.Core.Api.Net.Calls.Core
         where TModel : ModelBase<TService, TSession, TDbContext, TState, TEntityChangeModel, TEntityTypeId, TId>, IId<TId>
         where TService : class, IApiService<TDbContext, TState, TSession, TEntityChangeModel, TEntityTypeId, TId>
         where TDbContext : DbContext, IHookedStateDataContext<TState>
-        where TState : BaseUnitOfWork<TEntityChangeModel, TEntityTypeId, TId>
+        where TState : IBaseUnitOfWork<TEntityChangeModel, TEntityTypeId, TId>
         where TSession : class, IApiSession
         where TEntityChangeModel : class
         where TDbModel : class, IId<TId>
@@ -40,7 +44,7 @@ namespace Bitbird.Core.Api.Net.Calls.Core
         {
         }
 
-        #region Implementable functions 
+#region Implementable functions 
 
         /// <summary>
         /// Creates a new db model instance based on an api model.
@@ -97,9 +101,9 @@ namespace Bitbird.Core.Api.Net.Calls.Core
         [NotNull]
         protected virtual Exception TranslateDbUpdateException([NotNull] DbUpdateException exc) => exc;
 
-        #endregion
+#endregion
 
-        #region Exception Handling
+#region Exception Handling
 
         /// <summary>
         /// Scans the passed exception for structured sql errors. If such an error was found the function returns an ApiErrorException with the detailed info.
@@ -126,6 +130,7 @@ namespace Bitbird.Core.Api.Net.Calls.Core
 
             return TranslateDbUpdateException(exc);
         }
+#if !NET_CORE
         /// <summary>
         /// Extracts ApiAttributeErrors if suitable information was found, otherwise returns a generic ApiEntityError. Returns an ApiErrorException containing all found errors.
         /// </summary>
@@ -159,12 +164,13 @@ namespace Bitbird.Core.Api.Net.Calls.Core
                 return new ApiEntityError<TDbModel>(validationError.ErrorMessage);
             })).Select(TranslateApiError).ToArray());
         }
+#endif
 
-        #endregion
+#endregion
 
-        #region CRUD
+#region CRUD
 
-        #region Create
+#region Create
 
         /// <inheritdoc />
         public async Task<TModel> InternalCreateAsync(
@@ -201,10 +207,12 @@ namespace Bitbird.Core.Api.Net.Calls.Core
                     {
                         throw TranslateDbUpdateExceptionCore(e);
                     }
+#if !NET_CORE
                     catch (DbEntityValidationException e)
                     {
                         throw TranslateDbEntityValidationException(e);
                     }
+#endif
                 }
 
                 using (benchmarkSection.CreateBenchmark("InternalGetByIdAsync"))
@@ -261,10 +269,12 @@ namespace Bitbird.Core.Api.Net.Calls.Core
                         {
                             throw TranslateDbUpdateExceptionCore(e);
                         }
+#if !NET_CORE
                         catch (DbEntityValidationException e)
                         {
                             throw TranslateDbEntityValidationException(e);
                         }
+#endif
                     }
                 }
 
@@ -279,9 +289,9 @@ namespace Bitbird.Core.Api.Net.Calls.Core
             }
         }
 
-        #endregion
+#endregion
 
-        #region Update
+#region Update
 
         /// <inheritdoc />
         public async Task<TModel> InternalUpdateAsync(
@@ -357,10 +367,12 @@ namespace Bitbird.Core.Api.Net.Calls.Core
                     {
                         throw TranslateDbUpdateExceptionCore(e);
                     }
+#if !NET_CORE
                     catch (DbEntityValidationException e)
                     {
                         throw TranslateDbEntityValidationException(e);
                     }
+#endif
                 }
 
                 using (benchmarkSection.CreateBenchmark("InternalGetByIdAsync"))
@@ -479,10 +491,12 @@ namespace Bitbird.Core.Api.Net.Calls.Core
                     {
                         throw TranslateDbUpdateExceptionCore(e);
                     }
+#if !NET_CORE
                     catch (DbEntityValidationException e)
                     {
                         throw TranslateDbEntityValidationException(e);
                     }
+#endif
                 }
 
                 using (benchmarkSection.CreateBenchmark("InternalGetByIdsAsync"))
@@ -497,8 +511,8 @@ namespace Bitbird.Core.Api.Net.Calls.Core
             }
         }
 
-        #endregion
-        #region Delete
+#endregion
+#region Delete
 
         /// <inheritdoc />
         public async Task InternalDeleteAsync(
@@ -560,10 +574,12 @@ namespace Bitbird.Core.Api.Net.Calls.Core
                     {
                         throw TranslateDbUpdateExceptionCore(e);
                     }
+#if !NET_CORE
                     catch (DbEntityValidationException e)
                     {
                         throw TranslateDbEntityValidationException(e);
                     }
+#endif
                 }
             }
         }
@@ -639,10 +655,12 @@ namespace Bitbird.Core.Api.Net.Calls.Core
                     {
                         throw TranslateDbUpdateExceptionCore(e);
                     }
+#if !NET_CORE
                     catch (DbEntityValidationException e)
                     {
                         throw TranslateDbEntityValidationException(e);
                     }
+#endif
                 }
             }
         }
@@ -683,12 +701,12 @@ namespace Bitbird.Core.Api.Net.Calls.Core
                 }
             }
         }
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
 
-        #region Helpers to set fields
+#region Helpers to set fields
 
         /// <summary>
         /// Updates a to-many relation.
@@ -769,6 +787,6 @@ namespace Bitbird.Core.Api.Net.Calls.Core
                 db.Entry(item).State = EntityState.Added;
             }
         }
-        #endregion
+#endregion
     }
 }

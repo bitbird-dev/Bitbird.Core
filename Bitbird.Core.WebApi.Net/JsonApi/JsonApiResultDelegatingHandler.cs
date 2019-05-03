@@ -7,14 +7,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Bitbird.Core.Benchmarks;
-using Bitbird.Core.Data.Net.Query;
+using Bitbird.Core.Data.Query;
 using Bitbird.Core.Json.Helpers.ApiResource;
 using Bitbird.Core.Json.Helpers.ApiResource.Extensions;
 using Bitbird.Core.Json.JsonApi;
 using Bitbird.Core.Query;
 using Newtonsoft.Json;
 
-namespace Bitbird.Core.WebApi.Net.JsonApi
+namespace Bitbird.Core.WebApi.JsonApi
 {
     public class JsonApiResultDelegatingHandler : DelegatingHandler
     {

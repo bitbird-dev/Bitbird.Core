@@ -3,7 +3,7 @@ using System.Threading;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
 
-namespace Bitbird.Core.WebApi.Net.Hubs
+namespace Bitbird.Core.WebApi.Hubs
 {
     /// <summary>
     /// Stores data that can be updated at any time and executes a broadcast action every given interval.

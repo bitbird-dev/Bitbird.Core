@@ -37,14 +37,14 @@
     <Reference Include="Microsoft.AspNet.SignalR.SystemWeb, Version=2.4.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.SignalR.SystemWeb.2.4.1\lib\net45\Microsoft.AspNet.SignalR.SystemWeb.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.2.1.0\lib\net45\Microsoft.Owin.dll</HintPath>
+    <Reference Include="Microsoft.Owin, Version=4.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.4.0.1\lib\net45\Microsoft.Owin.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin.Host.SystemWeb, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.2.1.0\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
+    <Reference Include="Microsoft.Owin.Host.SystemWeb, Version=4.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.4.0.1\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin.Security, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.Security.2.1.0\lib\net45\Microsoft.Owin.Security.dll</HintPath>
+    <Reference Include="Microsoft.Owin.Security, Version=4.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.4.0.1\lib\net45\Microsoft.Owin.Security.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -94,9 +94,17 @@
     <Compile Include="TypeHelper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Bitbird.Core.Api\Bitbird.Core.Api.csproj">
+      <Project>{124f9d1d-ca8b-48cd-b008-dbd2cf01917d}</Project>
+      <Name>Bitbird.Core.Api</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Bitbird.Core.Data.Net\Bitbird.Core.Data.Net.csproj">
       <Project>{4AE82B23-34A5-47FD-BFBA-5BC50210CC5E}</Project>
       <Name>Bitbird.Core.Data.Net</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Bitbird.Core.Data\Bitbird.Core.Data.csproj">
+      <Project>{98ace9cd-c6ba-4d3c-b23c-58f986729f50}</Project>
+      <Name>Bitbird.Core.Data</Name>
     </ProjectReference>
     <ProjectReference Include="..\Bitbird.Core.Json.Helpers\Bitbird.Core.Json.Helpers.ApiResource.csproj">
       <Project>{E5012A70-9ED8-4B14-AF5E-EC83DB50C607}</Project>

@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
-using Bitbird.Core.Api.Net.EntityChanges;
-using Bitbird.Core.Data.Net.Cache;
+using Bitbird.Core.Api.Calls.Core;
+using Bitbird.Core.Api.EntityChanges;
+using Bitbird.Core.Data.Cache;
 using JetBrains.Annotations;
 
-namespace Bitbird.Core.Api.Net
+namespace Bitbird.Core.Api
 {
-    public abstract class BaseUnitOfWork<TEntityChangeModel, TEntityTypeId, TId> : IDisposable
+    public abstract class BaseUnitOfWork<TEntityChangeModel, TEntityTypeId, TId> : IBaseUnitOfWork<TEntityChangeModel, TEntityTypeId, TId>
         where TEntityChangeModel : class
     {
         private bool isDisposed;

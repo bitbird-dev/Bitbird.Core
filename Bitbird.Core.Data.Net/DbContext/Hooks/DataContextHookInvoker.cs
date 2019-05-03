@@ -1,12 +1,18 @@
 ﻿using System.Collections.Generic;
+#if NET_CORE
+using Microsoft.EntityFrameworkCore;
+using EfDbContext = Microsoft.EntityFrameworkCore.DbContext;
+#else
 using System.Data.Entity;
+using EfDbContext = System.Data.Entity.DbContext;
+#endif
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Bitbird.Core.Data.Net.DbContext.Hooks
+namespace Bitbird.Core.Data.DbContext.Hooks
 {
     public class DataContextHookInvoker<TDataContext, TState>
-        where TDataContext : System.Data.Entity.DbContext
+        where TDataContext : EfDbContext
     {
         private readonly TDataContext context;
         private readonly DataContextHookCollection<TDataContext, TState> hooks;
@@ -89,7 +95,7 @@ namespace Bitbird.Core.Data.Net.DbContext.Hooks
 
         public async Task InvokePreHooksAsync()
         {
-            if (hooks == null || (context.Configuration.ValidateOnSaveEnabled && context.ChangeTracker.Entries().Any(x => !x.GetValidationResult().IsValid)))
+            if (hooks == null)
                 return;
 
             if (addedEntries.Length != 0)

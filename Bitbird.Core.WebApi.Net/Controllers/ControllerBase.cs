@@ -8,16 +8,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Controllers;
-using Bitbird.Core.Api.Net;
-using Bitbird.Core.Api.Net.Core;
+using Bitbird.Core.Api;
+using Bitbird.Core.Api.Core;
 using Bitbird.Core.Benchmarks;
 using Bitbird.Core.Json.Helpers.ApiResource;
 using Bitbird.Core.Query;
-using Bitbird.Core.WebApi.Net.Benchmarking;
-using Bitbird.Core.WebApi.Net.JsonApi;
+using Bitbird.Core.WebApi.Benchmarking;
+using Bitbird.Core.WebApi.JsonApi;
 using JetBrains.Annotations;
 
-namespace Bitbird.Core.WebApi.Net.Controllers
+namespace Bitbird.Core.WebApi.Controllers
 {
     public interface IControllerBase : IBenchmarkController, IJsonApiResourceController, IHttpController
     {

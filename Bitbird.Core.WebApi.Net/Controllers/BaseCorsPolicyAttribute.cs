@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Web.Cors;
 using System.Web.Http.Cors;
 
-namespace Bitbird.Core.WebApi.Net.Controllers
+namespace Bitbird.Core.WebApi.Controllers
 {
     /// <summary>
     /// Allows CORS for specified controllers/actions.

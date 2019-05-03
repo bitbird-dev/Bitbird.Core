@@ -58,9 +58,17 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Bitbird.Core.Api\Bitbird.Core.Api.csproj">
+      <Project>{124f9d1d-ca8b-48cd-b008-dbd2cf01917d}</Project>
+      <Name>Bitbird.Core.Api</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Bitbird.Core.Data.Net\Bitbird.Core.Data.Net.csproj">
       <Project>{4AE82B23-34A5-47FD-BFBA-5BC50210CC5E}</Project>
       <Name>Bitbird.Core.Data.Net</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Bitbird.Core.Data\Bitbird.Core.Data.csproj">
+      <Project>{98ace9cd-c6ba-4d3c-b23c-58f986729f50}</Project>
+      <Name>Bitbird.Core.Data</Name>
     </ProjectReference>
     <ProjectReference Include="..\Bitbird.Core.WebApi.Net\Bitbird.Core.WebApi.Net.csproj">
       <Project>{C65267F8-C53B-4008-8094-853479AFFD2C}</Project>

@@ -1,6 +1,6 @@
 ﻿using Bitbird.Core.Benchmarks;
 
-namespace Bitbird.Core.WebApi.Net.Benchmarking
+namespace Bitbird.Core.WebApi.Benchmarking
 {
     public interface IBenchmarkController
     {

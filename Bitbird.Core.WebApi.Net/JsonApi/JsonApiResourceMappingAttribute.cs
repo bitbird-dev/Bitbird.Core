@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Bitbird.Core.WebApi.Net.JsonApi
+namespace Bitbird.Core.WebApi.JsonApi
 {
     /// <summary>
     /// Maps a resource to a model class.

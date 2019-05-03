@@ -4,17 +4,17 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Bitbird.Core.Api.Net;
-using Bitbird.Core.Api.Net.Calls.Core;
-using Bitbird.Core.Api.Net.Models.Base;
-using Bitbird.Core.Data.Net;
+using Bitbird.Core.Api;
+using Bitbird.Core.Api.Calls.Core;
+using Bitbird.Core.Api.Models.Base;
+using Bitbird.Core.Data;
 using Bitbird.Core.Json.Helpers.ApiResource;
-using Bitbird.Core.WebApi.Net.JsonApi;
-using Bitbird.Core.WebApi.Net.Models;
-using Bitbird.Core.WebApi.Net.Resources;
+using Bitbird.Core.WebApi.JsonApi;
+using Bitbird.Core.WebApi.Models;
+using Bitbird.Core.WebApi.Resources;
 using Newtonsoft.Json.Linq;
 
-namespace Bitbird.Core.WebApi.Net.Controllers
+namespace Bitbird.Core.WebApi.Controllers
 {
     /// <summary>
     /// Provides the following methods in addition to methods provided by <see cref="ReadControllerBase{TService,TSession,TModel,TResource}" />: <see cref="CreateAsync" />, <see cref="UpdateAsync" /> and <see cref="DeleteAsync" />.

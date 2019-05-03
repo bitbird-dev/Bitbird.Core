@@ -1,4 +1,4 @@
-﻿namespace Bitbird.Core.WebApi.Net.JsonApi
+﻿namespace Bitbird.Core.WebApi.JsonApi
 {
     public class JsonApiOverridePrimaryType<T> : IJsonApiOverridePrimaryType
     {

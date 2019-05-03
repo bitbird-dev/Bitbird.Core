@@ -8,10 +8,10 @@ using System.Web.Http.Filters;
 using Bitbird.Core.Benchmarks;
 using Bitbird.Core.Json.Helpers.ApiResource;
 using Bitbird.Core.Query;
-using Bitbird.Core.WebApi.Net.Benchmarking;
+using Bitbird.Core.WebApi.Benchmarking;
 using Microsoft.Azure;
 
-namespace Bitbird.Core.WebApi.Net.JsonApi
+namespace Bitbird.Core.WebApi.JsonApi
 {
     /// <inheritdoc />
     [AttributeUsage(AttributeTargets.Method)]

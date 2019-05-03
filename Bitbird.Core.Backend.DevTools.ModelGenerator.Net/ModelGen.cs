@@ -10,11 +10,11 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Bitbird.Core.Data.Net.Query;
+using Bitbird.Core.Data.Query;
 using Bitbird.Core.Json.Helpers.ApiResource;
-using Bitbird.Core.WebApi.Net.Controllers;
-using Bitbird.Core.WebApi.Net.JsonApi;
-using Bitbird.Core.WebApi.Net.Resources;
+using Bitbird.Core.WebApi.Controllers;
+using Bitbird.Core.WebApi.JsonApi;
+using Bitbird.Core.WebApi.Resources;
 using Microsoft.AspNet.SignalR;
 
 namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net

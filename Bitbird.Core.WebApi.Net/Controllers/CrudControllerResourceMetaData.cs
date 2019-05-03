@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Bitbird.Core.Json.Helpers.ApiResource;
-using Bitbird.Core.WebApi.Net.JsonApi;
+using Bitbird.Core.WebApi.JsonApi;
 using JetBrains.Annotations;
 
-namespace Bitbird.Core.WebApi.Net.Controllers
+namespace Bitbird.Core.WebApi.Controllers
 {
     public class CrudControllerResourceMetaData
     {

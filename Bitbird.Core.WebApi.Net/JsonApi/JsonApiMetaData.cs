@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Bitbird.Core.WebApi.Net.JsonApi
+namespace Bitbird.Core.WebApi.JsonApi
 {
     public class JsonApiMetaData
     {

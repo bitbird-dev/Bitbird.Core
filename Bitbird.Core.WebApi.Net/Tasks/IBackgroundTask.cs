@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace Bitbird.Core.WebApi.Net.Tasks
+namespace Bitbird.Core.WebApi.Tasks
 {
     /// <summary>
     /// A task that can be run in the background or scheduled to run delayed or repeatedly.

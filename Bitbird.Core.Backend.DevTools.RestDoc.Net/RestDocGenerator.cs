@@ -8,11 +8,11 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Bitbird.Core.Data.Net.Query;
+using Bitbird.Core.Data.Query;
 using Bitbird.Core.Query;
-using Bitbird.Core.WebApi.Net.Controllers;
-using Bitbird.Core.WebApi.Net.JsonApi;
-using Bitbird.Core.WebApi.Net.Models;
+using Bitbird.Core.WebApi.Controllers;
+using Bitbird.Core.WebApi.JsonApi;
+using Bitbird.Core.WebApi.Models;
 
 namespace Bitbird.Core.Backend.DevTools.RestDoc.Net
 {

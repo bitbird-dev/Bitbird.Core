@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Bitbird.Core.WebApi.Net.Hubs
+namespace Bitbird.Core.WebApi.Hubs
 {
     /// <summary>
     /// Stores queued entity changesModel.

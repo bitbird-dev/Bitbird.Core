@@ -5,17 +5,17 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Controllers;
-using Bitbird.Core.Api.Net;
-using Bitbird.Core.Api.Net.Calls.Core;
-using Bitbird.Core.Data.Net.Query;
+using Bitbird.Core.Api;
+using Bitbird.Core.Api.Calls.Core;
+using Bitbird.Core.Data.Query;
 using Bitbird.Core.Export.Xlsx;
 using Bitbird.Core.Json.Helpers.ApiResource;
 using Bitbird.Core.Query;
-using Bitbird.Core.WebApi.Net.Extensions;
-using Bitbird.Core.WebApi.Net.JsonApi;
-using Bitbird.Core.WebApi.Net.Resources;
+using Bitbird.Core.WebApi.Extensions;
+using Bitbird.Core.WebApi.JsonApi;
+using Bitbird.Core.WebApi.Resources;
 
-namespace Bitbird.Core.WebApi.Net.Controllers
+namespace Bitbird.Core.WebApi.Controllers
 {
     /// <summary>
     /// Provides the following methods: <see cref="GetAsync"/>, <see cref="GetManyAsync"/>, <see cref="ExportToXlsxAsync"/>.

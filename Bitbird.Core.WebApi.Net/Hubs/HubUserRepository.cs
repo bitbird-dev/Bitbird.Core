@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Bitbird.Core.Data.Net.Cache;
+using Bitbird.Core.Data.Cache;
 using JetBrains.Annotations;
 
-namespace Bitbird.Core.WebApi.Net.Hubs
+namespace Bitbird.Core.WebApi.Hubs
 {
     /// <summary>
     /// A repository that manages sessions, connections and groups.

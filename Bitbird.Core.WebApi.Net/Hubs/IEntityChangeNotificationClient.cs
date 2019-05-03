@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace Bitbird.Core.WebApi.Net.Hubs
+namespace Bitbird.Core.WebApi.Hubs
 {
     /// <summary>
     /// Defines an interface for clients that connect to a change notification hub.

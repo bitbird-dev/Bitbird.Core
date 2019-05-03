@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Bitbird.Core.WebApi.Net.JsonApi
+namespace Bitbird.Core.WebApi.JsonApi
 {
     public class ContentInfo<T> : IContentInfo
     {

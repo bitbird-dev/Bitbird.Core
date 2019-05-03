@@ -1,20 +1,25 @@
 ﻿using System;
+#if NET_CORE
+using Microsoft.EntityFrameworkCore;
+#else
 using System.Data.Entity;
+#endif
+
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Bitbird.Core.Api.Net.Core;
-using Bitbird.Core.Api.Net.Models.Base;
+using Bitbird.Core.Api.Core;
+using Bitbird.Core.Api.Models.Base;
 using Bitbird.Core.Benchmarks;
-using Bitbird.Core.Data.Net;
-using Bitbird.Core.Data.Net.Cache;
-using Bitbird.Core.Data.Net.DbContext;
-using Bitbird.Core.Data.Net.DbContext.Hooks;
-using Bitbird.Core.Data.Net.Query;
+using Bitbird.Core.Data;
+using Bitbird.Core.Data.Cache;
+using Bitbird.Core.Data.DbContext;
+using Bitbird.Core.Data.DbContext.Hooks;
+using Bitbird.Core.Data.Query;
 using Bitbird.Core.Query;
 using JetBrains.Annotations;
 
-namespace Bitbird.Core.Api.Net.Calls.Core
+namespace Bitbird.Core.Api.Calls.Core
 {
     public abstract partial class ServiceReadNode<TService, TSession, TDbContext, TState, TModel, TDbModel, TDbMetaData, TRightId, TEntityTypeId, TEntityChangeModel, TId> 
         : ServiceNodeBase<TService>,
@@ -22,8 +27,8 @@ namespace Bitbird.Core.Api.Net.Calls.Core
             IServiceReadNode<TSession, TModel, TId>
         where TModel : ModelBase<TService, TSession, TDbContext, TState, TEntityChangeModel, TEntityTypeId, TId>, IId<TId>
         where TService : class, IApiService<TDbContext, TState, TSession, TEntityChangeModel, TEntityTypeId, TId>
-        where TDbContext : DbContext, IHookedStateDataContext<TState>
-        where TState : BaseUnitOfWork<TEntityChangeModel, TEntityTypeId, TId>
+        where TDbContext : class, IDisposable, IHookedStateDataContext<TState>
+        where TState : IBaseUnitOfWork<TEntityChangeModel, TEntityTypeId, TId>
         where TSession : class, IApiSession
         where TDbModel : class, IId<TId>
         where TDbMetaData : class, IId<TId>
@@ -73,7 +78,7 @@ namespace Bitbird.Core.Api.Net.Calls.Core
             });
         }
 
-        #region Implementable functions
+#region Implementable functions
         /// <summary>
         /// Pre-filter the query for reading objects in any way other than directly by id.
         /// For soft-delete entries this might exclude records that are flagged as deleted.
@@ -91,7 +96,7 @@ namespace Bitbird.Core.Api.Net.Calls.Core
         [NotNull]
         protected abstract IQueryable<TDbModel> FilterForDirectReadDbModelCollection([NotNull] IQueryable<TDbModel> dbModelQuery);
         /// <summary>
-        /// Returns the entity framework data context set on which to work.
+        /// Returns the entity framework data context set as non-tracking on which to work.
         /// </summary>
         /// <param name="db">The data context.</param>
         /// <returns>A set on which to work.</returns>
@@ -128,9 +133,9 @@ namespace Bitbird.Core.Api.Net.Calls.Core
         [NotNull]
         protected virtual ApiError TranslateApiError([NotNull] ApiError apiError) => apiError;
 
-        #endregion
+#endregion
 
-        #region Read
+#region Read
 
         /// <inheritdoc />
         public async Task<TModel> InternalGetByIdAsync(
@@ -270,7 +275,8 @@ namespace Bitbird.Core.Api.Net.Calls.Core
             BuiltQuery<TDbMetaData> builtResultsQuery;
             if (QueryOnMetaData)
             {
-                builtResultsQuery = SelectDbMetaData(db, session, dbDataQuery.BuildSecuredQuery(session.PermissionResolver))
+                builtResultsQuery = SelectDbMetaData(db, session, dbDataQuery
+                        .BuildSecuredQuery(session.PermissionResolver))
                     .BuildUnsecuredDbQuery<TDbMetaData, TModel>(queryInfo);
             }
             else
@@ -282,7 +288,7 @@ namespace Bitbird.Core.Api.Net.Calls.Core
                     builtQuery.PageSize);
             }
 
-            var queryResult = await builtResultsQuery.ExecuteAsync(session.Benchmarks);
+            var queryResult = await builtResultsQuery.ExecuteAsync(session.Benchmarks, x => x.ToArrayAsync(), x => x.LongCountAsync());
 
             TModel[] models;
             using (session.Benchmarks.CreateBenchmark("Map models"))
@@ -300,6 +306,6 @@ namespace Bitbird.Core.Api.Net.Calls.Core
             return new QueryResult<TModel>(models, queryResult.RecordCount, queryResult.PageCount);
         }
 
-        #endregion
+#endregion
     }
 }

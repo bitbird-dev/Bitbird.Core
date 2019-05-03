@@ -5,7 +5,7 @@ using Bitbird.Core;
 using Bitbird.Core.Export.Xlsx;
 using ClosedXML.Extensions;
 
-namespace Bitbird.Core.WebApi.Net.Extensions
+namespace Bitbird.Core.WebApi.Extensions
 {
     /// <summary>
     /// Provides extension methods to help with Excel conversion.

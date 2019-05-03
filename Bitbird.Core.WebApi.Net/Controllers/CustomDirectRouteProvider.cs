@@ -2,7 +2,7 @@
 using System.Web.Http.Controllers;
 using System.Web.Http.Routing;
 
-namespace Bitbird.Core.WebApi.Net.Controllers
+namespace Bitbird.Core.WebApi.Controllers
 {
     /// <summary>
     /// Provides the same functionality as the standard route provider (<see cref="DefaultDirectRouteProvider"/>),

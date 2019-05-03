@@ -1,6 +1,6 @@
 ﻿using System.Web.Http.Filters;
 
-namespace Bitbird.Core.WebApi.Net.JsonApi
+namespace Bitbird.Core.WebApi.JsonApi
 {
     public class JsonApiErrorFilter : ExceptionFilterAttribute
     {

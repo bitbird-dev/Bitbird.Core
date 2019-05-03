@@ -7,11 +7,11 @@ using System.Reflection;
 using System.Web.Http;
 using Bitbird.Core.Extensions;
 using Bitbird.Core.Json.Extensions;
-using Bitbird.Core.WebApi.Net.JsonApi.Models;
+using Bitbird.Core.WebApi.JsonApi.Models;
 using Microsoft.Azure;
 using Newtonsoft.Json.Serialization;
 
-namespace Bitbird.Core.WebApi.Net.JsonApi
+namespace Bitbird.Core.WebApi.JsonApi
 {
     public static class JsonApiErrorExtensions
     {

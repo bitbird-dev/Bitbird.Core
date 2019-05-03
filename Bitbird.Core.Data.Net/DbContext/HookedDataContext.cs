@@ -4,12 +4,12 @@ using System.Data.Entity.Infrastructure.Interception;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Bitbird.Core.Data.Net.DbContext.Hooks;
-using Bitbird.Core.Data.Net.DbContext.Interceptors;
+using Bitbird.Core.Data.DbContext.Hooks;
+using Bitbird.Core.Data.DbContext.Interceptors;
 using Bitbird.Core.Tasks;
 using JetBrains.Annotations;
 
-namespace Bitbird.Core.Data.Net.DbContext
+namespace Bitbird.Core.Data.DbContext
 {
     /// <summary>
     /// Manages the database access.
@@ -199,7 +199,7 @@ namespace Bitbird.Core.Data.Net.DbContext
 
         /// <summary>
         /// Static constructor.
-        /// Registers an interceptor that always prepends "ARITHABORT ON" to SQL-commands. See <see cref="T:Bitbird.Core.Data.Net.ArithAbortOnInterceptor" />.
+        /// Registers an interceptor that always prepends "ARITHABORT ON" to SQL-commands. See <see cref="T:Bitbird.Core.Data.ArithAbortOnInterceptor" />.
         /// </summary>
         /// <inheritdoc />
         static HookedStateDataContext()

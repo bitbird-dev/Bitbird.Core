@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Formatting;
 
-namespace Bitbird.Core.WebApi.Net.JsonApi
+namespace Bitbird.Core.WebApi.JsonApi
 {
     public class JsonApiConfiguration
     {

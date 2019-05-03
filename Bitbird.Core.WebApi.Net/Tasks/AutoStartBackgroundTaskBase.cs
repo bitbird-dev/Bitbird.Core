@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Bitbird.Core.WebApi.Net.Tasks
+namespace Bitbird.Core.WebApi.Tasks
 {
     /// <summary>
     /// A background task that can automatically be scheduled at startup.

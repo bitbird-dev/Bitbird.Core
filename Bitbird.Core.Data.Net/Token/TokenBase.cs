@@ -1,11 +1,9 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Bitbird.Core;
-using Bitbird.Core.Data.Net;
 using JetBrains.Annotations;
 
-namespace Bitbird.Core.Data.Net
+namespace Bitbird.Core.Data
 {
     /// <summary>
     /// Stores a token.

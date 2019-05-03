@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Bitbird.Core.WebApi.Net.JsonApi;
+using Bitbird.Core.WebApi.JsonApi;
 
 namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
 {

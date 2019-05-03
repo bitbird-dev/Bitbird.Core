@@ -2,11 +2,11 @@ using System;
 using System.Linq.Expressions;
 using System.Net;
 using System.Web.Http;
-using Bitbird.Core.WebApi.Net.Models;
+using Bitbird.Core.WebApi.Models;
 using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
 
-namespace Bitbird.Core.WebApi.Net.Controllers
+namespace Bitbird.Core.WebApi.Controllers
 {
     public class ControllerToOneRelation<TModel> : IControllerRelation<TModel>
     {

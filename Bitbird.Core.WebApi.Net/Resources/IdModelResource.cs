@@ -1,8 +1,8 @@
 ﻿using Bitbird.Core.Json.Helpers.ApiResource;
-using Bitbird.Core.WebApi.Net.JsonApi;
-using Bitbird.Core.WebApi.Net.Models;
+using Bitbird.Core.WebApi.JsonApi;
+using Bitbird.Core.WebApi.Models;
 
-namespace Bitbird.Core.WebApi.Net.Resources
+namespace Bitbird.Core.WebApi.Resources
 {
     /// <summary>
     /// Describes <see cref="IdModel"/> for various controllers.

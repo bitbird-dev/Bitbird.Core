@@ -1,5 +1,5 @@
 ﻿using System;
-using Bitbird.Core.WebApi.Net.Controllers;
+using Bitbird.Core.WebApi.Controllers;
 
 namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
 {

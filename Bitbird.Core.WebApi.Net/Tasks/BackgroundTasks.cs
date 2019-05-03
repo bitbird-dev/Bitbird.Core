@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using System.Web.Caching;
 using System.Web.Hosting;
 
-namespace Bitbird.Core.WebApi.Net.Tasks
+namespace Bitbird.Core.WebApi.Tasks
 {
     /// <summary>
     /// Provides helper methods to run/schedule background tasks.
