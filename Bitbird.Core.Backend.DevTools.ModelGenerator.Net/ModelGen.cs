@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -28,6 +29,8 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
         private readonly Type[] modelResourceAssemblyTypes;
         private readonly Type[] signalRHubAssemblyTypes;
         private readonly Type[] controllerAssemblyTypes;
+        private readonly ResourceManager[] translationResourceManagers;
+        private readonly string[] languages;
         private readonly long interfaceVersion;
         private readonly DocumentationCollection documentation;
         private readonly TemplateCollection templates;
@@ -40,6 +43,8 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
             Type[] modelResourceAssemblyTypes,
             Type[] signalRHubAssemblyTypes,
             Type[] controllerAssemblyTypes,
+            ResourceManager[] translationResourceManagers,
+            string[] languages,
             long interfaceVersion, 
             ResourceManager resourceManager)
         {
@@ -47,6 +52,8 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
             this.modelResourceAssemblyTypes = modelResourceAssemblyTypes;
             this.signalRHubAssemblyTypes = signalRHubAssemblyTypes;
             this.controllerAssemblyTypes = controllerAssemblyTypes;
+            this.translationResourceManagers = translationResourceManagers;
+            this.languages = languages;
             this.interfaceVersion = interfaceVersion;
             documentation = new DocumentationCollection(arguments.DocDirectory);
             templates = new TemplateCollection(arguments.TargetFormat, resourceManager);
@@ -115,6 +122,7 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
 
             generatedFiles = generatedFiles.Concat(foundEnums.Select(GenerateEnumFile)).ToArray();
             generatedFiles = generatedFiles.Concat(new[] { GenerateEnumsFile(foundEnums) }).ToArray();
+            generatedFiles = generatedFiles.Concat(GenerateEnumsTranslationFiles(foundEnums.ToArray())).ToArray();
             generatedFiles = generatedFiles.Concat(new[] { GenerateRouteFile(models) }).ToArray();
             generatedFiles = generatedFiles.Concat(new[] { GenerateInterfaceVersion() }).ToArray();
 
@@ -675,7 +683,52 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
 
             return new GeneratedFile(filename, model);
         }
-        
+
+        private GeneratedFile[] GenerateEnumsTranslationFiles(Type[] enumTypes)
+        {
+            return languages.SelectMany(language =>
+            {
+                // values
+                var valuesSections = enumTypes.SelectMany(enumType => Enum.GetValues(enumType).Cast<object>().Select(v =>
+                {
+                    var name = Enum.GetName(enumType, v);
+
+                    var translation = translationResourceManagers
+                        .Select(r => r.GetString($"{enumType.FullName.Replace(".", "_")}_{name}",
+                            new CultureInfo(language ?? "en-US")))
+                        .Where(x => x != null)
+                        .FirstOrDefault()
+                        ?? throw  new Exception($"Could not find {language ?? "default"} translation for {enumType.FullName}.{name}.");
+                    
+                    var valueSection = templates.Get(TemplateType.EnumsTranslationLanguageValue);
+                    valueSection = ResolvePredicate(valueSection, "defaultLanguage", language == null);
+                    valueSection = ReplaceToken(valueSection, "className", enumType.Name);
+                    valueSection = ReplaceToken(valueSection, "valueName", name);
+                    valueSection = ReplaceToken(valueSection, "translation", translation);
+                    return ExtractSections(valueSection);
+                })).ToArray();
+                var valuesSection = JoinSections(x => string.Empty, valuesSections);
+
+                var modelSection = templates.Get(TemplateType.EnumsTranslationLanguage);
+                modelSection = ResolvePredicate(modelSection, "defaultLanguage", language == null);
+                modelSection = ReplaceSections(modelSection, "values", valuesSection);
+                var modelSections = ExtractSections(modelSection);
+
+
+                var filenameSection = templates.Get(TemplateType.EnumsTranslationLanguageFilename);
+                filenameSection = ResolvePredicate(filenameSection, "defaultLanguage", language == null);
+                filenameSection = ReplaceToken(filenameSection, "language", language);
+                var filenameSections = ExtractSections(filenameSection);
+
+                return filenameSections.Select(kvp =>
+                {
+                    // filename
+                    var fileContent = modelSections[kvp.Key];
+                    return new GeneratedFile(kvp.Value, fileContent);
+                });
+            }).ToArray();
+        }
+
         private GeneratedFile GenerateInterfaceVersion()
         {
             // interface version

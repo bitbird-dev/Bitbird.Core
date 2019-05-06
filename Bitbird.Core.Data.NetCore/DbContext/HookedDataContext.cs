@@ -6,6 +6,7 @@ using Bitbird.Core.Data.DbContext.Hooks;
 using Bitbird.Core.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Bitbird.Core.Data.DbContext
 {
@@ -26,9 +27,13 @@ namespace Bitbird.Core.Data.DbContext
         where TDataContext : Microsoft.EntityFrameworkCore.DbContext
     {
         /// <summary>
+        /// The configuration for this data context.
+        /// </summary>
+        [NotNull] private readonly IConfigurationRoot config;
+
+        /// <summary>
         /// Stores the current hooks.
         /// This instance is already cloned from the hooks that were passed to the constructor, and therefore can be modified.
-        /// Can be null.
         /// </summary>
         [CanBeNull]
         private readonly DataContextHookCollection<TDataContext, TState> hooks;
@@ -44,14 +49,14 @@ namespace Bitbird.Core.Data.DbContext
         /// Main constructor. All other constructors should call this one.
         /// For more information about <see cref="Microsoft.EntityFrameworkCore.DbContext" /> see the architecture of entity framework.
         /// </summary>
-        /// <param name="nameOrConnectionString">The connection string to use for the connection to the database.</param>
+        /// <param name="config">The config used to set-up the data context.</param>
         /// <param name="hooks">The database hooks object to use. Can be null if no hooks are required. The passed object will not be changed but cloned.</param>
         /// <inheritdoc />
-        public HookedStateDataContext(
-            [NotNull] DbContextOptions options, 
+        protected HookedStateDataContext(
+            [NotNull] IConfigurationRoot config, 
             [CanBeNull] DataContextHookCollection<TDataContext, TState> hooks)
-            : base(options)
         {
+            this.config = config;
             this.hooks = hooks?.Clone();
             this.hooks?.ForAll().AddPreEventAsyncHandler((db, state, entities, type) =>
             {

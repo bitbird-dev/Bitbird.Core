@@ -51,6 +51,23 @@
         EnumClassValue,
 
         /// <summary>
+        /// An enum translation for a language.
+        /// Results in a file.
+        /// </summary>
+        EnumsTranslationLanguage,
+
+        /// <summary>
+        /// A template for the enum translation filename for a language.
+        /// </summary>
+        EnumsTranslationLanguageFilename,
+
+        /// <summary>
+        /// A value in an enum translation for a language.
+        /// Embedded in <see cref="EnumClass"/>.
+        /// </summary>
+        EnumsTranslationLanguageValue,
+
+        /// <summary>
         /// An enum.
         /// Results in a file.
         /// </summary>

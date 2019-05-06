@@ -22,7 +22,7 @@ namespace Bitbird.Core.Api {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace Bitbird.Core.Api {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Bitbird.Core.Api.Resources", typeof(Resources).Assembly);
@@ -51,7 +51,7 @@ namespace Bitbird.Core.Api {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace Bitbird.Core.Api {
         /// <summary>
         ///   Looks up a localized string similar to The passed client application identifier must not be null or empty and must not exceed {0} letters..
         /// </summary>
-        internal static string Core_ApiSessionData_ClientApplicationId {
+        public static string Core_ApiSessionData_ClientApplicationId {
             get {
                 return ResourceManager.GetString("Core_ApiSessionData_ClientApplicationId", resourceCulture);
             }
