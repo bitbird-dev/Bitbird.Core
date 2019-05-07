@@ -38,11 +38,17 @@ namespace Bitbird.Core.Log
 
         public void Write(LogLevel level, string message, int? eventId = null, short? category = null)
         {
+            if (level > Logging.LogLevelLimit)
+                return;
+
             Console.WriteLine($"@{DateTime.Now:HH:mm:ss} [{FormatContext(level, eventId, category)}] {message.ConsistentNewLines()}");
         }
 
         public void Write<T>(LogLevel level, T data, string message, int? eventId = null, short? category = null)
         {
+            if (level > Logging.LogLevelLimit)
+                return;
+
             message = message.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", Environment.NewLine);
 
             Console.WriteLine($"@{DateTime.Now:HH:mm:ss} [{FormatContext(level, eventId, category)}] {message.ConsistentNewLines()}{Environment.NewLine}Data.Type={data?.GetType().FullName??"NULL"}{Environment.NewLine}Data:{Environment.NewLine}{JsonConvert.SerializeObject(data)}");

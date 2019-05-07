@@ -7,5 +7,7 @@
 
         public static ConsoleLogger CreateConsoleLogger()
             => new ConsoleLogger();
+
+        public static LogLevel LogLevelLimit = LogLevel.Info;
     }
 }

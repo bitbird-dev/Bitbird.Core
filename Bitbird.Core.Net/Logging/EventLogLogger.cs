@@ -56,6 +56,11 @@ namespace Bitbird.Core.Log
 
         private void WriteEntry(LogLevel level, string content, int? eventId, short? category)
         {
+            if (level > Logging.LogLevelLimit)
+                return;
+
+            content = content.Length > 32000 ? content.Substring(0, 32000) + "..." : content;
+
             if (eventId.HasValue && category.HasValue)
                 EventLog.WriteEntry(content, (EventLogEntryType)(int)level, eventId.Value, category.Value);
             else if (eventId.HasValue)
