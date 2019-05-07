@@ -689,29 +689,40 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
             return languages.SelectMany(language =>
             {
                 // values
-                var valuesSections = enumTypes.SelectMany(enumType => Enum.GetValues(enumType).Cast<object>().Select(v =>
+                var enumsSections = enumTypes.Select(enumType =>
                 {
-                    var name = Enum.GetName(enumType, v);
+                    var valuesSections = Enum.GetValues(enumType).Cast<object>().Select(v =>
+                    {
+                        var name = Enum.GetName(enumType, v);
 
-                    var translation = translationResourceManagers
-                        .Select(r => r.GetString($"{enumType.FullName.Replace(".", "_")}_{name}",
-                            new CultureInfo(language ?? "en-US")))
-                        .Where(x => x != null)
-                        .FirstOrDefault()
-                        ?? throw  new Exception($"Could not find {language ?? "default"} translation for {enumType.FullName}.{name}.");
-                    
-                    var valueSection = templates.Get(TemplateType.EnumsTranslationLanguageValue);
-                    valueSection = ResolvePredicate(valueSection, "defaultLanguage", language == null);
-                    valueSection = ReplaceToken(valueSection, "className", enumType.Name);
-                    valueSection = ReplaceToken(valueSection, "valueName", name);
-                    valueSection = ReplaceToken(valueSection, "translation", translation);
-                    return ExtractSections(valueSection);
-                })).ToArray();
-                var valuesSection = JoinSections(x => string.Empty, valuesSections);
+                        var translation = translationResourceManagers
+                                              .Select(r => r.GetString($"{enumType.FullName.Replace(".", "_")}_{name}",
+                                                  new CultureInfo(language ?? "en-US")))
+                                              .Where(x => x != null)
+                                              .FirstOrDefault()
+                                          ?? throw new Exception(
+                                              $"Could not find {language ?? "default"} translation for {enumType.FullName}.{name}.");
+
+                        var valueSection = templates.Get(TemplateType.EnumsTranslationLanguageValue);
+                        valueSection = ResolvePredicate(valueSection, "defaultLanguage", language == null);
+                        valueSection = ReplaceToken(valueSection, "className", enumType.Name);
+                        valueSection = ReplaceToken(valueSection, "valueName", name);
+                        valueSection = ReplaceToken(valueSection, "translation", translation);
+                        return ExtractSections(valueSection);
+                    }).ToArray();
+                    var valuesSection = JoinSections(x => string.Empty, valuesSections);
+
+                    var enumSection = templates.Get(TemplateType.EnumsTranslationLanguageEnum);
+                    enumSection = ReplaceToken(enumSection, "className", enumType.Name);
+                    enumSection = ResolvePredicate(enumSection, "defaultLanguage", language == null);
+                    enumSection = ReplaceSections(enumSection, "values", valuesSection);
+                    return ExtractSections(enumSection);
+                }).ToArray();
+                var enumsSection = JoinSections(x => string.Empty, enumsSections);
 
                 var modelSection = templates.Get(TemplateType.EnumsTranslationLanguage);
                 modelSection = ResolvePredicate(modelSection, "defaultLanguage", language == null);
-                modelSection = ReplaceSections(modelSection, "values", valuesSection);
+                modelSection = ReplaceSections(modelSection, "enums", enumsSection);
                 var modelSections = ExtractSections(modelSection);
 
 

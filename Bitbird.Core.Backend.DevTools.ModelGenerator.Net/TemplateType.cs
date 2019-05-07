@@ -51,10 +51,16 @@
         EnumClassValue,
 
         /// <summary>
-        /// An enum translation for a language.
+        /// A translation for a language.
         /// Results in a file.
         /// </summary>
         EnumsTranslationLanguage,
+
+        /// <summary>
+        /// An enum translation for a language.
+        /// Results in a file.
+        /// </summary>
+        EnumsTranslationLanguageEnum,
 
         /// <summary>
         /// A template for the enum translation filename for a language.
