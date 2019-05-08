@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Resources;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 using Bitbird.Core.Data.Query;
@@ -686,64 +687,73 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
 
         private GeneratedFile[] GenerateEnumsTranslationFiles(Type[] enumTypes)
         {
-            Console.WriteLine("creating translation files for enums..");
-            return languages.SelectMany(language =>
+            var originalCultureInfo = Thread.CurrentThread.CurrentUICulture;
+
+            try
             {
-                var cultureInfo = new CultureInfo(language ?? "en-US");
-                Console.WriteLine($"  creating translation files for {cultureInfo.DisplayName} ({cultureInfo.Name})..");
-                // values
-                var enumsSections = enumTypes.Select(enumType =>
+                Console.WriteLine("creating translation files for enums..");
+                return languages.SelectMany(language =>
                 {
-                    Console.WriteLine($"    creating translation enum {enumType.FullName}..");
-                    var valuesSections = Enum.GetValues(enumType).Cast<object>().Select(v =>
+                    var cultureInfo = new CultureInfo(language ?? "en-US");
+                    Thread.CurrentThread.CurrentUICulture = cultureInfo;
+                    Console.WriteLine($"  creating translation files for {cultureInfo.DisplayName} ({cultureInfo.Name})..");
+                    // values
+                    var enumsSections = enumTypes.Select(enumType =>
                     {
-                        var name = Enum.GetName(enumType, v);
-                        Console.Write($"      creating translation value {name}: ");
+                        Console.WriteLine($"    creating translation enum {enumType.FullName}..");
+                        var valuesSections = Enum.GetValues(enumType).Cast<object>().Select(v =>
+                        {
+                            var name = Enum.GetName(enumType, v);
+                            Console.Write($"      creating translation value {name}: ");
 
-                        var translation = translationResourceManagers
-                                              .Select(r => r.GetString($"{enumType.FullName.Replace(".", "_")}_{name}",
-                                                  cultureInfo))
-                                              .Where(x => x != null)
-                                              .FirstOrDefault()
-                                          ?? throw new Exception(
-                                              $"Could not find {language ?? "default"} translation for {enumType.FullName}.{name}.");
-                        Console.WriteLine($"'{translation}'..");
+                            var translation = translationResourceManagers
+                                                  .Select(r => r.GetString($"{enumType.FullName?.Replace(".", "_")}_{name}",
+                                                      cultureInfo))
+                                                  .FirstOrDefault(x => x != null)
+                                              ?? throw new Exception(
+                                                  $"Could not find {language ?? "default"} translation for {enumType.FullName}.{name}.");
+                            Console.WriteLine($"'{translation}'..");
 
-                        var valueSection = templates.Get(TemplateType.EnumsTranslationLanguageValue);
-                        valueSection = ResolvePredicate(valueSection, "defaultLanguage", language == null);
-                        valueSection = ReplaceToken(valueSection, "className", enumType.Name);
-                        valueSection = ReplaceToken(valueSection, "valueName", name);
-                        valueSection = ReplaceToken(valueSection, "translation", translation);
-                        return ExtractSections(valueSection);
+                            var valueSection = templates.Get(TemplateType.EnumsTranslationLanguageValue);
+                            valueSection = ResolvePredicate(valueSection, "defaultLanguage", language == null);
+                            valueSection = ReplaceToken(valueSection, "className", enumType.Name);
+                            valueSection = ReplaceToken(valueSection, "valueName", name);
+                            valueSection = ReplaceToken(valueSection, "translation", translation);
+                            return ExtractSections(valueSection);
+                        }).ToArray();
+                        var valuesSection = JoinSections(x => string.Empty, valuesSections);
+
+                        var enumSection = templates.Get(TemplateType.EnumsTranslationLanguageEnum);
+                        enumSection = ReplaceToken(enumSection, "className", enumType.Name);
+                        enumSection = ResolvePredicate(enumSection, "defaultLanguage", language == null);
+                        enumSection = ReplaceSections(enumSection, "values", valuesSection);
+                        return ExtractSections(enumSection);
                     }).ToArray();
-                    var valuesSection = JoinSections(x => string.Empty, valuesSections);
+                    var enumsSection = JoinSections(x => string.Empty, enumsSections);
 
-                    var enumSection = templates.Get(TemplateType.EnumsTranslationLanguageEnum);
-                    enumSection = ReplaceToken(enumSection, "className", enumType.Name);
-                    enumSection = ResolvePredicate(enumSection, "defaultLanguage", language == null);
-                    enumSection = ReplaceSections(enumSection, "values", valuesSection);
-                    return ExtractSections(enumSection);
+                    var modelSection = templates.Get(TemplateType.EnumsTranslationLanguage);
+                    modelSection = ResolvePredicate(modelSection, "defaultLanguage", language == null);
+                    modelSection = ReplaceSections(modelSection, "enums", enumsSection);
+                    var modelSections = ExtractSections(modelSection);
+
+
+                    var filenameSection = templates.Get(TemplateType.EnumsTranslationLanguageFilename);
+                    filenameSection = ResolvePredicate(filenameSection, "defaultLanguage", language == null);
+                    filenameSection = ReplaceToken(filenameSection, "language", language);
+                    var filenameSections = ExtractSections(filenameSection);
+
+                    return filenameSections.Select(kvp =>
+                    {
+                        // filename
+                        var fileContent = modelSections[kvp.Key];
+                        return new GeneratedFile(kvp.Value, fileContent);
+                    });
                 }).ToArray();
-                var enumsSection = JoinSections(x => string.Empty, enumsSections);
-
-                var modelSection = templates.Get(TemplateType.EnumsTranslationLanguage);
-                modelSection = ResolvePredicate(modelSection, "defaultLanguage", language == null);
-                modelSection = ReplaceSections(modelSection, "enums", enumsSection);
-                var modelSections = ExtractSections(modelSection);
-
-
-                var filenameSection = templates.Get(TemplateType.EnumsTranslationLanguageFilename);
-                filenameSection = ResolvePredicate(filenameSection, "defaultLanguage", language == null);
-                filenameSection = ReplaceToken(filenameSection, "language", language);
-                var filenameSections = ExtractSections(filenameSection);
-
-                return filenameSections.Select(kvp =>
-                {
-                    // filename
-                    var fileContent = modelSections[kvp.Key];
-                    return new GeneratedFile(kvp.Value, fileContent);
-                });
-            }).ToArray();
+            }
+            finally
+            {
+                Thread.CurrentThread.CurrentUICulture = originalCultureInfo;
+            }
         }
 
         private GeneratedFile GenerateInterfaceVersion()
