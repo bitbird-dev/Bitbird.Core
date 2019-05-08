@@ -686,22 +686,28 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
 
         private GeneratedFile[] GenerateEnumsTranslationFiles(Type[] enumTypes)
         {
+            Console.WriteLine("creating translation files for enums..");
             return languages.SelectMany(language =>
             {
+                var cultureInfo = new CultureInfo(language ?? "en-US");
+                Console.WriteLine($"  creating translation files for {cultureInfo.DisplayName} ({cultureInfo.Name})..");
                 // values
                 var enumsSections = enumTypes.Select(enumType =>
                 {
+                    Console.WriteLine($"    creating translation enum {enumType.FullName}..");
                     var valuesSections = Enum.GetValues(enumType).Cast<object>().Select(v =>
                     {
                         var name = Enum.GetName(enumType, v);
+                        Console.Write($"      creating translation value {name}: ");
 
                         var translation = translationResourceManagers
                                               .Select(r => r.GetString($"{enumType.FullName.Replace(".", "_")}_{name}",
-                                                  new CultureInfo(language ?? "en-US")))
+                                                  cultureInfo))
                                               .Where(x => x != null)
                                               .FirstOrDefault()
                                           ?? throw new Exception(
                                               $"Could not find {language ?? "default"} translation for {enumType.FullName}.{name}.");
+                        Console.WriteLine($"'{translation}'..");
 
                         var valueSection = templates.Get(TemplateType.EnumsTranslationLanguageValue);
                         valueSection = ResolvePredicate(valueSection, "defaultLanguage", language == null);
