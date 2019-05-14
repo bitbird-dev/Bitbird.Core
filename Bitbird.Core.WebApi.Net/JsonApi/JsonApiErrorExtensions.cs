@@ -113,6 +113,13 @@ namespace Bitbird.Core.WebApi.JsonApi
                 switch (apiError)
                 {
                     case ApiAttributeError attributeError:
+                        var attributeName = attributeError.AttributeName
+                            .Replace('[', '/')
+                            .Replace(']', '/')
+                            .Replace('.', '/')
+                            .Replace("//", "/")
+                            .FromCamelCaseToJsonCamelCase();
+
                         return new JsonApiErrorObject
                         {
                             Id = Guid.NewGuid().ToString(),
@@ -124,7 +131,7 @@ namespace Bitbird.Core.WebApi.JsonApi
                                          .ToString() ?? ((int)HttpStatusCode.InternalServerError).ToString(),
                             Source = new JsonApiErrorSource
                             {
-                                Pointer = $"/data/attributes/{attributeError.AttributeName.FromCamelCaseToJsonCamelCase()}",
+                                Pointer = $"/data/attributes{attributeName}",
                                 Parameter = ""
                             },
                             Links = new JsonApiErrorLinks
@@ -144,7 +151,7 @@ namespace Bitbird.Core.WebApi.JsonApi
                                          .ToString() ?? ((int)HttpStatusCode.InternalServerError).ToString(),
                             Source = new JsonApiErrorSource
                             {
-                                Pointer = $"/data/attributes/{parameterError.ParameterName.FromCamelCaseToJsonCamelCase()}",
+                                Pointer = $"/parameters/{parameterError.ParameterName.FromCamelCaseToJsonCamelCase()}",
                                 Parameter = ""
                             },
                             Links = new JsonApiErrorLinks

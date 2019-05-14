@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 
 namespace Bitbird.Core.Expressions
 {
-    public static class ExpressionHelper
+    public static partial class ExpressionHelper
     {
         public static LambdaExpression ComposeLambdas(LambdaExpression[] expressions, Func<Expression, Expression, Expression> merge)
         {

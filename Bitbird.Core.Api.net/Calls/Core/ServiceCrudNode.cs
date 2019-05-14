@@ -151,7 +151,7 @@ namespace Bitbird.Core.Api.Calls.Core
                         var memberExpression = Expression.Property(parameter, validationError.PropertyName);
                         var lambdaExpression = Expression.Lambda(memberExpression, parameter);
 
-                        var apiParameterErrorType = typeof(ApiAttributeError<,>).MakeGenericType(typeof(TDbModel), property.PropertyType);
+                        var apiParameterErrorType = typeof(ApiAttributeError<>).MakeGenericType(typeof(TDbModel), property.PropertyType);
 
                         return (ApiError)Activator.CreateInstance(apiParameterErrorType, lambdaExpression, validationError.ErrorMessage);
                     }

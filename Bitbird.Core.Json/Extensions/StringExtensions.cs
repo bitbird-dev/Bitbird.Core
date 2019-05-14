@@ -20,7 +20,7 @@ namespace Bitbird.Core.Json.Extensions
 
         public static string FromCamelCaseToJsonCamelCase(this string expression)
         {
-            return new string(expression.Select((c, idx) => idx == 0 ? char.ToLower(c) : c).ToArray());
+            return new string(expression.Select((c, idx) => idx == 0 || expression[idx-1] == '/' ? char.ToLower(c) : c).ToArray());
         }
     }
 }

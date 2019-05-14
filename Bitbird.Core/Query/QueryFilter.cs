@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Linq;
 using System.Linq.Expressions;
+using Bitbird.Core.Expressions;
 
 namespace Bitbird.Core.Query
 {
@@ -69,7 +70,7 @@ namespace Bitbird.Core.Query
                         methodCallExpression.Method.GetGenericMethodDefinition().GetParameters().Length == 2 &&
                         methodCallExpression.Method.GetGenericMethodDefinition().DeclaringType == typeof(Enumerable))
                     {
-                        if (!(TryConvertToConstant(methodCallExpression.Arguments[0], out var constant)))
+                        if (!(ExpressionHelper.TryConvertToConstant(methodCallExpression.Arguments[0], out var constant)))
                             throw new Exception($"{nameof(Parse)}: Expressions of type {exp.GetType()} that call {methodCallExpression.Method.Name} must be called on an expression that compiles to a constant value. Found (sub-)expression: {exp}");
                         if (!(TryConvertToMember(methodCallExpression.Arguments[1], out var memberExpression)))
                             throw new Exception($"{nameof(Parse)}: Expressions of type {exp.GetType()} that call {methodCallExpression.Method.Name} must be called with a member expression as argument. Found (sub-)expression: {exp}");
@@ -80,7 +81,7 @@ namespace Bitbird.Core.Query
                         methodCallExpression.Method.GetParameters().Length == 1 &&
                         methodCallExpression.Method.DeclaringType == typeof(string))
                     {
-                        if (!(TryConvertToConstant(methodCallExpression.Arguments[0], out var constant)))
+                        if (!(ExpressionHelper.TryConvertToConstant(methodCallExpression.Arguments[0], out var constant)))
                             throw new Exception($"{nameof(Parse)}: Expressions of type {exp.GetType()} that call {methodCallExpression.Method.Name} must be called with an expression that compiles to a constant value as argument. Found (sub-)expression: {exp}");
                         if (!(TryConvertToMember(methodCallExpression.Object, out var memberExpression)))
                             throw new Exception($"{nameof(Parse)}: Expressions of type {exp.GetType()} that call {methodCallExpression.Method.Name} must be called on a member expression. Found (sub-)expression: {exp}");
@@ -91,7 +92,7 @@ namespace Bitbird.Core.Query
                         methodCallExpression.Method.GetParameters().Length == 1 &&
                         methodCallExpression.Method.DeclaringType == typeof(string))
                     {
-                        if (!(TryConvertToConstant(methodCallExpression.Arguments[0], out var constant)))
+                        if (!(ExpressionHelper.TryConvertToConstant(methodCallExpression.Arguments[0], out var constant)))
                             throw new Exception($"{nameof(Parse)}: Expressions of type {exp.GetType()} that call {methodCallExpression.Method.Name} must be called with an expression that compiles to a constant value as argument. Found (sub-)expression: {exp}");
                         if (!(TryConvertToMember(methodCallExpression.Object, out var memberExpression)))
                             throw new Exception($"{nameof(Parse)}: Expressions of type {exp.GetType()} that call {methodCallExpression.Method.Name} must be called on a member expression. Found (sub-)expression: {exp}");
@@ -102,7 +103,7 @@ namespace Bitbird.Core.Query
                         methodCallExpression.Method.GetParameters().Length == 1 &&
                         methodCallExpression.Method.DeclaringType == typeof(string))
                     {
-                        if (!(TryConvertToConstant(methodCallExpression.Arguments[0], out var constant)))
+                        if (!(ExpressionHelper.TryConvertToConstant(methodCallExpression.Arguments[0], out var constant)))
                             throw new Exception($"{nameof(Parse)}: Expressions of type {exp.GetType()} that call {methodCallExpression.Method.Name} must be called with an expression that compiles to a constant value as argument. Found (sub-)expression: {exp}");
                         if (!(TryConvertToMember(methodCallExpression.Object, out var memberExpression)))
                             throw new Exception($"{nameof(Parse)}: Expressions of type {exp.GetType()} that call {methodCallExpression.Method.Name} must be called on a member expression. Found (sub-)expression: {exp}");
@@ -135,29 +136,10 @@ namespace Bitbird.Core.Query
             return false;
         }
 
-        private static bool TryConvertToConstant(Expression expression, out object constant)
-        {
-            if (new ParameterExistsVisitor().Check(expression))
-            {
-                constant = null;
-                return false;
-            }
-
-            try
-            {
-                constant = Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object))).Compile().Invoke();
-                return true;
-            }
-            catch (Exception e)
-            {
-                throw new Exception($"{nameof(Parse)}/{nameof(TryConvertToConstant)}: Could not compile expression to constant value. Expression: '{expression}'. Details: {e.Message}", e);
-            }
-        }
-
         private static QueryFilter ParseComparison<T>(BinaryExpression binaryExpression, ParameterExpression parameter)
         {
-            var leftIsConstant = TryConvertToConstant(binaryExpression.Left, out var leftConstant);
-            var rightIsConstant = TryConvertToConstant(binaryExpression.Right, out var rightConstant);
+            var leftIsConstant = ExpressionHelper.TryConvertToConstant(binaryExpression.Left, out var leftConstant);
+            var rightIsConstant = ExpressionHelper.TryConvertToConstant(binaryExpression.Right, out var rightConstant);
             var leftIsProperty = TryConvertToMember(binaryExpression.Left, out var leftMember);
             var rightIsProperty = TryConvertToMember(binaryExpression.Right, out var rightMember);
 
