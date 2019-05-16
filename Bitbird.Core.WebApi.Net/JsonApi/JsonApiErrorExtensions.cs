@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Reflection;
 using System.Web.Http;
-using Bitbird.Core.Extensions;
 using Bitbird.Core.Json.Extensions;
 using Bitbird.Core.WebApi.JsonApi.Models;
 using Microsoft.Azure;

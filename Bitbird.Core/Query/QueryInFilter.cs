@@ -1,6 +1,4 @@
-﻿using Bitbird.Core.Extensions;
-
-namespace Bitbird.Core.Query
+﻿namespace Bitbird.Core.Query
 {
     public class QueryInFilter : QueryFilter
     {

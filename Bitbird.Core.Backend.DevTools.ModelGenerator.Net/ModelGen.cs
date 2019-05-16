@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using Bitbird.Core.Data.Query;
 using Bitbird.Core.Json.Helpers.ApiResource;
+using Bitbird.Core.Types;
 using Bitbird.Core.WebApi.Controllers;
 using Bitbird.Core.WebApi.JsonApi;
 using Bitbird.Core.WebApi.Resources;

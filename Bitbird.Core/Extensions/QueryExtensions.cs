@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Linq;
 
-namespace Bitbird.Core.Extensions
+namespace Bitbird.Core
 {
     public static class QueryExtensions
     {

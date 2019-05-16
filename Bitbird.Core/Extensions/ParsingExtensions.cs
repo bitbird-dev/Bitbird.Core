@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Bitbird.Core.Extensions
+namespace Bitbird.Core
 {
     public static class ParsingExtensions
     {

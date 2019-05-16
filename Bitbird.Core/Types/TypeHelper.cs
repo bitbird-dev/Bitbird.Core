@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
+namespace Bitbird.Core.Types
 {
-    public static class TypeHelper
+    public static class TypeFormatter
     {
-        public static string ToCsType(this Type type, Action<Type> foundType)
+        public static string ToCsType(this Type type, Action<Type> foundType = null)
         {
             string FormatPrimitiveType(Type t)
             {
@@ -59,13 +59,14 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
                 if (iEnumerable != null)
                     return $"{FormatNullable(FormatPrimitiveType(iEnumerable.GetGenericArguments()[0]))}[]";
 
-                foundType(underlying);
+                foundType?.Invoke(underlying);
+
                 return FormatNullable(underlying.Name);
             }
 
             return FormatPrimitiveType(type);
         }
-        public static string ToJsType(this Type type, Action<Type> foundType)
+        public static string ToJsType(this Type type, Action<Type> foundType = null)
         {
             string FormatPrimitiveType(Type t)
             {
@@ -123,7 +124,8 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
                 if (iEnumerable != null)
                     return $"{FormatNullable(FormatPrimitiveType(iEnumerable.GetGenericArguments()[0]))}[]";
 
-                foundType(underlying);
+                foundType?.Invoke(underlying);
+
                 return FormatNullable(underlying.Name);
             }
 

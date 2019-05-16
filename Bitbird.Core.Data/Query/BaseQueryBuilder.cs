@@ -6,13 +6,9 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Bitbird.Core;
 using Bitbird.Core.Benchmarks;
-using Bitbird.Core.Data;
-using Bitbird.Core.Data.Query;
 using Bitbird.Core.Data.Query.Mapping;
 using Bitbird.Core.Expressions;
-using Bitbird.Core.Extensions;
 using Bitbird.Core.Query;
 
 namespace Bitbird.Core.Data.Query

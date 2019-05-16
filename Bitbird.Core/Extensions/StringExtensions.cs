@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Text;
 
-namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
+namespace Bitbird.Core
 {
     public static class StringExtensions
     {

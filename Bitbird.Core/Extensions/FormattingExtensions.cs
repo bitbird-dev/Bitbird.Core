@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Bitbird.Core.Extensions
+namespace Bitbird.Core
 {
     public static class FormattingExtensions
     {

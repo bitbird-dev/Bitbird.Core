@@ -13,7 +13,8 @@
 <#@ import namespace="System.Reflection" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="Bitbird.Core" #>
-<#@ import namespace="Bitbird.Data" #>
+<#@ import namespace="Bitbird.Core.Data" #>
+<#@ import namespace="Bitbird.Core.Data.CliToolAnnotations" #>
 <#@ import namespace="Bitbird.Core.Ide.Tools.Api.CliTools.Net" #>
 
 <#  

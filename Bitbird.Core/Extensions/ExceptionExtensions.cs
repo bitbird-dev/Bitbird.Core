@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace Bitbird.Core.Extensions
+namespace Bitbird.Core
 {
     public static class ExceptionExtensions
     {

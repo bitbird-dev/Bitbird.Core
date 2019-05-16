@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace Bitbird.Core.Extensions
+namespace Bitbird.Core
 {
     public static class WildCardExtensions
     {
