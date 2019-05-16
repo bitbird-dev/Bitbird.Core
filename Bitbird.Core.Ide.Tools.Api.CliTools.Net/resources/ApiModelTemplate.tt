@@ -10,6 +10,7 @@
 <#@ assembly name="$(ProjectDir)$(OutDir)MyProject.Data.dll" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
+<#@ import namespace="System.Reflection" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="Bitbird.Core" #>
 <#@ import namespace="Bitbird.Data" #>
