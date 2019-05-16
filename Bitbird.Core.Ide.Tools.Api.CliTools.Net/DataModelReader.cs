@@ -75,7 +75,7 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools.Net
             if (propertyInfo.GetCustomAttribute<IgnoreInApiModelAttribute>() != null)
                 return null;
 
-            var isNavigationalProperty = propertyInfo.GetGetMethod().IsVirtual;
+            var isNavigationalProperty = propertyInfo.GetGetMethod().IsVirtual && !propertyInfo.GetGetMethod().IsFinal;
             if (isNavigationalProperty)
                 return null;
 
