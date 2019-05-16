@@ -1,0 +1,75 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ output extension=".cs" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="$(SolutionDir)packages\Bitbird.Core.*\bin\Bitbird.Core.dll" #>
+<#@ assembly name="$(SolutionDir)packages\Bitbird.Core.Net.*\bin\Bitbird.Core.Net.dll" #>
+<#@ assembly name="$(SolutionDir)packages\Bitbird.Core.Data.*\bin\Bitbird.Core.Data.dll" #>
+<#@ assembly name="$(SolutionDir)packages\Bitbird.Core.Data.Net.*\bin\Bitbird.Core.Data.Net.dll" #>
+<#@ assembly name="$(SolutionDir)packages\Bitbird.Core.Ide.Tools.Api.CliTools.Net.*\bin\Bitbird.Core.Ide.Tools.Api.CliTools.Net.dll" #>
+// TODO: Replace 'MyProject.Data' with the project name that defines the data-models.
+<#@ assembly name="$(ProjectDir)$(OutDir)MyProject.Data.dll" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="Bitbird.Core" #>
+<#@ import namespace="Bitbird.Data" #>
+<#@ import namespace="Bitbird.Core.Ide.Tools.Api.CliTools.Net" #>
+
+<#  
+	// TODO: Replace 'MyProject.Api.Models' with the namespace that should contain the generated api-models.
+	var targetNamespace = "MyProject.Api.Models";
+
+	// TODO: Replace 'MyProject.Data.Db.Models.User' with a class in the assembly that defines the data-models.
+	var sampleDataModelType = typeof(MyProject.Data.Db.Models.User); 
+
+
+	var dataModelTypes = sampleDataModelType
+		.Assembly
+		.GetTypes()
+		.Where(t => t.GetCustomAttribute<EntityAttribute>() != null)
+		.ToArray();
+	var model = new DataModelReader(dataModelTypes).ReadDataModelInfo();
+
+#>
+
+#<
+	foreach (var dataModel in model.DataModelInfos)
+	{
+#>
+using System;
+using System.Linq.Expressions;
+using <#= sampleDataModelType.Namespace >;
+using Bitbird.Core;
+using Bitbird.Core.Data;
+using Bitbird.Core.Data.Query.Mapping;
+using JetBrains.Annotations;
+using Newtonsoft.Json;
+
+namespace <#= targetNamespace #>
+{
+    public class <# dataModel.Name >Model
+    {
+		#<
+			foreach (var property in dataModel.Properties)
+			{
+		#>	
+        #region <#= property.Name #>: <#= property.Type.Name #>
+        private <#= property.Type.Name #> <#= property.Name.ToLower() #>;
+        [DbMappingExpression(typeof(<# dataModel.Name >), nameof(<#= property.Name #>DbMapping))]
+        [UsedImplicitly]
+        public <#= property.Type.Name #> <#= property.Name #>
+        {
+            get => Get(ref <#= property.Name.ToLower() #>);
+            set => Set(ref <#= property.Name.ToLower() #>, value);
+        }
+        [UsedImplicitly, NotNull]
+        public static Expression<Func<<# dataModel.Name >, <#= property.Type.Name #>>> <#= property.Name #>DbMapping => x => x.<#= property.Name #>;
+        #endregion
+		#<
+			}
+		#>	
+    }
+}
+#<
+	}
+#>

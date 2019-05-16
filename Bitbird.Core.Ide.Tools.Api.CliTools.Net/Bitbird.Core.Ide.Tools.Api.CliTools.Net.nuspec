@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata minClientVersion="3.6">
+    <id>Bitbird.Core.Ide.Tools.Api.CliTools.Net</id>
+    <version>1.0.0</version>
+    <title>Api CliTools (Bitbird.Core)</title>
+    <authors>Bitbird GmbH</authors>
+    <owners>Bitbird GmbH</owners>
+    <projectUrl>https://github.com/bitbird-dev/Bitbird.Core</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Nobody knows what this tools does. Not even we do.</description>
+    <summary>Nobody knows what this tools does. Not even we do.</summary>
+    <copyright>Copyright © Bitbird GmbH 2019</copyright>
+  </metadata>
+  <files>
+    <file src="tools\*" target="tools/"/>
+    <file src="resources\**" target="resources/"/>
+    <file src="bin\Release\*" target="bin/"/>
+  </files>
+</package>

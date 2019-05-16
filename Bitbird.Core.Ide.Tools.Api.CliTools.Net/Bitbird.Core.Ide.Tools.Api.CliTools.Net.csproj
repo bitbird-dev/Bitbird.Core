@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C6EF4220-3E15-453B-83A2-46D3101A70B9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Bitbird.Core.Ide.Tools.Api.CliTools.Net</RootNamespace>
+    <AssemblyName>Bitbird.Core.Ide.Tools.Api.CliTools.Net</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="DataModelInfo.cs" />
+    <Compile Include="DataModelPropertyInfo.cs" />
+    <Compile Include="DataModelPropertyStringInfo.cs" />
+    <Compile Include="DataModelsInfo.cs" />
+    <Compile Include="DataModelReader.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\CodeAnnotations.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="Bitbird.Core.Ide.Tools.Api.CliTools.Net.nuspec" />
+    <None Include="packages.config" />
+    <None Include="tools\init.ps1" />
+    <None Include="tools\ApiCliTools.psm1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Bitbird.Core.Data.Net\Bitbird.Core.Data.Net.csproj">
+      <Project>{4ae82b23-34a5-47fd-bfba-5bc50210cc5e}</Project>
+      <Name>Bitbird.Core.Data.Net</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Bitbird.Core.Data\Bitbird.Core.Data.csproj">
+      <Project>{98ace9cd-c6ba-4d3c-b23c-58f986729f50}</Project>
+      <Name>Bitbird.Core.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Bitbird.Core.Net\Bitbird.Core.Net.csproj">
+      <Project>{a05492e0-3ee4-4164-8484-e6ec5ce16d0f}</Project>
+      <Name>Bitbird.Core.Net</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Bitbird.Core\Bitbird.Core.csproj">
+      <Project>{b882b7ff-75e0-4a51-91e0-d67f4d01211c}</Project>
+      <Name>Bitbird.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Content Include="resources\ApiModelTemplate.tt">
+      <LastGenOutput>ApiModelTemplate.txt</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

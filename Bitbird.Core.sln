@@ -78,7 +78,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{22EDBD89
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitbird.Core.Json.Tests", "Bitbird.Core.Json.Tests\Bitbird.Core.Json.Tests.csproj", "{D9D27DD1-72DC-42F8-9B7D-3D2A1A4C4D1D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitbird.Core.Tests", "Bitbird.Core.Tests\Bitbird.Core.Tests.csproj", "{9F4E493F-38B7-40DA-97FB-E63E124282F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitbird.Core.Tests", "Bitbird.Core.Tests\Bitbird.Core.Tests.csproj", "{9F4E493F-38B7-40DA-97FB-E63E124282F5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitbird.Core.Ide.Tools.Api.CliTools.Net", "Bitbird.Core.Ide.Tools.Api.CliTools.Net\Bitbird.Core.Ide.Tools.Api.CliTools.Net.csproj", "{C6EF4220-3E15-453B-83A2-46D3101A70B9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -554,6 +556,26 @@ Global
 		{9F4E493F-38B7-40DA-97FB-E63E124282F5}.Release|x64.Build.0 = Release|Any CPU
 		{9F4E493F-38B7-40DA-97FB-E63E124282F5}.Release|x86.ActiveCfg = Release|Any CPU
 		{9F4E493F-38B7-40DA-97FB-E63E124282F5}.Release|x86.Build.0 = Release|Any CPU
+		{C6EF4220-3E15-453B-83A2-46D3101A70B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6EF4220-3E15-453B-83A2-46D3101A70B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6EF4220-3E15-453B-83A2-46D3101A70B9}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{C6EF4220-3E15-453B-83A2-46D3101A70B9}.Debug|ARM.Build.0 = Debug|Any CPU
+		{C6EF4220-3E15-453B-83A2-46D3101A70B9}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{C6EF4220-3E15-453B-83A2-46D3101A70B9}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{C6EF4220-3E15-453B-83A2-46D3101A70B9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C6EF4220-3E15-453B-83A2-46D3101A70B9}.Debug|x64.Build.0 = Debug|Any CPU
+		{C6EF4220-3E15-453B-83A2-46D3101A70B9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C6EF4220-3E15-453B-83A2-46D3101A70B9}.Debug|x86.Build.0 = Debug|Any CPU
+		{C6EF4220-3E15-453B-83A2-46D3101A70B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6EF4220-3E15-453B-83A2-46D3101A70B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6EF4220-3E15-453B-83A2-46D3101A70B9}.Release|ARM.ActiveCfg = Release|Any CPU
+		{C6EF4220-3E15-453B-83A2-46D3101A70B9}.Release|ARM.Build.0 = Release|Any CPU
+		{C6EF4220-3E15-453B-83A2-46D3101A70B9}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{C6EF4220-3E15-453B-83A2-46D3101A70B9}.Release|ARM64.Build.0 = Release|Any CPU
+		{C6EF4220-3E15-453B-83A2-46D3101A70B9}.Release|x64.ActiveCfg = Release|Any CPU
+		{C6EF4220-3E15-453B-83A2-46D3101A70B9}.Release|x64.Build.0 = Release|Any CPU
+		{C6EF4220-3E15-453B-83A2-46D3101A70B9}.Release|x86.ActiveCfg = Release|Any CPU
+		{C6EF4220-3E15-453B-83A2-46D3101A70B9}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -586,6 +608,7 @@ Global
 		{22EDBD89-1B46-4A61-8BF6-34D3CCAD7A0D} = {E11DC62C-7FBF-4828-97FF-36751D7F2239}
 		{D9D27DD1-72DC-42F8-9B7D-3D2A1A4C4D1D} = {66AA1C59-1C9E-4E2C-9E1A-09A97210755B}
 		{9F4E493F-38B7-40DA-97FB-E63E124282F5} = {22EDBD89-1B46-4A61-8BF6-34D3CCAD7A0D}
+		{C6EF4220-3E15-453B-83A2-46D3101A70B9} = {8D71A998-7F10-4ECA-A89A-CD0BC6A69FC3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7F970483-6D84-4B58-9B0D-B4FB8745BD73}
