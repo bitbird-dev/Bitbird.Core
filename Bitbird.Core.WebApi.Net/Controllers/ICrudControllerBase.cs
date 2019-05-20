@@ -8,9 +8,5 @@ namespace Bitbird.Core.WebApi.Controllers
         bool CanCreate { get; }
         bool CanDelete { get; }
         bool CanUpdate { get; }
-
-        [NotNull] Func<string, bool> CanCreateRelation { get; }
-        [NotNull] Func<string, bool> CanUpdateRelation { get; }
-        [NotNull] Func<string, bool> CanDeleteRelation { get; }
     }
 }

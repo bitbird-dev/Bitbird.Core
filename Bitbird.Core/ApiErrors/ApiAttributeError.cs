@@ -54,6 +54,14 @@ namespace Bitbird.Core
                     }
 
                     break;
+
+                case UnaryExpression unaryExpression:
+                    switch (unaryExpression.NodeType)
+                    {
+                        case ExpressionType.Convert:
+                            return ConvertExpressionToName(unaryExpression.Operand);
+                    }
+                    break;
             }
 
             return "ERROR";

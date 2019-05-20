@@ -5,7 +5,7 @@ using Bitbird.Core.Benchmarks;
 using Bitbird.Core.Data.DbContext;
 using JetBrains.Annotations;
 
-namespace Bitbird.Core.Api.Calls.Core
+namespace Bitbird.Core.Api.Nodes.Core
 {
     public interface IInternalCrudNode<TService, TSession, TDbContext, TState, TModel, TEntityChangeModel, TEntityTypeId, TId>
         : IInternalReadNode<TService, TSession, TDbContext, TState, TModel, TEntityChangeModel, TEntityTypeId, TId>

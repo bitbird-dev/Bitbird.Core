@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace Bitbird.Core.Api.Calls.Core
+namespace Bitbird.Core.Api.Nodes.Core
 {
     /// <summary>
     /// Stores an id and a typed field.

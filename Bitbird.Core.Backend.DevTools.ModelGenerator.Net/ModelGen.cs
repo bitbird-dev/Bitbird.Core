@@ -692,20 +692,20 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
 
             try
             {
-                Console.WriteLine("creating translation files for enums..");
+                if (!arguments.Silent) Console.WriteLine("creating translation files for enums..");
                 return languages.SelectMany(language =>
                 {
                     var cultureInfo = new CultureInfo(language ?? "en-US");
                     Thread.CurrentThread.CurrentUICulture = cultureInfo;
-                    Console.WriteLine($"  creating translation files for {cultureInfo.DisplayName} ({cultureInfo.Name})..");
+                    if (!arguments.Silent) Console.WriteLine($"  creating translation files for {cultureInfo.DisplayName} ({cultureInfo.Name})..");
                     // values
                     var enumsSections = enumTypes.Select(enumType =>
                     {
-                        Console.WriteLine($"    creating translation enum {enumType.FullName}..");
+                        if (!arguments.Silent) Console.WriteLine($"    creating translation enum {enumType.FullName}..");
                         var valuesSections = Enum.GetValues(enumType).Cast<object>().Select(v =>
                         {
                             var name = Enum.GetName(enumType, v);
-                            Console.Write($"      creating translation value {name}: ");
+                            if (!arguments.Silent) Console.Write($"      creating translation value {name}: ");
 
                             var translation = translationResourceManagers
                                                   .Select(r => r.GetString($"{enumType.FullName?.Replace(".", "_")}_{name}",
@@ -713,7 +713,7 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
                                                   .FirstOrDefault(x => x != null)
                                               ?? throw new Exception(
                                                   $"Could not find {language ?? "default"} translation for {enumType.FullName}.{name}.");
-                            Console.WriteLine($"'{translation}'..");
+                            if (!arguments.Silent) Console.WriteLine($"'{translation}'..");
 
                             var valueSection = templates.Get(TemplateType.EnumsTranslationLanguageValue);
                             valueSection = ResolvePredicate(valueSection, "defaultLanguage", language == null);

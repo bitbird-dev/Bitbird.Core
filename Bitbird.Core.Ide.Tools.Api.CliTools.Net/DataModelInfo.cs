@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 
 namespace Bitbird.Core.Ide.Tools.Api.CliTools.Net

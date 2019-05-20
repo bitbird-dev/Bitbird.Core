@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
-using Bitbird.Core.Api.Calls.Core;
+using Bitbird.Core.Api.Nodes.Core;
 using Bitbird.Core.Api.EntityChanges;
 using Bitbird.Core.Data.Cache;
 using JetBrains.Annotations;

@@ -7,7 +7,7 @@ using Bitbird.Core.Data.Query;
 using Bitbird.Core.Query;
 using JetBrains.Annotations;
 
-namespace Bitbird.Core.Api.Calls.Core
+namespace Bitbird.Core.Api.Nodes.Core
 {
     public interface IInternalReadNode<TService, TSession, TDbContext, TState, TModel, TEntityChangeModel, TEntityTypeId, TId>
         where TModel : ModelBase<TService, TSession, TDbContext, TState, TEntityChangeModel, TEntityTypeId, TId>, IId<TId>

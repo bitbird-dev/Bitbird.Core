@@ -3,7 +3,7 @@ using Bitbird.Core.Data.Query;
 using Bitbird.Core.Query;
 using JetBrains.Annotations;
 
-namespace Bitbird.Core.Api.Calls.Core
+namespace Bitbird.Core.Api.Nodes.Core
 {
     // ReSharper disable UnusedTypeParameter
     public abstract partial class ServiceReadNode<TService, TSession, TDbContext, TState, TModel, TDbModel, TDbMetaData, TRightId, TEntityTypeId, TEntityChangeModel, TId>

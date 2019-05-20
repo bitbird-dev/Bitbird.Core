@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace Bitbird.Core.Api.Calls.Core
+namespace Bitbird.Core.Api.Nodes.Core
 {
     public interface IServiceCrudNode<in TSession, TModel, in TId>
         : IServiceReadNode<TSession, TModel, TId>

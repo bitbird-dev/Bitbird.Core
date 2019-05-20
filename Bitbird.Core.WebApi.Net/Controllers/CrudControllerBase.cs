@@ -1,18 +1,12 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using Bitbird.Core.Api;
-using Bitbird.Core.Api.Calls.Core;
-using Bitbird.Core.Api.Models.Base;
+using Bitbird.Core.Api.Nodes.Core;
 using Bitbird.Core.Data;
 using Bitbird.Core.Json.Helpers.ApiResource;
 using Bitbird.Core.WebApi.JsonApi;
-using Bitbird.Core.WebApi.Models;
-using Bitbird.Core.WebApi.Resources;
-using Newtonsoft.Json.Linq;
 
 namespace Bitbird.Core.WebApi.Controllers
 {
@@ -39,12 +33,6 @@ namespace Bitbird.Core.WebApi.Controllers
         public bool CanUpdate { get; }
         /// <inheritdoc />
         public bool CanDelete { get; }
-        /// <inheritdoc />
-        public Func<string, bool> CanCreateRelation { get; }
-        /// <inheritdoc />
-        public Func<string, bool> CanUpdateRelation { get; }
-        /// <inheritdoc />
-        public Func<string, bool> CanDeleteRelation { get; }
 
         /// <summary>
         /// Creates a <see cref="CrudControllerBase{TService, TSession, TModel, TResource}"/> object.
@@ -55,17 +43,11 @@ namespace Bitbird.Core.WebApi.Controllers
         /// <param name="canCreate">Whether to support the <see cref="CreateAsync"/> method.</param>
         /// <param name="canUpdate">Whether to support the <see cref="UpdateAsync"/> method.</param>
         /// <param name="canDelete">Whether to support the <see cref="DeleteAsync"/> method.</param>
-        /// <param name="canCreateRelation">A predicate defining whether to support the <see cref="CreateRelationAsync"/> method for a given relation name.</param>
-        /// <param name="canUpdateRelation">A predicate defining whether to support the <see cref="UpdateRelationAsync"/> method for a given relation name.</param>
-        /// <param name="canDeleteRelation">A predicate defining whether to support the <see cref="DeleteRelationAsync"/> method for a given relation name.</param>
-        protected CrudControllerBase(bool canCreate = true, bool canUpdate = true, bool canDelete = true, Func<string, bool> canCreateRelation = null, Func<string, bool> canUpdateRelation = null, Func<string, bool> canDeleteRelation = null)
+        protected CrudControllerBase(bool canCreate = true, bool canUpdate = true, bool canDelete = true)
         {
             CanCreate = canCreate;
             CanUpdate = canUpdate;
             CanDelete = canDelete;
-            CanCreateRelation = canCreateRelation ?? (x => true);
-            CanUpdateRelation = canUpdateRelation ?? (x => true);
-            CanDeleteRelation = canDeleteRelation ?? (x => true);
         }
 
 
@@ -219,199 +201,6 @@ namespace Bitbird.Core.WebApi.Controllers
                 throw new HttpResponseException(HttpStatusCode.NotFound);
 
             await GetCrudServiceNode(Service).DeleteAsync(await GetSessionAsync(), id);
-        }
-
-
-        /// <summary>
-        /// HTTP-verb: <c>POST</c>
-        ///
-        /// Route: <c>{controller}/{id:long}/relationships/{relation name}</c>
-        /// 
-        /// Expected HTTP-headers:
-        /// - <c>Content-Type: application/vnd.api+json</c>
-        /// - <c>Accept: application/vnd.api+json</c>
-        /// - <c>X-ApiKey: {session token}</c>
-        /// 
-        /// Recommended HTTP-headers:
-        /// - <c>Accept-Encoding: gzip,deflate</c>
-        ///
-        /// HTTP-body: A collection of <see cref="IdModel"/>(containing type and id) as JSON-Api.
-        ///
-        /// Query-parameters: empty
-        ///
-        /// This route is only supported if the defined relation is a to-many relation, and if the controller supports it.
-        /// Most of the times it is only supported if the relation actually is a many-to-many relation.
-        ///
-        /// The JSON-Api resource that is used for deserialization is defined as <see cref="IdModelResource"/>, which will take a type and and id only.
-        /// The JSON-Api resource that is used for serialization is defined as <see cref="IdModelResource"/>, which will return a type and and id only.
-        ///
-        /// Actually patches the defined relation to a union of the current related ids and the passed ids (i.e. if a relation already exists, it is not created).
-        /// For information about patching a relation, see <see cref="UpdateRelationAsync"/> or the <c>PATCH {controller}/{id:long}/relationships/{relation name}</c> route.
-        ///
-        /// Returns the full collection of related ids for the defined relation.
-        ///
-        /// If the current session is not allowed to create the relation, an error is returned.
-        ///
-        /// If the current controller does not support creating this relation (see <see cref="CanCreateRelation"/>), this action returns <see cref="HttpStatusCode.NotFound"/>(404).
-        /// </summary>
-        /// <param name="id">Read from the route. The id of the primary record to update.</param>
-        /// <param name="relationName">The name of the relation.</param>
-        /// <param name="rawData">JSON-Api data containing a collection of <see cref="IdModel"/> objects as defined in <see cref="IdModelResource"/>.</param>
-        /// <returns>The complete collection of related ids for the defined relation as collection of <see cref="IdModel"/> as defined in <see cref="IdModelResource"/>.</returns>
-        [HttpPost, Route("{id:long}/relationships/{relationName}"), JsonApi(typeof(IdModelResource))]
-        public async Task<JsonApiOverridePrimaryType> CreateRelationAsync(long id, string relationName, [FromBody] JToken rawData)
-        {
-            if (!CanCreateRelation(relationName))
-                throw new HttpResponseException(HttpStatusCode.NotFound);
-
-            var relation = CrudControllerResourceMetaData.Instance.ForModel<TModel>()(relationName)
-                           ?? throw new HttpResponseException(HttpStatusCode.NotFound);
-
-            if (!relation.IsToMany)
-                throw new HttpResponseException(HttpStatusCode.NotFound);
-
-            var updateEntry = await GetAsync(id);
-
-            var ids = ((IdModel[])relation.ReadIdModels(updateEntry)).Select(x => x.Id ?? throw new Exception("null not allowed")).ToArray(); // TODO: better error
-            ids = ids.Union((long[])relation.IdModelsFromData(rawData["data"])).ToArray();
-            relation.UpdateModel(updateEntry, ids);
-            if (updateEntry is IOptimisticLockableModel optimisticLockableModel)
-            {
-                optimisticLockableModel.OptimisticLockingToken = rawData["meta"]["optimisticLockingToken"].Value<string>();
-            }
-
-            bool IdentifyRelation(string property) => string.Equals(property.ToLowerInvariant(), relation.IdPropertyName.ToLowerInvariant());
-
-            var updatedEntity = await GetCrudServiceNode(Service).UpdateAsync(await GetSessionAsync(), updateEntry, IdentifyRelation);
-            return new JsonApiOverridePrimaryType(relation.ReadIdModels(updatedEntity), relation.Type);
-        }
-
-        /// <summary>
-        /// HTTP-verb: <c>PATCH</c>
-        ///
-        /// Route: <c>{controller}/{id:long}/relationships/{relation name}</c>
-        /// 
-        /// Expected HTTP-headers:
-        /// - <c>Content-Type: application/vnd.api+json</c>
-        /// - <c>Accept: application/vnd.api+json</c>
-        /// - <c>X-ApiKey: {session token}</c>
-        /// 
-        /// Recommended HTTP-headers:
-        /// - <c>Accept-Encoding: gzip,deflate</c>
-        ///
-        /// HTTP-body: A single object (can be null) or a collection of <see cref="IdModel"/>(containing type and id) as JSON-Api.
-        ///
-        /// Query-parameters: empty
-        ///
-        /// This route is only supported if the controller supports it.
-        ///
-        /// The JSON-Api resource that is used for deserialization is defined as <see cref="IdModelResource"/>, which will take a type and and id only.
-        /// The JSON-Api resource that is used for serialization is defined as <see cref="IdModelResource"/>, which will return a type and and id only.
-        ///
-        /// If the defined relation is a to-many relation, this action expects a collection of <see cref="IdModel"/> records.
-        /// The passed records will replace all existing related objects stored in the defined relation.
-        ///
-        /// If the defined relation is a belongs-to relation, this action expects a single object (can be null) of <see cref="IdModel"/>.
-        /// The object can be null IF the relation is optional.
-        /// The passed id defines the related object.
-        ///
-        /// Returns the a single object (can be null) or full collection of related ids for the defined relation.
-        ///
-        /// If the current session is not allowed to update the relation, an error is returned.
-        ///
-        /// If the current controller does not support update this relation (see <see cref="CanUpdateRelation"/>), this action returns <see cref="HttpStatusCode.NotFound"/>(404).
-        /// </summary>
-        /// <param name="id">Read from the route. The id of the primary record to update.</param>
-        /// <param name="relationName">The name of the relation.</param>
-        /// <param name="rawData">JSON-Api data containing a single object of or a collection of <see cref="IdModel"/> objects as defined in <see cref="IdModelResource"/>.</param>
-        /// <returns>A single object (may be null) or a complete collection of related ids for the defined relation as collection of <see cref="IdModel"/> as defined in <see cref="IdModelResource"/>.</returns>
-        [HttpPatch, Route("{id:long}/relationships/{relationName}"), JsonApi(typeof(IdModelResource))]
-        public async Task<JsonApiOverridePrimaryType> UpdateRelationAsync(long id, string relationName, [FromBody] JToken rawData)
-        {
-            if (!CanUpdateRelation(relationName))
-                throw new HttpResponseException(HttpStatusCode.NotFound);
-
-            var relation = CrudControllerResourceMetaData.Instance.ForModel<TModel>()(relationName)
-                           ?? throw new HttpResponseException(HttpStatusCode.NotFound);
-            
-            var updateEntry = new TModel
-            {
-                Id = id
-            };
-            relation.UpdateModel(updateEntry, relation.IdModelsFromData(rawData["data"]));
-            if (updateEntry is IOptimisticLockableModel optimisticLockableModel)
-            {
-                optimisticLockableModel.OptimisticLockingToken = rawData["meta"]["optimisticLockingToken"].Value<string>();
-            }
-
-            bool IdentifyRelation(string property) => string.Equals(property.ToLowerInvariant(), relation.IdPropertyName.ToLowerInvariant());
-
-            var updatedEntity = await GetCrudServiceNode(Service).UpdateAsync(await GetSessionAsync(), updateEntry, IdentifyRelation);
-            return new JsonApiOverridePrimaryType(relation.ReadIdModels(updatedEntity), relation.Type);
-        }
-
-        /// <summary>
-        /// HTTP-verb: <c>DELETE</c>
-        ///
-        /// Route: <c>{controller}/{id:long}/relationships/{relation name}</c>
-        /// 
-        /// Expected HTTP-headers:
-        /// - <c>Content-Type: application/vnd.api+json</c>
-        /// - <c>Accept: application/vnd.api+json</c>
-        /// - <c>X-ApiKey: {session token}</c>
-        /// 
-        /// Recommended HTTP-headers:
-        /// - <c>Accept-Encoding: gzip,deflate</c>
-        ///
-        /// HTTP-body: A collection of <see cref="IdModel"/>(containing type and id) as JSON-Api.
-        ///
-        /// Query-parameters: empty
-        ///
-        /// This route is only supported if the defined relation is a to-many relation, and if the controller supports it.
-        /// Most of the times it is only supported if the relation actually is a many-to-many relation.
-        ///
-        /// The JSON-Api resource that is used for deserialization is defined as <see cref="IdModelResource"/>, which will take a type and and id only.
-        /// The JSON-Api resource that is used for serialization is defined as <see cref="IdModelResource"/>, which will return a type and and id only.
-        ///
-        /// Actually patches the defined relation to a difference of the current related ids and the passed ids (i.e. if a relation does not exist, it is not deleted).
-        /// For information about patching a relation, see <see cref="UpdateRelationAsync"/> or the <c>PATCH {controller}/{id:long}/relationships/{relation name}</c> route.
-        ///
-        /// Returns the full collection of related ids for the defined relation.
-        ///
-        /// If the current session is not allowed to delete the relation, an error is returned.
-        ///
-        /// If the current controller does not support deleting this relation (see <see cref="CanDeleteRelation"/>), this action returns <see cref="HttpStatusCode.NotFound"/>(404).
-        /// </summary>
-        /// <param name="id">Read from the route. The id of the primary record to update.</param>
-        /// <param name="relationName">The name of the relation.</param>
-        /// <param name="rawData">JSON-Api data containing a collection of <see cref="IdModel"/> objects as defined in <see cref="IdModelResource"/>.</param>
-        /// <returns>The complete collection of related ids for the defined relation as collection of <see cref="IdModel"/> as defined in <see cref="IdModelResource"/>.</returns>
-        [HttpDelete, Route("{id:long}/relationships/{relationName}"), JsonApi(typeof(IdModelResource))]
-        public async Task<JsonApiOverridePrimaryType> DeleteRelationAsync(long id, string relationName, [FromBody] JToken rawData)
-        {
-            if (!CanDeleteRelation(relationName))
-                throw new HttpResponseException(HttpStatusCode.NotFound);
-
-            var relation = CrudControllerResourceMetaData.Instance.ForModel<TModel>()(relationName)
-                           ?? throw new HttpResponseException(HttpStatusCode.NotFound);
-
-            if (!relation.IsToMany)
-                throw new HttpResponseException(HttpStatusCode.NotFound);
-
-            var updateEntry = await GetAsync(id);
-
-            var ids = ((IdModel[])relation.ReadIdModels(updateEntry)).Select(x => x.Id ?? throw new Exception("null not allowed")).ToArray(); // TODO: better error
-            ids = ids.Except((long[]) relation.IdModelsFromData(rawData["data"])).ToArray();
-            relation.UpdateModel(updateEntry, ids);
-            if (updateEntry is IOptimisticLockableModel optimisticLockableModel)
-            {
-                optimisticLockableModel.OptimisticLockingToken = rawData["meta"]["optimisticLockingToken"].Value<string>();
-            }
-
-            bool IdentifyRelation(string property) => string.Equals(property.ToLowerInvariant(), relation.IdPropertyName.ToLowerInvariant());
-
-            var updatedEntity = await GetCrudServiceNode(Service).UpdateAsync(await GetSessionAsync(), updateEntry, IdentifyRelation);
-            return new JsonApiOverridePrimaryType(relation.ReadIdModels(updatedEntity), relation.Type);
         }
     }
 }

@@ -44,5 +44,12 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
         /// </summary>
         [CommandLineArg]
         public string DocDirectory { get; set; } = @"..\..\..\BackRohr.Web.Api\bin";
+
+        /// <summary>
+        /// Whether or not console outputs should indicate the progress.
+        /// True for silence.
+        /// </summary>
+        [CommandLineArg]
+        public bool Silent { get; set; } = false;
     }
 }

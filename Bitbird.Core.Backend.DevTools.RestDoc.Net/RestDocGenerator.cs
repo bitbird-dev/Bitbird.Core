@@ -141,50 +141,6 @@ namespace Bitbird.Core.Backend.DevTools.RestDoc.Net
 
                     string param = null;
                     string returns;
-                    if (method.Name == "UpdateRelationAsync" && readControllerInstance is ICrudControllerBase crudControllerBaseU)
-                    {
-                        var relations = CrudControllerResourceMetaData.Instance.AllForModel(readControllerInstance.ModelType);
-                        return relations.Where(r => crudControllerBaseU.CanUpdateRelation(r.Key)).Select(r =>
-                        {
-                            returns = FormatReturnType(r.Value.IsToMany ? typeof(IdModel[]) : typeof(IdModel));
-                            param = FormatReturnType(r.Value.IsToMany ? typeof(IdModel[]) : typeof(IdModel));
-
-                            return new ControllerMethodInfo(route.Replace("{relationName}", r.Key), false, param, returns, cmd);
-                        });
-                    }
-                    if (method.Name == "DeleteRelationAsync" && readControllerInstance is ICrudControllerBase crudControllerBaseD)
-                    {
-                        var relations = CrudControllerResourceMetaData.Instance.AllForModel(readControllerInstance.ModelType);
-                        return relations.Where(r => crudControllerBaseD.CanDeleteRelation(r.Key)).Where(r => r.Value.IsToMany).Select(r =>
-                        {
-                            returns = FormatReturnType(typeof(IdModel[]));
-                            param = FormatReturnType(typeof(IdModel[]));
-
-                            return new ControllerMethodInfo(route.Replace("{relationName}", r.Key), false, param, returns, cmd);
-                        });
-                    }
-                    if (method.Name == "CreateRelationAsync" && readControllerInstance is ICrudControllerBase crudControllerBaseC)
-                    {
-                        var relations = CrudControllerResourceMetaData.Instance.AllForModel(readControllerInstance.ModelType);
-                        return relations.Where(r => crudControllerBaseC.CanCreateRelation(r.Key)).Where(r => r.Value.IsToMany).Select(r =>
-                        {
-                            returns = FormatReturnType(typeof(IdModel[]));
-                            param = FormatReturnType(typeof(IdModel[]));
-
-                            return new ControllerMethodInfo(route.Replace("{relationName}", r.Key), false, param, returns, cmd);
-                        });
-                    }
-                    if (method.Name == "GetRelationAsync" && readControllerInstance != null)
-                    {
-                        var relations = CrudControllerResourceMetaData.Instance.AllForModel(readControllerInstance.ModelType);
-                        return relations.Select(r =>
-                        {
-                            returns = FormatReturnType(r.Value.IsToMany ? typeof(IdModel[]) : typeof(IdModel));
-                            param = string.Empty;
-
-                            return new ControllerMethodInfo(route.Replace("{relationName}", r.Key), false, param, returns, cmd);
-                        });
-                    }
 
                     if (method.Name == "CreateAsync" && readControllerInstance is ICrudControllerBase crudControllerBase1 && !crudControllerBase1.CanCreate)
                     {

@@ -210,7 +210,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
                 var created = resource.Relationships.ToDictionary(r => r.IdPropertyName, r => r.UrlPath.Trim('/', '\\').ToLowerInvariant());
                 RelationIdPropertiesToJsonProperties[typeof(TResource)] = created;
 
-                return created[idPropertyName];
+                return created.TryGetValue(idPropertyName, out var value) ? value : null;
             }
         }
         public static string GetRelationJsonPropertyNameByIdPropertyName(Type tResource, string idPropertyName)
@@ -224,7 +224,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
                 var created = resource.Relationships.ToDictionary(r => r.IdPropertyName, r => r.UrlPath.Trim('/', '\\').ToLowerInvariant());
                 RelationIdPropertiesToJsonProperties[tResource] = created;
 
-                return created[idPropertyName];
+                return created.TryGetValue(idPropertyName, out var value) ? value : null;
             }
         }
 

@@ -55,7 +55,7 @@ namespace Bitbird.Core.Data.Query.Mapping
             }
             catch (Exception e)
             {
-                throw new Exception($"{nameof(ModelMetaDataToDbMapping)}: Each model type has to have exactly one default sort property (defined by {nameof(DbMappingExpressionAttribute)}). (Details: DbType={dbModelType.Name}, found default sorting columns={string.Join(",",byProperty.Values.Select(v => v.PropertyName))}), Error:{e}.");
+                throw new Exception($"{nameof(ModelMetaDataToDbMapping)}: Each model type has to have exactly one default sort property (defined by {nameof(DbMappingExpressionAttribute)}). (Details: DbType={dbModelType.Name}, found default sorting columns={string.Join(",",byProperty.Values.Where(p => p.IsDefaultSort).Select(v => v.PropertyName))}), Error:{e}.");
             }
         }
     }
