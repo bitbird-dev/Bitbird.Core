@@ -338,7 +338,15 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
                 {
                     var propertyDoc = documentation.ForProperty(p.DeclaringType, p.Name);
 
+                    var type = p.PropertyType;
+                    var isArray = type.IsArray;
+                    if (isArray)
+                        type = type.GetElementType();
+                    var isCopyOrString = type.IsValueType || type == typeof(string);
+
                     var attribute = templates.Get(TemplateType.PlainModelClassAttribute);
+                    attribute = ResolvePredicate(attribute, "isArray", isArray);
+                    attribute = ResolvePredicate(attribute, "isCopyOrString", isCopyOrString);
                     attribute = ReplaceToken(attribute, "propertyName", p.Name);
                     attribute = ReplaceToken(attribute, "propertyType", p.PropertyType, t =>
                     {
