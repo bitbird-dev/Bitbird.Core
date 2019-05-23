@@ -150,7 +150,7 @@ namespace Bitbird.Core.Data.Validation
             where TValue : IComparable<TValue> =>
             ExecuteCheck(() =>
             {
-                if (value != null && value.CompareTo(limit) < 0)
+                if (value != null && value.CompareTo(limit) <= 0)
                 {
                     Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression), 
                         string.Format(ValidationMessages.GreaterThan, limit, value)));
@@ -168,7 +168,7 @@ namespace Bitbird.Core.Data.Validation
             where TValue : IComparable<TValue> =>
             ExecuteCheck(() =>
             {
-                if (value != null && value.CompareTo(limit) <= 0)
+                if (value != null && value.CompareTo(limit) < 0)
                 {
                     Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression),
                         string.Format(ValidationMessages.GreaterThanEqual, limit, value)));
@@ -186,7 +186,7 @@ namespace Bitbird.Core.Data.Validation
             where TValue : IComparable<TValue> =>
             ExecuteCheck(() =>
             {
-                if (value != null && value.CompareTo(limit) > 0)
+                if (value != null && value.CompareTo(limit) >= 0)
                 {
                     Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression),
                         string.Format(ValidationMessages.LessThan, limit, value)));
@@ -204,7 +204,7 @@ namespace Bitbird.Core.Data.Validation
             where TValue : IComparable<TValue> =>
             ExecuteCheck(() =>
             {
-                if (value != null && value.CompareTo(limit) >= 0)
+                if (value != null && value.CompareTo(limit) > 0)
                 {
                     Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression),
                         string.Format(ValidationMessages.LessThanEqual, limit, value)));
