@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using Bitbird.Core.ApiErrors;
 
 namespace Bitbird.Core
 {
@@ -8,7 +9,7 @@ namespace Bitbird.Core
         public readonly Expression<Func<TEntity, TMember>> AttributeExpression;
 
         public ApiMustBeUniqueError(Expression<Func<TEntity, TMember>> attributeExpression, string detailMessage)
-            : base(ApiErrorType.MustBeUnique, "Must be unique", detailMessage)
+            : base(ApiErrorType.MustBeUnique, ApiErrorMessages.ApiErrorType_MustBeUnique_Title, detailMessage)
         {
             AttributeExpression = attributeExpression;
         }

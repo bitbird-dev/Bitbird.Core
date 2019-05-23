@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Bitbird.Core.Data.DbContext.Hooks;
 using Bitbird.Core.Data.DbContext.Interceptors;
+using Bitbird.Core.Data.Validation;
 using Bitbird.Core.Tasks;
 using JetBrains.Annotations;
 
@@ -25,6 +26,7 @@ namespace Bitbird.Core.Data.DbContext
     public abstract class HookedStateDataContext<TDataContext, TState> 
         : System.Data.Entity.DbContext 
         , IHookedStateDataContext<TState>
+        , IGetQueryByEntity
         where TDataContext : System.Data.Entity.DbContext
     {
         /// <summary>
@@ -213,5 +215,15 @@ namespace Bitbird.Core.Data.DbContext
             DbInterception.Add(new ArithAbortOnInterceptor());
         }
         #endregion
+
+        public IQueryable<TEntity> GetNonTrackingQuery<TEntity>() where TEntity : class
+        {
+            return Set<TEntity>().AsNoTracking();
+        }
+
+        public IQueryable<TEntity> GetTrackingQuery<TEntity>() where TEntity : class
+        {
+            return Set<TEntity>();
+        }
     }
 }

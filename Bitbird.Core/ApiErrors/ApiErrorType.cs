@@ -13,6 +13,8 @@ namespace Bitbird.Core
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.NotFound)]
         NotFound,
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.UnprocessableEntity)]
+        CannotProcessFurther,
+        [HttpStatusCode(StatusCode = HttpStatusCodeExtended.UnprocessableEntity)]
         MustBeUnique,
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.UnprocessableEntity)]
         InvalidAttribute,

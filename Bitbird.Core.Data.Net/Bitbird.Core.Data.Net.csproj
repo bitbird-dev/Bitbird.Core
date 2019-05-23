@@ -80,6 +80,7 @@
     <Compile Include="Properties\CodeAnnotations.cs" />
     <Compile Include="Query\QueryBuilder.cs" />
     <Compile Include="Token\TokenBase.cs" />
+    <Compile Include="Validation\Validator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
