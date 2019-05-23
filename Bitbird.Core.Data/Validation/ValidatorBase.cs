@@ -133,7 +133,7 @@ namespace Bitbird.Core.Data.Validation
             [NotNull] Expression<Func<TEntity, string>> attributeExpression) =>
             ExecuteCheck(() =>
             {
-                if (value != null && value.Trim().Equals(value) )
+                if (value != null && !value.Trim().Equals(value) )
                 {
                     Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression), ValidationMessages.Trimmed));
                     return false;
