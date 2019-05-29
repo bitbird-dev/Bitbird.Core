@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Bitbird.Core.Data.Validation;
+using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Validator = Bitbird.Core.Data.Validation.Validator;
 
@@ -12,22 +13,35 @@ namespace Bitbird.Core.Data.Net.Tests
         [ValidatorCheckTrimmed]
         [Required]
         [StringLength(7)]
+        [UsedImplicitly]
         public string Name { get; set; }
     }
 
     public class CreatePersonModel
     {
         [CopyValidatorFrom(typeof(Person), nameof(Person.Name))]
+        [UsedImplicitly]
         public string Name { get; set; }
     }
 
     public class OuterClass
     {
         [ValidatorCheckRecursive]
+        [UsedImplicitly]
         public CreatePersonModel CreatePerson { get; set; }
 
         [ValidatorCheckRecursive]
+        [ValidatorCheckDistinct(typeof(CreatePersonModelEqualityProvider))]
+        [UsedImplicitly]
         public CreatePersonModel[] CreatePersons { get; set; }
+    }
+
+    public class CreatePersonModelEqualityProvider : IDistinctSelectEqualityMemberProvider<CreatePersonModel, string>
+    {
+        public string GetEqualityMember(CreatePersonModel item)
+        {
+            return item.Name;
+        }
     }
 
     [TestClass]
@@ -87,7 +101,7 @@ namespace Bitbird.Core.Data.Net.Tests
             modelValidator.Validate(
                 new Person
                 {
-                    Name = "algjasdogjlskdjglkjdsigejjgokdsplfjlhg"
+                    Name = new string('x', 100)
                 },
                 validator);
 
@@ -151,7 +165,7 @@ namespace Bitbird.Core.Data.Net.Tests
             modelValidator.Validate(
                 new CreatePersonModel
                 {
-                    Name = "algjasdogjlskdjglkjdsigejjgokdsplfjlhg"
+                    Name = new string('x', 100)
                 },
                 validator);
 
@@ -230,7 +244,7 @@ namespace Bitbird.Core.Data.Net.Tests
                     CreatePerson =
                         new CreatePersonModel
                         {
-                            Name = "algjasdogjlskdjglkjdsigejjgokdsplfjlhg"
+                            Name = new string('x', 100)
                         }
                 },
                 validator);
@@ -254,7 +268,32 @@ namespace Bitbird.Core.Data.Net.Tests
                         },
                         new CreatePersonModel
                         {
-                            Name = "algjasdogjlskdjglkjdsigejjgokdsplfjlhg"
+                            Name = new string('x', 100)
+                        }
+                    }
+                },
+                validator);
+
+            Console.WriteLine(Assert.ThrowsException<ApiErrorException>(() => validator.ThrowIfHasErrors()).ToString());
+        }
+        [TestMethod]
+        public void ModelValidatorCopyDistinctTest()
+        {
+            var validator = new Validator();
+            var modelValidator = ModelValidators.GetValidator<OuterClass>();
+
+            modelValidator.Validate(
+                new OuterClass
+                {
+                    CreatePersons = new[]
+                    {
+                        new CreatePersonModel
+                        {
+                            Name = "meh"
+                        },
+                        new CreatePersonModel
+                        {
+                            Name = "meh"
                         }
                     }
                 },

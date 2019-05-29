@@ -8,7 +8,7 @@ namespace Bitbird.Core.Data.Validation
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class CopyValidatorFromAttribute : PropertyValidatorAttribute
     {
-        [NotNull] public readonly Dictionary<Type, object> CopiedAttributes;
+        [NotNull] public readonly Dictionary<Type, object[]> CopiedAttributes;
 
         public CopyValidatorFromAttribute([NotNull] Type type, [NotNull] string propertyName, [NotNull, ItemNotNull] params Type[] ignoreAttributes)
         {
@@ -34,7 +34,8 @@ namespace Bitbird.Core.Data.Validation
 
                     return new [] { new KeyValuePair<Type, object>(result.GetType(), result) };
                 })
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                .GroupBy(kvp => kvp.Key)
+                .ToDictionary(group => group.Key, group => group.Select(kvp => kvp.Value).ToArray());
         }
     }
 }
