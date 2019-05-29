@@ -80,6 +80,11 @@ namespace Bitbird.Core.Data.Validation
 
                 return true;
             });
+        [ContractAnnotation("value:null => false; value:notnull => true")]
+        public bool CheckNotNull<TEntity>(
+            [NotNull] TEntity model,
+            [CanBeNull] object value,
+            [NotNull] Expression<Func<TEntity, object>> attributeExpression) => CheckNotNull(value, attributeExpression);
 
         [ContractAnnotation("value:null => false")]
         public bool CheckNotNullOrEmpty<TEntity>(
@@ -95,6 +100,11 @@ namespace Bitbird.Core.Data.Validation
 
                 return true;
             });
+        [ContractAnnotation("value:null => false")]
+        public bool CheckNotNullOrEmpty<TEntity>(
+            [NotNull] TEntity model,
+            [CanBeNull] string value,
+            [NotNull] Expression<Func<TEntity, string>> attributeExpression) => CheckNotNullOrEmpty(value, attributeExpression);
 
         [ContractAnnotation("value:null => true")]
         public bool CheckNotEmpty<TEntity>(
@@ -314,7 +324,7 @@ namespace Bitbird.Core.Data.Validation
             });
 
         [ContractAnnotation("value:null => true")]
-        public bool CheckItemNotNull<TEntity, TElementValue>(IEnumerable<TElementValue> values, Expression<Func<TEntity, TElementValue[]>> collectionAttributeExpression) =>
+        public bool CheckItemNotNull<TEntity, TElementValue>(TElementValue[] values, Expression<Func<TEntity, TElementValue[]>> collectionAttributeExpression) =>
             ExecuteCheck(() =>
             {
                 if (values == null)
@@ -342,6 +352,9 @@ namespace Bitbird.Core.Data.Validation
 
                 return !failed;
             });
+        [ContractAnnotation("value:null => true")]
+        public bool CheckItemNotNull<TEntity, TElementValue>([NotNull] TEntity model, TElementValue[] values, Expression<Func<TEntity, TElementValue[]>> collectionAttributeExpression) =>
+            CheckItemNotNull(values, collectionAttributeExpression);
 
         [ContractAnnotation("value:null => true")]
         public bool CheckEnumValueIsDefined<TEntity, TValue>(TValue value, Expression<Func<TEntity, TValue>> attributeExpression) =>
@@ -371,6 +384,9 @@ namespace Bitbird.Core.Data.Validation
 
                 return true;
             });
+        [ContractAnnotation("value:null => true")]
+        public bool CheckEnumValueIsDefined<TEntity, TValue>([NotNull] TEntity model, TValue value, Expression<Func<TEntity, TValue>> attributeExpression) =>
+            CheckEnumValueIsDefined(value, attributeExpression);
 
         [ContractAnnotation("id:null => true")]
         public Task<bool> CheckRelationExistsAsync<TEntity, TRelationDbEntity>(long? id, Expression<Func<TEntity, long?>> attributeExpression) 
