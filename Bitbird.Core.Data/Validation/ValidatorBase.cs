@@ -66,6 +66,12 @@ namespace Bitbird.Core.Data.Validation
             return Expression.Lambda<Func<TEntity, object>>(Expression.Convert(expression.Body, typeof(object)), expression.Parameters);
         }
 
+        public void AddError([NotNull] ApiError error)
+        {
+            if (error == null) throw new ArgumentNullException(nameof(error));
+            Errors.Add(error);
+        }
+
         [ContractAnnotation("value:null => false; value:notnull => true")]
         public bool CheckNotNull<TEntity>(
             [CanBeNull] object value,
@@ -388,6 +394,35 @@ namespace Bitbird.Core.Data.Validation
         public bool CheckEnumValueIsDefined<TEntity, TValue>([NotNull] TEntity model, TValue value, Expression<Func<TEntity, TValue>> attributeExpression) =>
             CheckEnumValueIsDefined(value, attributeExpression);
 
+
+        [ContractAnnotation("id:null => true")]
+        public bool CheckRelationExists<TEntity>(long? id, HashSet<long> existingIds, Expression<Func<TEntity, long?>> attributeExpression)
+            => ExecuteCheck(() =>
+            {
+                if (id == null)
+                    return true;
+
+                if (!existingIds.Contains(id.Value))
+                {
+                    Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression), string.Format(ValidationMessages.RelatedEntryExists, id.Value)));
+                    return false;
+                }
+
+                return true;
+            });
+
+        public bool CheckRelationExists<TEntity>(long id, HashSet<long> existingIds, Expression<Func<TEntity, long?>> attributeExpression)
+            => ExecuteCheck(() =>
+            {
+                if (!existingIds.Contains(id))
+                {
+                    Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression), string.Format(ValidationMessages.RelatedEntryExists, id)));
+                    return false;
+                }
+
+                return true;
+            });
+
         [ContractAnnotation("id:null => true")]
         public Task<bool> CheckRelationExistsAsync<TEntity, TRelationDbEntity>(long? id, Expression<Func<TEntity, long?>> attributeExpression) 
             where TRelationDbEntity : class, IId<long> =>
@@ -426,6 +461,40 @@ namespace Bitbird.Core.Data.Validation
                 if (!queryResult)
                 {
                     Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression), string.Format(ValidationMessages.RelatedEntryExists, id)));
+                    return false;
+                }
+
+                return true;
+            });
+
+        public bool CheckDistinct<TEntity, TMember>(TMember[] collection, Expression<Func<TEntity, TMember[]>> attributeExpression)
+            => ExecuteCheck(() =>
+            {
+                if (collection == null)
+                    return true;
+
+                var collectionWithoutNull = collection.Where(x => x != null).ToArray();
+
+                if (collectionWithoutNull.Length != collectionWithoutNull.Distinct().Count())
+                {
+                    Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression), ValidationMessages.Distinct));
+                    return false;
+                }
+
+                return true;
+            });
+
+        public bool CheckDistinct<TEntity, TMember, TEqualityMember>(TMember[] collection, IDistinctSelectEqualityMemberProvider<TMember, TEqualityMember> equalityProvider, Expression<Func<TEntity, TMember[]>> attributeExpression)
+            => ExecuteCheck(() =>
+            {
+                if (collection == null)
+                    return true;
+
+                var collectionWithoutNull = collection.Where(x => x != null).Select(x => equalityProvider.GetEqualityMember(x)).ToArray();
+
+                if (collectionWithoutNull.Length != collectionWithoutNull.Distinct().Count())
+                {
+                    Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression), ValidationMessages.Distinct));
                     return false;
                 }
 

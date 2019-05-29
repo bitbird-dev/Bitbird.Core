@@ -159,4 +159,7 @@
   <data name="StringMaxLength" xml:space="preserve">
     <value>The text must not exceed {0} characters.</value>
   </data>
+  <data name="Distinct" xml:space="preserve">
+    <value>At least one value is contained more than once.</value>
+  </data>
 </root>

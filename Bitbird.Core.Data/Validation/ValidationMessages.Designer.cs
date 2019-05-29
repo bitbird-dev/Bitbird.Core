@@ -79,6 +79,15 @@ namespace Bitbird.Core.Data.Validation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to At least one value is contained more than once..
+        /// </summary>
+        public static string Distinct {
+            get {
+                return ResourceManager.GetString("Distinct", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The value {0} is not valid for this field..
         /// </summary>
         public static string EnumValueIsDefined {

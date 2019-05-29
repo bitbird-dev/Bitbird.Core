@@ -184,6 +184,24 @@ namespace Bitbird.Core.Data.Validation
                     attributes.Add(newAttr.GetType(), newAttr);
             }
 
+            var nullableUnderlying = Nullable.GetUnderlyingType(property.PropertyType);
+            var valueType = nullableUnderlying ?? property.PropertyType;
+            if (valueType.IsEnum)
+            {
+                propertyBlockExpressions.Add(
+                    Expression.Assign(hasValidationErrorsVariableExpression,
+                        Expression.Call(
+                            validatorParameter,
+                            nameof(ValidatorBase.CheckEnumValueIsDefined),
+                            new[]
+                            {
+                                typeof(TEntity),
+                                valueType
+                            },
+                            Expression.Property(modelParameter, property),
+                            propertyExpressionObjectVariable)));
+            }
+
             if (attributes.TryGetValue(typeof(ValidatorCheckNotNullAttribute), out attribute) &&
                 attribute is ValidatorCheckNotNullAttribute)
             {
@@ -390,6 +408,51 @@ namespace Bitbird.Core.Data.Validation
                             },
                             Expression.Property(modelParameter, property),
                             propertyExpressionVariable)));
+            }
+
+            if (attributes.TryGetValue(typeof(ValidatorCheckDistinctAttribute), out attribute) &&
+                attribute is ValidatorCheckDistinctAttribute validatorCheckDistinctAttribute)
+            {
+                if (validatorCheckDistinctAttribute.DistinctSelectEqualityMemberProviderType == null)
+                {
+                    propertyBlockExpressions.Add(
+                        Expression.Assign(hasValidationErrorsVariableExpression,
+                            Expression.Call(
+                                validatorParameter,
+                                nameof(ValidatorBase.CheckDistinct),
+                                new[]
+                                {
+                                    typeof(TEntity),
+                                    property.PropertyType.GetElementType()
+                                },
+                                Expression.Property(modelParameter, property),
+                                propertyExpressionVariable)));
+                }
+                else
+                {
+                    var interfaceTye = validatorCheckDistinctAttribute.DistinctSelectEqualityMemberProviderType;
+                    while (interfaceTye.IsGenericType && interfaceTye.GetGenericTypeDefinition() == typeof(IDistinctSelectEqualityMemberProvider<,>))
+                    {
+                        interfaceTye = interfaceTye.BaseType ?? throw new Exception($"{validatorCheckDistinctAttribute.DistinctSelectEqualityMemberProviderType.FullName} is not of type {typeof(IDistinctSelectEqualityMemberProvider<,>).FullName}.");
+                    }
+
+                    var equalityMemberType = interfaceTye.GetGenericArguments()[1];
+
+                    propertyBlockExpressions.Add(
+                        Expression.Assign(hasValidationErrorsVariableExpression,
+                            Expression.Call(
+                                validatorParameter,
+                                nameof(ValidatorBase.CheckDistinct),
+                                new[]
+                                {
+                                    typeof(TEntity),
+                                    property.PropertyType.GetElementType(),
+                                    equalityMemberType
+                                },
+                                Expression.Property(modelParameter, property),
+                                Expression.Constant(Activator.CreateInstance(validatorCheckDistinctAttribute.DistinctSelectEqualityMemberProviderType), validatorCheckDistinctAttribute.DistinctSelectEqualityMemberProviderType),
+                                propertyExpressionVariable)));
+                }
             }
 
             if (attributes.TryGetValue(typeof(ValidatorCheckRecursiveAttribute), out attribute) &&
