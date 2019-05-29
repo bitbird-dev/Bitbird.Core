@@ -25,6 +25,9 @@ namespace Bitbird.Core.Data.Net.Tests
     {
         [ValidatorCheckRecursive]
         public CreatePersonModel CreatePerson { get; set; }
+
+        [ValidatorCheckRecursive]
+        public CreatePersonModel[] CreatePersons { get; set; }
     }
 
     [TestClass]
@@ -229,6 +232,31 @@ namespace Bitbird.Core.Data.Net.Tests
                         {
                             Name = "algjasdogjlskdjglkjdsigejjgokdsplfjlhg"
                         }
+                },
+                validator);
+
+            Console.WriteLine(Assert.ThrowsException<ApiErrorException>(() => validator.ThrowIfHasErrors()).ToString());
+        }
+        [TestMethod]
+        public void ModelValidatorCopyTestRecursiveArrayMaxLength()
+        {
+            var validator = new Validator();
+            var modelValidator = ModelValidators.GetValidator<OuterClass>();
+
+            modelValidator.Validate(
+                new OuterClass
+                {
+                    CreatePersons = new []
+                    {
+                        new CreatePersonModel
+                        {
+                            Name = "meh"
+                        },
+                        new CreatePersonModel
+                        {
+                            Name = "algjasdogjlskdjglkjdsigejjgokdsplfjlhg"
+                        }
+                    }
                 },
                 validator);
 
