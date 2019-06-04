@@ -9,6 +9,11 @@ using Validator = Bitbird.Core.Data.Validation.Validator;
 
 namespace Bitbird.Core.Data.Net.Tests
 {
+    public enum TestEnum : int
+    {
+        Test1 = 1,
+        Test2 = 2
+    }
     public class Person
     {
         [ValidatorCheckNotNullOrEmpty]
@@ -28,8 +33,16 @@ namespace Bitbird.Core.Data.Net.Tests
         [UsedImplicitly]
         public string Name { get; set; }
 
+        [UsedImplicitly]
         public bool IsDeleted { get; set; }
+        [UsedImplicitly]
         public bool IsActive { get; set; } = true;
+
+        [UsedImplicitly]
+        public TestEnum EnumField { get; set; } = TestEnum.Test1;
+
+        [UsedImplicitly]
+        public TestEnum? NullableEnumField { get; set; } = TestEnum.Test1;
     }
 
     public class OuterClass
@@ -145,7 +158,6 @@ namespace Bitbird.Core.Data.Net.Tests
         public async Task ModelValidatorTestUnique()
         {
             var validator = new Validator();
-            var modelValidator = ModelValidators.GetValidator<Person>();
 
             var people = new []
             {
@@ -180,6 +192,106 @@ namespace Bitbird.Core.Data.Net.Tests
                 x => x.Name,
                 x => x.Name);
 
+            Console.WriteLine(Assert.ThrowsException<ApiErrorException>(() => validator.ThrowIfHasErrors()).ToString());
+        }
+        [TestMethod]
+        public void ModelValidatorTestEnum()
+        {
+            var validator = new Validator();
+            var modelValidator = ModelValidators.GetValidator<CreatePersonModel>();
+            
+            var person = new CreatePersonModel
+            {
+                Id = 0,
+                Name = "A",
+                EnumField = (int) 0
+            };
+
+            modelValidator.Validate(person, validator);
+
+            Console.WriteLine(Assert.ThrowsException<ApiErrorException>(() => validator.ThrowIfHasErrors()).ToString());
+
+
+            var outerModelValidator = ModelValidators.GetValidator<OuterClass>();
+
+            var outer = new OuterClass
+            {
+                CreatePerson = person,
+                CreatePersons = new CreatePersonModel[0]
+            };
+            outerModelValidator.Validate(outer, validator);
+            Console.WriteLine(Assert.ThrowsException<ApiErrorException>(() => validator.ThrowIfHasErrors()).ToString());
+
+            outer = new OuterClass
+            {
+                CreatePerson = null,
+                CreatePersons = new[]
+                {
+                    person
+                }
+            };
+            outerModelValidator.Validate(outer, validator);
+            Console.WriteLine(Assert.ThrowsException<ApiErrorException>(() => validator.ThrowIfHasErrors()).ToString());
+
+            outer = new OuterClass
+            {
+                CreatePerson = person,
+                CreatePersons = new[]
+                {
+                    person
+                }
+            };
+            outerModelValidator.Validate(outer, validator);
+            Console.WriteLine(Assert.ThrowsException<ApiErrorException>(() => validator.ThrowIfHasErrors()).ToString());
+        }
+        [TestMethod]
+        public void ModelValidatorNullableTestEnum()
+        {
+            var validator = new Validator();
+            var modelValidator = ModelValidators.GetValidator<CreatePersonModel>();
+
+            var person = new CreatePersonModel
+            {
+                Id = 0,
+                Name = "A",
+                NullableEnumField = (TestEnum)(int)0
+            };
+
+            modelValidator.Validate(person, validator);
+
+            Console.WriteLine(Assert.ThrowsException<ApiErrorException>(() => validator.ThrowIfHasErrors()).ToString());
+
+
+            var outerModelValidator = ModelValidators.GetValidator<OuterClass>();
+
+            var outer = new OuterClass
+            {
+                CreatePerson = person,
+                CreatePersons = new CreatePersonModel[0]
+            };
+            outerModelValidator.Validate(outer, validator);
+            Console.WriteLine(Assert.ThrowsException<ApiErrorException>(() => validator.ThrowIfHasErrors()).ToString());
+
+            outer = new OuterClass
+            {
+                CreatePerson = null,
+                CreatePersons = new[]
+                {
+                    person
+                }
+            };
+            outerModelValidator.Validate(outer, validator);
+            Console.WriteLine(Assert.ThrowsException<ApiErrorException>(() => validator.ThrowIfHasErrors()).ToString());
+
+            outer = new OuterClass
+            {
+                CreatePerson = person,
+                CreatePersons = new[]
+                {
+                    person
+                }
+            };
+            outerModelValidator.Validate(outer, validator);
             Console.WriteLine(Assert.ThrowsException<ApiErrorException>(() => validator.ThrowIfHasErrors()).ToString());
         }
 

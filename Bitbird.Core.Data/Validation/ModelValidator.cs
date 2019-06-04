@@ -21,11 +21,11 @@ namespace Bitbird.Core.Data.Validation
             var validatorParameter = Expression.Parameter(typeof(ValidatorBase), "validator");
             var entityExpressionParameter = Expression.Parameter(typeof(Expression<Func<TEntity, T>>), "entityExpression");
             var bodyExpressions = new List<Expression>();
-            var hasValidationErrorsVariableExpression = Expression.Variable(typeof(bool), "hasValidationErrors");
+            var hasNoValidationErrorsVariableExpression = Expression.Variable(typeof(bool), "hasNoValidationErrors");
 
             foreach (var property in properties)
             {
-                CreateCheckExpressions(property, bodyExpressions, modelParameter, validatorParameter, entityExpressionParameter, hasValidationErrorsVariableExpression);
+                CreateCheckExpressions(property, bodyExpressions, modelParameter, validatorParameter, entityExpressionParameter, hasNoValidationErrorsVariableExpression);
             }
 
             validateAction = Expression
@@ -33,7 +33,7 @@ namespace Bitbird.Core.Data.Validation
                     Expression.Block(
                         new []
                         {
-                            hasValidationErrorsVariableExpression
+                            hasNoValidationErrorsVariableExpression
                         }, 
                         bodyExpressions), 
                     modelParameter, 
@@ -94,7 +94,7 @@ namespace Bitbird.Core.Data.Validation
             [NotNull] Expression modelParameter,
             [NotNull] Expression validatorParameter,
             [NotNull] Expression entityExpressionParameter,
-            [NotNull] Expression hasValidationErrorsVariableExpression)
+            [NotNull] Expression hasNoValidationErrorsVariableExpression)
         {
             var delegateType = typeof(Func<,>).MakeGenericType(typeof(TEntity), property.PropertyType);
 
@@ -167,7 +167,7 @@ namespace Bitbird.Core.Data.Validation
                         Expression.NewArrayInit(
                             typeof(ParameterExpression),
                             entityExpressionParameterVariable))));
-            propertyBlockExpressions.Add(Expression.Assign(hasValidationErrorsVariableExpression, Expression.Constant(false)));
+            propertyBlockExpressions.Add(Expression.Assign(hasNoValidationErrorsVariableExpression, Expression.Constant(false)));
 
 
             var attributesByType = property.GetCustomAttributes(true)
@@ -205,7 +205,7 @@ namespace Bitbird.Core.Data.Validation
             if (valueType.IsEnum)
             {
                 propertyBlockExpressions.Add(
-                    Expression.Assign(hasValidationErrorsVariableExpression,
+                    Expression.Assign(hasNoValidationErrorsVariableExpression,
                         Expression.Call(
                             validatorParameter,
                             nameof(ValidatorBase.CheckEnumValueIsDefined),
@@ -223,7 +223,7 @@ namespace Bitbird.Core.Data.Validation
                     if (attribute is ValidatorCheckNotNullAttribute)
                     {
                         propertyBlockExpressions.Add(
-                            Expression.Assign(hasValidationErrorsVariableExpression,
+                            Expression.Assign(hasNoValidationErrorsVariableExpression,
                                 Expression.Call(
                                     validatorParameter,
                                     nameof(ValidatorBase.CheckNotNull),
@@ -240,7 +240,7 @@ namespace Bitbird.Core.Data.Validation
                     if (attribute is ValidatorCheckNotNullOrEmptyAttribute)
                     {
                         propertyBlockExpressions.Add(
-                            Expression.Assign(hasValidationErrorsVariableExpression,
+                            Expression.Assign(hasNoValidationErrorsVariableExpression,
                                 Expression.Call(
                                     validatorParameter,
                                     nameof(ValidatorBase.CheckNotNullOrEmpty),
@@ -257,7 +257,7 @@ namespace Bitbird.Core.Data.Validation
                     if (attribute is ValidatorCheckNotEmptyAttribute)
                     {
                         propertyBlockExpressions.Add(
-                            Expression.Assign(hasValidationErrorsVariableExpression,
+                            Expression.Assign(hasNoValidationErrorsVariableExpression,
                                 Expression.Call(
                                     validatorParameter,
                                     nameof(ValidatorBase.CheckNotEmpty),
@@ -274,7 +274,7 @@ namespace Bitbird.Core.Data.Validation
                     if (attribute is ValidatorCheckTrimmedAttribute)
                     {
                         propertyBlockExpressions.Add(
-                            Expression.Assign(hasValidationErrorsVariableExpression,
+                            Expression.Assign(hasNoValidationErrorsVariableExpression,
                                 Expression.Call(
                                     validatorParameter,
                                     nameof(ValidatorBase.CheckTrimmed),
@@ -291,7 +291,7 @@ namespace Bitbird.Core.Data.Validation
                     if (attribute is ValidatorCheckGreaterThanAttribute validatorCheckGreaterThanAttribute)
                     {
                         propertyBlockExpressions.Add(
-                            Expression.Assign(hasValidationErrorsVariableExpression,
+                            Expression.Assign(hasNoValidationErrorsVariableExpression,
                                 Expression.Call(
                                     validatorParameter,
                                     nameof(ValidatorBase.CheckGreaterThan),
@@ -310,7 +310,7 @@ namespace Bitbird.Core.Data.Validation
                     if (attribute is ValidatorCheckGreaterThanEqualAttribute validatorCheckGreaterThanEqualAttribute)
                     {
                         propertyBlockExpressions.Add(
-                            Expression.Assign(hasValidationErrorsVariableExpression,
+                            Expression.Assign(hasNoValidationErrorsVariableExpression,
                                 Expression.Call(
                                     validatorParameter,
                                     nameof(ValidatorBase.CheckGreaterThanEqual),
@@ -329,7 +329,7 @@ namespace Bitbird.Core.Data.Validation
                     if (attribute is ValidatorCheckLessThanAttribute validatorCheckLessThanAttribute)
                     {
                         propertyBlockExpressions.Add(
-                            Expression.Assign(hasValidationErrorsVariableExpression,
+                            Expression.Assign(hasNoValidationErrorsVariableExpression,
                                 Expression.Call(
                                     validatorParameter,
                                     nameof(ValidatorBase.CheckLessThan),
@@ -348,7 +348,7 @@ namespace Bitbird.Core.Data.Validation
                     if (attribute is ValidatorCheckLessThanEqualAttribute validatorCheckLessThanEqualAttribute)
                     {
                         propertyBlockExpressions.Add(
-                            Expression.Assign(hasValidationErrorsVariableExpression,
+                            Expression.Assign(hasNoValidationErrorsVariableExpression,
                                 Expression.Call(
                                     validatorParameter,
                                     nameof(ValidatorBase.CheckLessThanEqual),
@@ -367,7 +367,7 @@ namespace Bitbird.Core.Data.Validation
                     if (attribute is ValidatorCheckBetweenInclusiveAttribute validatorCheckBetweenInclusiveAttribute)
                     {
                         propertyBlockExpressions.Add(
-                            Expression.Assign(hasValidationErrorsVariableExpression,
+                            Expression.Assign(hasNoValidationErrorsVariableExpression,
                                 Expression.Call(
                                     validatorParameter,
                                     nameof(ValidatorBase.CheckBetweenInclusive),
@@ -387,7 +387,7 @@ namespace Bitbird.Core.Data.Validation
                     if (attribute is ValidatorCheckBetweenExclusiveAttribute validatorCheckBetweenExclusiveAttribute)
                     {
                         propertyBlockExpressions.Add(
-                            Expression.Assign(hasValidationErrorsVariableExpression,
+                            Expression.Assign(hasNoValidationErrorsVariableExpression,
                                 Expression.Call(
                                     validatorParameter,
                                     nameof(ValidatorBase.CheckBetweenExclusive),
@@ -407,7 +407,7 @@ namespace Bitbird.Core.Data.Validation
                     if (attribute is ValidatorCheckMaxStringLengthAttribute validatorCheckMaxStringLengthAttribute)
                     {
                         propertyBlockExpressions.Add(
-                            Expression.Assign(hasValidationErrorsVariableExpression,
+                            Expression.Assign(hasNoValidationErrorsVariableExpression,
                                 Expression.Call(
                                     validatorParameter,
                                     nameof(ValidatorBase.CheckMaxStringLength),
@@ -425,7 +425,7 @@ namespace Bitbird.Core.Data.Validation
                     if (attribute is ValidatorCheckItemNotNullAttribute)
                     {
                         propertyBlockExpressions.Add(
-                            Expression.Assign(hasValidationErrorsVariableExpression,
+                            Expression.Assign(hasNoValidationErrorsVariableExpression,
                                 Expression.Call(
                                     validatorParameter,
                                     nameof(ValidatorBase.CheckItemNotNull),
@@ -445,7 +445,7 @@ namespace Bitbird.Core.Data.Validation
                         if (validatorCheckDistinctAttribute.DistinctSelectEqualityMemberProviderType == null)
                         {
                             propertyBlockExpressions.Add(
-                                Expression.Assign(hasValidationErrorsVariableExpression,
+                                Expression.Assign(hasNoValidationErrorsVariableExpression,
                                     Expression.Call(
                                         validatorParameter,
                                         nameof(ValidatorBase.CheckDistinct),
@@ -468,7 +468,7 @@ namespace Bitbird.Core.Data.Validation
                             var equalityMemberType = interfaceTye.GetGenericArguments()[1];
 
                             propertyBlockExpressions.Add(
-                                Expression.Assign(hasValidationErrorsVariableExpression,
+                                Expression.Assign(hasNoValidationErrorsVariableExpression,
                                     Expression.Call(
                                         validatorParameter,
                                         nameof(ValidatorBase.CheckDistinct),
@@ -506,6 +506,9 @@ namespace Bitbird.Core.Data.Validation
 
                             // array != null
                             var arrayVariableIsNotNull = Expression.NotEqual(arrayVariableExpression, Expression.Constant(null, property.PropertyType));
+
+                            // hasNoValidationErrors == false
+                            var hasValidationErrorsVariableExpressionIsFalse = Expression.Equal(hasNoValidationErrorsVariableExpression, Expression.Constant(true));
 
                             // idx = 0;
                             var setIdxVariable0 = Expression.Assign(idxVariableExpression, Expression.Constant(0, typeof(int)));
@@ -625,7 +628,7 @@ namespace Bitbird.Core.Data.Validation
 
                             // <elementType>[] array;
                             // array = <model>.<property>;
-                            // if (array != null)
+                            // if (hasValidationErrors == false && array != null)
                             // {
                             //    int idx;
                             //    idx = 0;
@@ -638,7 +641,9 @@ namespace Bitbird.Core.Data.Validation
                                 },
                                 assignArrayVariable,
                                 Expression.IfThen(
-                                    arrayVariableIsNotNull,
+                                    Expression.AndAlso(
+                                        hasValidationErrorsVariableExpressionIsFalse,
+                                        arrayVariableIsNotNull),
                                     Expression.Block(
                                         new[]
                                         {
@@ -656,7 +661,7 @@ namespace Bitbird.Core.Data.Validation
                             propertyBlockExpressions.Add(
                                 Expression.IfThen(
                                     Expression.AndAlso(
-                                        Expression.Equal(hasValidationErrorsVariableExpression, Expression.Constant(false)),
+                                        Expression.Equal(hasNoValidationErrorsVariableExpression, Expression.Constant(true)),
                                         Expression.NotEqual(Expression.Property(modelParameter, property), Expression.Constant(null, property.PropertyType))),
                                     Expression.Call(
                                         Expression.Constant(validator, typeof(IModelValidator)),
