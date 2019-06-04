@@ -72,6 +72,13 @@ namespace Bitbird.Core.Data.Validation
             Errors.Add(error);
         }
 
+        public void AddErrors([NotNull, ItemNotNull] params ApiError[] errors)
+        {
+            if (errors == null) throw new ArgumentNullException(nameof(errors));
+            if (errors.Any(x => x == null)) throw new ArgumentNullException(nameof(errors));
+            Errors.AddRange(errors);
+        }
+
         [ContractAnnotation("value:null => false; value:notnull => true")]
         public bool CheckNotNull<TEntity>(
             [CanBeNull] object value,

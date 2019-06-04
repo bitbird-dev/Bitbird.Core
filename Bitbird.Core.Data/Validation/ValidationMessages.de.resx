@@ -162,4 +162,13 @@
   <data name="Distinct" xml:space="preserve">
     <value>Zumindest ein Wert kommt öfter als einmal vor.</value>
   </data>
+  <data name="CannotBeChanged" xml:space="preserve">
+    <value>Kann nicht verändert werden.</value>
+  </data>
+  <data name="DirectManipulationNToM" xml:space="preserve">
+    <value>Das direkte Ändern der Relation wird nicht unterstützt. Nur N-zu-M-Relationen können direkt gerändert werden.</value>
+  </data>
+  <data name="CannotDeleteDeleted" xml:space="preserve">
+    <value>Ein bereits gelöschter Eintrag kann nicht gelöscht werden.</value>
+  </data>
 </root>

@@ -79,6 +79,33 @@ namespace Bitbird.Core.Data.Validation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot be changed..
+        /// </summary>
+        public static string CannotBeChanged {
+            get {
+                return ResourceManager.GetString("CannotBeChanged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot delete an item that is already deleted..
+        /// </summary>
+        public static string CannotDeleteDeleted {
+            get {
+                return ResourceManager.GetString("CannotDeleteDeleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Direct manipulation of the relation is not supported. Only n-to-m-relations may be manipulated directly..
+        /// </summary>
+        public static string DirectManipulationNToM {
+            get {
+                return ResourceManager.GetString("DirectManipulationNToM", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to At least one value is contained more than once..
         /// </summary>
         public static string Distinct {

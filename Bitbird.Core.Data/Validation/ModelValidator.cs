@@ -212,10 +212,10 @@ namespace Bitbird.Core.Data.Validation
                             new[]
                             {
                                 typeof(TEntity),
-                                valueType
+                                property.PropertyType
                             },
                             Expression.Property(modelParameter, property),
-                            propertyExpressionObjectVariable)));
+                            propertyExpressionVariable)));
             }
 
             if (attributesByType.TryGetValue(typeof(ValidatorCheckNotNullAttribute), out attributes))

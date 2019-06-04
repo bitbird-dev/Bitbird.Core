@@ -162,4 +162,13 @@
   <data name="Distinct" xml:space="preserve">
     <value>At least one value is contained more than once.</value>
   </data>
+  <data name="CannotBeChanged" xml:space="preserve">
+    <value>Cannot be changed.</value>
+  </data>
+  <data name="DirectManipulationNToM" xml:space="preserve">
+    <value>Direct manipulation of the relation is not supported. Only n-to-m-relations may be manipulated directly.</value>
+  </data>
+  <data name="CannotDeleteDeleted" xml:space="preserve">
+    <value>Cannot delete an item that is already deleted.</value>
+  </data>
 </root>

@@ -19,37 +19,31 @@ namespace Bitbird.Core.Data.Query.Mapping
         /// Is not null.
         /// </summary>
         [NotNull]
-        internal readonly Dictionary<Type, ModelMetaData> ByModelType;
+        internal readonly Dictionary<Type, ModelMetaData> ByModelType = new Dictionary<Type, ModelMetaData>();
+
 
         /// <summary>
-        /// Constructs a <see cref="ModelsMetaData"/> object.
+        /// Baking field for the singleton instance.
         /// </summary>
-        /// <param name="byModelType">See <see cref="ByModelType"/>. Cannot be null.</param>
-        private ModelsMetaData([NotNull] Dictionary<Type, ModelMetaData> byModelType)
-        {
-            if (byModelType == null)
-                throw new ArgumentNullException(nameof(byModelType), $@"{nameof(ModelsMetaData)}: The passed dictionary was null.");
-            if (byModelType.Keys.Any(k => k == null))
-                throw new ArgumentNullException(nameof(byModelType), $@"{nameof(ModelsMetaData)}: The passed dictionary contains null keys.");
-            if (byModelType.Values.Any(v => v == null))
-                throw new ArgumentNullException(nameof(byModelType), $@"{nameof(ModelsMetaData)}: The passed dictionary contains null values.");
-
-            ByModelType = byModelType;
-        }
+        [NotNull]
+        private readonly static ModelsMetaData instance = new ModelsMetaData();
 
         /// <summary>
         /// The singleton instance.
-        /// Must be initialized manually.
         /// </summary>
         [NotNull]
-        internal static ModelsMetaData Instance;
+        public static ModelsMetaData Instance => instance;
+
 
         /// <summary>
-        /// Static constructor.
-        /// Initializes the singleton <see cref="Instance"/>.
+        /// Adds types to the singleton <see cref="Instance"/>.
         /// </summary>
-        public static void Init(params Assembly[] assemblies)
+        public void RegisterModelsFromAssembly([ItemNotNull] [NotNull] params Assembly[] assemblies)
         {
+            if (assemblies == null) throw new ArgumentNullException(nameof(assemblies));
+            if (assemblies.Length == 0)
+                throw new ArgumentException("Value cannot be an empty collection.", nameof(assemblies));
+
             try
             {
                 var dbMappings = assemblies
@@ -95,7 +89,16 @@ namespace Bitbird.Core.Data.Query.Mapping
                                         .ToDictionary(p1 => p1.Key,
                                             p1 => p1.Select(p2 => new ModelMetaDataPropertyToDbMapping(p2.PropertyName, p2.PropertyType, p2.LambdaExpression, p2.IsDefaultSort)).Single())))));
 
-                Instance = new ModelsMetaData(dbMappings);
+                lock (this)
+                {
+                    foreach (var dbMapping in dbMappings)
+                    {
+                        if (ByModelType.ContainsKey(dbMapping.Key))
+                            throw new Exception($"The type {dbMapping.Key.FullName} was already added.");
+
+                        ByModelType.Add(dbMapping.Key, dbMapping.Value);
+                    }
+                }
             }
             catch (Exception e)
             {
