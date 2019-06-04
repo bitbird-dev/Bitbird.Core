@@ -167,7 +167,7 @@ namespace Bitbird.Core.Data.Validation
                         Expression.NewArrayInit(
                             typeof(ParameterExpression),
                             entityExpressionParameterVariable))));
-            propertyBlockExpressions.Add(Expression.Assign(hasNoValidationErrorsVariableExpression, Expression.Constant(false)));
+            propertyBlockExpressions.Add(Expression.Assign(hasNoValidationErrorsVariableExpression, Expression.Constant(true)));
 
 
             var attributesByType = property.GetCustomAttributes(true)

@@ -9,10 +9,9 @@ using Validator = Bitbird.Core.Data.Validation.Validator;
 
 namespace Bitbird.Core.Data.Net.Tests
 {
-    public enum TestEnum : int
+    public enum TestEnum
     {
-        Test1 = 1,
-        Test2 = 2
+        Test1 = 1
     }
     public class Person
     {
@@ -79,7 +78,7 @@ namespace Bitbird.Core.Data.Net.Tests
             if (typeof(TEntity) == typeof(CreatePersonModel))
                 return people.OfType<TEntity>().AsQueryable();
 
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public IQueryable<TEntity> GetTrackingQuery<TEntity>() where TEntity : class
@@ -87,7 +86,7 @@ namespace Bitbird.Core.Data.Net.Tests
             if (typeof(TEntity) == typeof(CreatePersonModel))
                 return people.OfType<TEntity>().AsQueryable();
 
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
     }
 
@@ -178,6 +177,7 @@ namespace Bitbird.Core.Data.Net.Tests
 
             await validator.CheckUniqueAsync<CreatePersonModel, CreatePersonModel, string>(
                 person.Name, 
+                // ReSharper disable once RedundantBoolCompare
                 x => x.IsDeleted == false && x.IsActive == true && x.Id != person.Id, 
                 x => x.Name,
                 x => x.Name);
@@ -188,6 +188,7 @@ namespace Bitbird.Core.Data.Net.Tests
 
             await validator.CheckUniqueAsync<CreatePersonModel, CreatePersonModel, string>(
                 person.Name,
+                // ReSharper disable once RedundantBoolCompare
                 x => x.IsDeleted == false && x.IsActive == true && x.Id != person.Id,
                 x => x.Name,
                 x => x.Name);
@@ -204,6 +205,7 @@ namespace Bitbird.Core.Data.Net.Tests
             {
                 Id = 0,
                 Name = "A",
+                // ReSharper disable once RedundantCast
                 EnumField = (int) 0
             };
 
@@ -254,7 +256,9 @@ namespace Bitbird.Core.Data.Net.Tests
             {
                 Id = 0,
                 Name = "A",
+                // ReSharper disable RedundantCast
                 NullableEnumField = (TestEnum)(int)0
+                // ReSharper restore RedundantCast
             };
 
             modelValidator.Validate(person, validator);
