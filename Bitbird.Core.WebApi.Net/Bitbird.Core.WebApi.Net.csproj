@@ -157,6 +157,7 @@
     <Compile Include="Controllers\CrudControllerBase.cs" />
     <Compile Include="Controllers\CrudControllerResourceMetaData.cs" />
     <Compile Include="Controllers\CustomDirectRouteProvider.cs" />
+    <Compile Include="Controllers\IControllerBase.cs" />
     <Compile Include="Controllers\IControllerRelation.cs" />
     <Compile Include="Controllers\ICrudControllerBase.cs" />
     <Compile Include="Controllers\IReadControllerBase.cs" />
@@ -187,6 +188,16 @@
     <Compile Include="JsonApi\Models\JsonApiErrors.cs" />
     <Compile Include="JsonApi\Models\JsonApiErrorSource.cs" />
     <Compile Include="Models\IdModel.cs" />
+    <Compile Include="Properties\Resources.de.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.de.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Resources\IdModelResource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\SharedAssemblyInfo.cs">
@@ -241,6 +252,16 @@
     <Content Include="Scripts\jquery-1.6.4.min.js" />
     <Content Include="Scripts\jquery.signalR-2.4.1.js" />
     <Content Include="Scripts\jquery.signalR-2.4.1.min.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.de.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.de.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

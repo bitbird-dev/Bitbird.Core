@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Bitbird.Core.Data\Bitbird.Core.Data.csproj" />
     <ProjectReference Include="..\Bitbird.Core.Json\Bitbird.Core.Json.csproj" />
     <ProjectReference Include="..\Bitbird.Core\Bitbird.Core.csproj" />
   </ItemGroup>

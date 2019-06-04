@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Bitbird.Core.Api {
+namespace Bitbird.Core.WebApi.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Bitbird.Core.Api {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Bitbird.Core.Api.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Bitbird.Core.WebApi.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,47 +61,11 @@ namespace Bitbird.Core.Api {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The passed client application identifier must not be null or empty and must not exceed {0} letters..
+        ///   Looks up a localized string similar to If the HTTP-header &apos;{0}&apos; is provided, is must be provided once with a single entry that can be parsed as long. This could not be done..
         /// </summary>
-        public static string Core_ApiSessionData_ClientApplicationId {
+        public static string ControllerBase_InferfaceVersionHeader_WrongFormat {
             get {
-                return ResourceManager.GetString("Core_ApiSessionData_ClientApplicationId", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Creating an entry of type {0}..
-        /// </summary>
-        public static string ServiceCrudNode_Create {
-            get {
-                return ResourceManager.GetString("ServiceCrudNode_Create", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Deleting an entry of type {0}..
-        /// </summary>
-        public static string ServiceCrudNode_Delete {
-            get {
-                return ResourceManager.GetString("ServiceCrudNode_Delete", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The entry was modified in the meantime (Entry type: {0})..
-        /// </summary>
-        public static string ServiceCrudNode_OptimisticLocking {
-            get {
-                return ResourceManager.GetString("ServiceCrudNode_OptimisticLocking", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Modifying an entry of type {0}..
-        /// </summary>
-        public static string ServiceCrudNode_Update {
-            get {
-                return ResourceManager.GetString("ServiceCrudNode_Update", resourceCulture);
+                return ResourceManager.GetString("ControllerBase_InferfaceVersionHeader_WrongFormat", resourceCulture);
             }
         }
     }

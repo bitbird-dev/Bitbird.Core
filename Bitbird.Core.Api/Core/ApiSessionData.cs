@@ -9,8 +9,8 @@ namespace Bitbird.Core.Api.Core
     /// </summary>
     public class ApiSessionData
     {
-        [CanBeNull] public readonly string LoginTokenKey;
-        [NotNull] public readonly string ClientApplicationIdentifier;
+        [CanBeNull, UsedImplicitly] public readonly string LoginTokenKey;
+        [NotNull, UsedImplicitly] public readonly string ClientApplicationIdentifier;
 
         public ApiSessionData(
             [CanBeNull] string loginTokenKey, 

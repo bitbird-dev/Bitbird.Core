@@ -31,13 +31,17 @@ namespace Bitbird.Core.Api.Nodes.Core
         where TDbModel : class, IId<TId>
         where TDbMetaData : class, IId<TId>
     {
+        [UsedImplicitly, NotNull]
         protected virtual TRightId[] RequiredUpdateRights { get; } = new TRightId[0];
+        [UsedImplicitly, NotNull]
         protected virtual TRightId[] RequiredCreateRights { get; } = new TRightId[0];
+        [UsedImplicitly, NotNull]
         protected virtual TRightId[] RequiredCreateManyRights { get; } = new TRightId[0];
+        [UsedImplicitly, NotNull]
         protected virtual TRightId[] RequiredDeleteRights { get; } = new TRightId[0];
 
         protected ServiceCrudNode(
-            [NotNull]TService service,
+            [NotNull] TService service,
             bool useCacheById = true,
             bool expireCacheById = true)
             : base(service, useCacheById, expireCacheById)
@@ -111,7 +115,7 @@ namespace Bitbird.Core.Api.Nodes.Core
         /// </summary>
         /// <param name="exc">The exception to scan.</param>
         /// <returns>The translated exception.</returns>
-        [NotNull]
+        [NotNull, UsedImplicitly]
         protected Exception TranslateDbUpdateExceptionCore([NotNull] DbUpdateException exc)
         {
             // Currently no structured sql error is used in any implementation.
@@ -141,7 +145,6 @@ namespace Bitbird.Core.Api.Nodes.Core
         {
             return new ApiErrorException(exc, exc.EntityValidationErrors.SelectMany(entityError => entityError.ValidationErrors.Select(validationError =>
             {
-                // TODO: map to ApiModel
                 try
                 {
                     var property = typeof(TDbModel).GetProperty(validationError.PropertyName);
@@ -151,9 +154,9 @@ namespace Bitbird.Core.Api.Nodes.Core
                         var memberExpression = Expression.Property(parameter, validationError.PropertyName);
                         var lambdaExpression = Expression.Lambda(memberExpression, parameter);
 
-                        var apiParameterErrorType = typeof(ApiAttributeError<>).MakeGenericType(typeof(TDbModel), property.PropertyType);
+                        var apiAttributeError = typeof(ApiAttributeError<>).MakeGenericType(typeof(TDbModel), property.PropertyType);
 
-                        return (ApiError)Activator.CreateInstance(apiParameterErrorType, lambdaExpression, validationError.ErrorMessage);
+                        return (ApiError)Activator.CreateInstance(apiAttributeError, lambdaExpression, validationError.ErrorMessage);
                     }
                 }
                 catch
@@ -188,7 +191,8 @@ namespace Bitbird.Core.Api.Nodes.Core
                 using (benchmarkSection.CreateBenchmark("Permission check"))
                 {
                     if (!PermissionResolverHelper.CanAccessRecord(session.PermissionResolver, AccessType.Create, model))
-                        throw new ApiErrorException(TranslateApiError(new ApiForbiddenNoRightsError($"create {typeof(TModel).Name}")));
+                        throw new ApiErrorException(TranslateApiError(new ApiForbiddenNoRightsError(
+                            string.Format(Resources.ServiceCrudNode_Create, typeof(TModel).Name))));
                 }
 
                 TDbModel dbModel;
@@ -241,7 +245,8 @@ namespace Bitbird.Core.Api.Nodes.Core
                 using (benchmarkSection.CreateBenchmark("Permission check"))
                 {
                     if (models.Any(model => !PermissionResolverHelper.CanAccessRecord(session.PermissionResolver, AccessType.Create, model)))
-                        throw new ApiErrorException(TranslateApiError(new ApiForbiddenNoRightsError($"create {typeof(TModel).Name}")));
+                        throw new ApiErrorException(TranslateApiError(new ApiForbiddenNoRightsError(
+                            string.Format(Resources.ServiceCrudNode_Create, typeof(TModel).Name))));
                 }
 
                 TDbModel[] dbModels;
@@ -341,13 +346,15 @@ namespace Bitbird.Core.Api.Nodes.Core
                 {
                     if (!PermissionResolverHelper.CanAccessRecord(session.PermissionResolver, AccessType.Update, currentModel))
                         throw new ApiErrorException(
-                            TranslateApiError(new ApiForbiddenNoRightsError($"update {typeof(TModel).Name}")));
+                            TranslateApiError(new ApiForbiddenNoRightsError(string.Format(Resources.ServiceCrudNode_Update,
+                                typeof(TModel).Name))));
                 }
 
                 using (benchmarkSection.CreateBenchmark("UpdateDbModel"))
                 {
                     var updatedDbModel = await UpdateDbModel(db, session, currentDbModel, model, updatedProperties);
 
+                    // ReSharper disable once SuspiciousTypeConversion.Global
                     if (updatedDbModel is IOptimisticLockable lockableDbModel)
                         db.Entry(updatedDbModel).OriginalValues[nameof(IOptimisticLockable.SysStartTime)] = lockableDbModel.SysStartTime;
                 }
@@ -360,7 +367,8 @@ namespace Bitbird.Core.Api.Nodes.Core
                     }
                     catch (DbUpdateConcurrencyException)
                     {
-                        throw new ApiErrorException(new ApiOptimisticLockingError<TModel>($"The model {typeof(TModel).Name} has changed."));
+                        throw new ApiErrorException(new ApiOptimisticLockingError<TModel>(
+                            string.Format(Resources.ServiceCrudNode_OptimisticLocking, typeof(TModel).Name)));
                     }
                     catch (DbUpdateException e)
                     {
@@ -457,7 +465,8 @@ namespace Bitbird.Core.Api.Nodes.Core
                 using (benchmarkSection.CreateBenchmark("Permission check"))
                 {
                     if (currentModels.Any(currentModel => !PermissionResolverHelper.CanAccessRecord(session.PermissionResolver, AccessType.Update, currentModel)))
-                        throw new ApiErrorException(TranslateApiError(new ApiForbiddenNoRightsError($"update {typeof(TModel).Name}")));
+                        throw new ApiErrorException(TranslateApiError(new ApiForbiddenNoRightsError(
+                            string.Format(Resources.ServiceCrudNode_Update, typeof(TModel).Name))));
                 }
 
                 using (benchmarkSection.CreateBenchmark("UpdateDbModel"))
@@ -470,6 +479,7 @@ namespace Bitbird.Core.Api.Nodes.Core
 
                         var updatedDbModel = await UpdateDbModel(db, session, currentDbModel, model, updatedPropertiesSingle);
 
+                        // ReSharper disable once SuspiciousTypeConversion.Global
                         if (updatedDbModel is IOptimisticLockable lockableDbModel)
                             db.Entry(updatedDbModel).OriginalValues[nameof(IOptimisticLockable.SysStartTime)] = lockableDbModel.SysStartTime;
                     }
@@ -484,7 +494,8 @@ namespace Bitbird.Core.Api.Nodes.Core
                     catch (DbUpdateConcurrencyException)
                     {
                         throw new ApiErrorException(
-                            new ApiOptimisticLockingError<TModel>($"The model {typeof(TModel).Name} has changed."));
+                            new ApiOptimisticLockingError<TModel>(string.Format(Resources.ServiceCrudNode_OptimisticLocking,
+                                typeof(TModel).Name)));
                     }
                     catch (DbUpdateException e)
                     {
@@ -531,7 +542,7 @@ namespace Bitbird.Core.Api.Nodes.Core
                     var whereExpressionBody = Expression.Equal(Expression.Property(whereExpressionParam, nameof(IId<TId>.Id)), Expression.Constant(id, typeof(TId)));
 
                     var dbModelQuery = FilterDbModelCollection(GetDbSet(db))
-                        .Where(Expression.Lambda<Func<TDbModel, bool>>(whereExpressionBody, whereExpressionParam)); // TODO: check
+                        .Where(Expression.Lambda<Func<TDbModel, bool>>(whereExpressionBody, whereExpressionParam));
                     var dbMetaDataQuery = SelectDbMetaData(db, session, dbModelQuery);
 
                     var currentModelData = (await dbModelQuery
@@ -567,7 +578,8 @@ namespace Bitbird.Core.Api.Nodes.Core
                     catch (DbUpdateConcurrencyException)
                     {
                         throw new ApiErrorException(
-                            new ApiOptimisticLockingError<TModel>($"The model {typeof(TModel).Name} has changed."));
+                            new ApiOptimisticLockingError<TModel>(string.Format(Resources.ServiceCrudNode_OptimisticLocking,
+                                typeof(TModel).Name)));
                     }
                     catch (DbUpdateException e)
                     {
@@ -590,6 +602,10 @@ namespace Bitbird.Core.Api.Nodes.Core
             TId[] ids,
             BenchmarkSection benchmarks)
         {
+            if (db == null) throw new ArgumentNullException(nameof(db));
+            if (session == null) throw new ArgumentNullException(nameof(session));
+            if (state == null) throw new ArgumentNullException(nameof(state));
+            if (ids == null) throw new ArgumentNullException(nameof(ids));
             if (ids.Length == 0)
                 return;
 
@@ -648,7 +664,8 @@ namespace Bitbird.Core.Api.Nodes.Core
                     }
                     catch (DbUpdateConcurrencyException)
                     {
-                        throw new ApiErrorException(new ApiOptimisticLockingError<TModel>($"The model {typeof(TModel).Name} has changed."));
+                        throw new ApiErrorException(new ApiOptimisticLockingError<TModel>(
+                            string.Format(Resources.ServiceCrudNode_OptimisticLocking, typeof(TModel).Name)));
                     }
                     catch (DbUpdateException e)
                     {
@@ -670,8 +687,14 @@ namespace Bitbird.Core.Api.Nodes.Core
             [NotNull] TSession session,
             [NotNull, ItemNotNull] IReadOnlyCollection<TDbModel> dbModels,
             [NotNull, ItemNotNull] IEnumerable<TModel> models,
-            BenchmarkSection benchmarks)
+            [NotNull] BenchmarkSection benchmarks)
         {
+            if (db == null) throw new ArgumentNullException(nameof(db));
+            if (session == null) throw new ArgumentNullException(nameof(session));
+            if (dbModels == null) throw new ArgumentNullException(nameof(dbModels));
+            if (models == null) throw new ArgumentNullException(nameof(models));
+            if (benchmarks == null) throw new ArgumentNullException(nameof(benchmarks));
+
             if (dbModels.Count == 0)
                 return;
 
@@ -681,7 +704,8 @@ namespace Bitbird.Core.Api.Nodes.Core
                 {
                     var deniedErrors = models
                         .Where(model => !PermissionResolverHelper.CanAccessRecord(session.PermissionResolver, AccessType.Delete, model))
-                        .Select(model => TranslateApiError(new ApiForbiddenNoRightsError($"delete {typeof(TModel).Name}")))
+                        .Select(model => TranslateApiError(new ApiForbiddenNoRightsError(string.Format(Resources.ServiceCrudNode_Delete,
+                            typeof(TModel).Name))))
                         .ToArray();
 
                     if (deniedErrors.Any())
@@ -692,6 +716,7 @@ namespace Bitbird.Core.Api.Nodes.Core
                 {
                     foreach (var dbModel in dbModels)
                     {
+                        // ReSharper disable once SuspiciousTypeConversion.Global
                         if (dbModel is IOptimisticLockable lockableDbModel)
                             db.Entry(dbModel).OriginalValues[nameof(IOptimisticLockable.SysStartTime)] = lockableDbModel.SysStartTime;
 
@@ -724,6 +749,7 @@ namespace Bitbird.Core.Api.Nodes.Core
         /// <param name="setRelation">An action that sets the relation-collection for a given model. Is only called if <c>getRelation</c> returns null.</param>
         /// <param name="getRelatedId">A selector that returns the id from a relation.</param>
         /// <param name="newRelationForId">An action that creates a new relation for an id.</param>
+        [UsedImplicitly]
         protected void UpdateDbModelToManyRelation<TRelation>(
                 [NotNull] TDbModel model,
                 [NotNull] IEnumerable<long> value,

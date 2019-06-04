@@ -54,14 +54,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Calls\Core\CreateCall.cs" />
-    <Compile Include="Calls\Core\CreateManyCall.cs" />
-    <Compile Include="Calls\Core\DeleteCall.cs" />
-    <Compile Include="Calls\Core\GetByIdCall.cs" />
-    <Compile Include="Calls\Core\GetManyCall.cs" />
-    <Compile Include="Calls\Core\ServiceCrudNode.cs" />
-    <Compile Include="Calls\Core\ServiceReadNode.cs" />
-    <Compile Include="Calls\Core\UpdateCall.cs" />
+    <Compile Include="Nodes\Core\CreateCall.cs" />
+    <Compile Include="Nodes\Core\CreateManyCall.cs" />
+    <Compile Include="Nodes\Core\DeleteCall.cs" />
+    <Compile Include="Nodes\Core\GetByIdCall.cs" />
+    <Compile Include="Nodes\Core\GetManyCall.cs" />
+    <Compile Include="Nodes\Core\ServiceCrudNode.cs" />
+    <Compile Include="Nodes\Core\ServiceReadNode.cs" />
+    <Compile Include="Nodes\Core\UpdateCall.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>

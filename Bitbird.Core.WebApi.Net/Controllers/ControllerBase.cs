@@ -13,16 +13,11 @@ using Bitbird.Core.Api.Core;
 using Bitbird.Core.Benchmarks;
 using Bitbird.Core.Json.Helpers.ApiResource;
 using Bitbird.Core.Query;
-using Bitbird.Core.WebApi.Benchmarking;
 using Bitbird.Core.WebApi.JsonApi;
 using JetBrains.Annotations;
 
 namespace Bitbird.Core.WebApi.Controllers
 {
-    public interface IControllerBase : IBenchmarkController, IJsonApiResourceController, IHttpController
-    {
-    }
-
     [BaseCorsPolicy]
     [JsonApiErrorFilter]
     public abstract class ControllerBase<TService, TSession> : ApiController, IControllerBase
@@ -35,32 +30,44 @@ namespace Bitbird.Core.WebApi.Controllers
         private readonly Regex regexAcceptLanguage = new Regex(@"(?<language>\*|[a-zA-Z]{2})(-(?<country>[a-zA-Z]{2}))?(;q=(?<ratio>\d+\.?\d*))?", RegexOptions.Compiled);
 
         [NotNull, ItemNotNull]
+        [UsedImplicitly]
+        // ReSharper disable once StaticMemberInGenericType
         public static HashSet<string> SupportedCultures { get; set; } = new[] { "en" }.ToHashSet();
+
         [NotNull]
+        [UsedImplicitly]
+        // ReSharper disable once StaticMemberInGenericType
         public static string DefaultCulture = "en-US";
+
+        [UsedImplicitly]
+        // ReSharper disable once StaticMemberInGenericType
         public static long InterfaceVersion = -1;
 
         [CanBeNull]
         private static TService service;
         [NotNull]
+        [UsedImplicitly]
         public static TService Service
         {
-            get { return service ?? throw new Exception("ControllerBase.Service was not set during startup."); }
-            set { service = value; }
+            get => service ?? throw new Exception("ControllerBase.Service was not set during startup.");
+            set => service = value;
         }
 
         // injected
         [CanBeNull]
+        [UsedImplicitly]
         public BenchmarkCollection Benchmarks { get; set; }
 
         private TSession session;
         private CallData callData;
 
         /// <inheritdoc />
+        [UsedImplicitly]
         public virtual JsonApiResource GetJsonApiResourceById(string id)
             => throw new NotSupportedException($"{nameof(ControllerBase<TService, TSession>)}.{nameof(GetJsonApiResourceById)}");
 
         [NotNull, ItemNotNull]
+        [UsedImplicitly]
         public async Task<TSession> GetSessionAsync()
         {
             if (session != null)
@@ -110,6 +117,7 @@ namespace Bitbird.Core.WebApi.Controllers
             Thread.CurrentThread.CurrentUICulture = new CultureInfo(DefaultCulture);
         }
 
+        [UsedImplicitly]
         protected override void Initialize([NotNull] HttpControllerContext controllerContext)
         {
             SetThreadCultures(controllerContext.Request);
@@ -117,6 +125,7 @@ namespace Bitbird.Core.WebApi.Controllers
         }
 
         [NonAction]
+        [UsedImplicitly]
         protected CallData GetCallData([CanBeNull] BenchmarkSection benchmarks = null)
         {
             if (callData != null)
@@ -137,11 +146,19 @@ namespace Bitbird.Core.WebApi.Controllers
 
                     if (Request.Headers.TryGetValues(InterfaceVersionHeaderKey, out var interfaceVersionString))
                     {
-                        var versionString = interfaceVersionString as string[] ?? interfaceVersionString.ToArray();
-                        var interfaceVersion = long.TryParse(versionString.FirstOrDefault() ?? string.Empty, out var result) ? result : throw new Exception(
-                            string.Format(
-                                "Could not parse the passed interface version header {0} as long (Header: {1})",
-                                InterfaceVersionHeaderKey, string.Join("|", versionString)));
+                        var versionStrings = interfaceVersionString as string[] ?? interfaceVersionString?.ToArray();
+
+                        if (versionStrings == null)
+                            throw new ApiErrorException(new ApiParameterError(InterfaceVersionHeaderKey, Properties.Resources.ControllerBase_InferfaceVersionHeader_WrongFormat));
+                        if (!versionStrings.Any())
+                            throw new ApiErrorException(new ApiParameterError(InterfaceVersionHeaderKey, Properties.Resources.ControllerBase_InferfaceVersionHeader_WrongFormat));
+                        if (versionStrings.Any(x => x == null))
+                            throw new ApiErrorException(new ApiParameterError(InterfaceVersionHeaderKey, Properties.Resources.ControllerBase_InferfaceVersionHeader_WrongFormat));
+                        if (versionStrings.Length != 1)
+                            throw new ApiErrorException(new ApiParameterError(InterfaceVersionHeaderKey, Properties.Resources.ControllerBase_InferfaceVersionHeader_WrongFormat));
+                        if (!long.TryParse(versionStrings.FirstOrDefault() ?? string.Empty, out var interfaceVersion))
+                            throw new ApiErrorException(new ApiParameterError(InterfaceVersionHeaderKey, Properties.Resources.ControllerBase_InferfaceVersionHeader_WrongFormat));
+
                         if (interfaceVersion != InterfaceVersion)
                             throw new ApiErrorException(new ApiVersionMismatchError(InterfaceVersion, interfaceVersion));
                     }
@@ -157,6 +174,7 @@ namespace Bitbird.Core.WebApi.Controllers
         /// Adds includes to the currently active <see cref="QueryInfo"/> of this request.
         /// </summary>
         /// <param name="includes">The includes to add.</param>
+        [UsedImplicitly]
         protected void AddQueryInfoIncludes([NotNull, ItemNotNull] params string[] includes)
         {
             var currentQueryInfo = QueryInfo;
@@ -169,6 +187,7 @@ namespace Bitbird.Core.WebApi.Controllers
         [CanBeNull]
         private QueryInfo queryInfo;
         [CanBeNull]
+        [UsedImplicitly]
         protected QueryInfo QueryInfo
         {
             get

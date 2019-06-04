@@ -1,31 +1,20 @@
 ﻿using System;
-using System.Runtime.Serialization;
+using JetBrains.Annotations;
 
-namespace Bitbird.Core.Export.Xlsx
+namespace Bitbird.Core.Utils.Export.Xlsx.Exceptions
 {
     public class CreateTableException : Exception
     {
-        public string ParameterPath { get; private set; }
+        [NotNull] public readonly string ParameterPath;
 
-        public CreateTableException()
+        public CreateTableException([NotNull] string parameterPath, [NotNull] string detailedMessage, [CanBeNull] Exception innerException) : base(detailedMessage, innerException)
         {
-        }
+            if (string.IsNullOrWhiteSpace(parameterPath))
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(parameterPath));
+            if (string.IsNullOrWhiteSpace(detailedMessage))
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(detailedMessage));
 
-        public CreateTableException(string message) : base(message)
-        {
-        }
-
-        public CreateTableException(string parameterPath, string detailedMessage, Exception innerException) : base(detailedMessage, innerException)
-        {
             ParameterPath = detailedMessage;
-        }
-
-        public CreateTableException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        protected CreateTableException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
         }
     }
 }

@@ -16,14 +16,14 @@
   <Import Project="..\SharedProperties.props" />
 
   <ItemGroup>
-    <Compile Include="..\Bitbird.Core.Api.Net\Calls\Core\CreateCall.cs" Link="Calls\Core\CreateCall.cs" />
-    <Compile Include="..\Bitbird.Core.Api.Net\Calls\Core\CreateManyCall.cs" Link="Calls\Core\CreateManyCall.cs" />
-    <Compile Include="..\Bitbird.Core.Api.Net\Calls\Core\DeleteCall.cs" Link="Calls\Core\DeleteCall.cs" />
-    <Compile Include="..\Bitbird.Core.Api.Net\Calls\Core\GetByIdCall.cs" Link="Calls\Core\GetByIdCall.cs" />
-    <Compile Include="..\Bitbird.Core.Api.Net\Calls\Core\GetManyCall.cs" Link="Calls\Core\GetManyCall.cs" />
-    <Compile Include="..\Bitbird.Core.Api.Net\Calls\Core\ServiceCrudNode.cs" Link="Calls\Core\ServiceCrudNode.cs" />
-    <Compile Include="..\Bitbird.Core.Api.Net\Calls\Core\ServiceReadNode.cs" Link="Calls\Core\ServiceReadNode.cs" />
-    <Compile Include="..\Bitbird.Core.Api.Net\Calls\Core\UpdateCall.cs" Link="Calls\Core\UpdateCall.cs" />
+    <Compile Include="..\Bitbird.Core.Api.Net\Nodes\Core\CreateCall.cs" Link="Nodes\Core\CreateCall.cs" />
+    <Compile Include="..\Bitbird.Core.Api.Net\Nodes\Core\CreateManyCall.cs" Link="Nodes\Core\CreateManyCall.cs" />
+    <Compile Include="..\Bitbird.Core.Api.Net\Nodes\Core\DeleteCall.cs" Link="Nodes\Core\DeleteCall.cs" />
+    <Compile Include="..\Bitbird.Core.Api.Net\Nodes\Core\GetByIdCall.cs" Link="Nodes\Core\GetByIdCall.cs" />
+    <Compile Include="..\Bitbird.Core.Api.Net\Nodes\Core\GetManyCall.cs" Link="Nodes\Core\GetManyCall.cs" />
+    <Compile Include="..\Bitbird.Core.Api.Net\Nodes\Core\ServiceCrudNode.cs" Link="Nodes\Core\ServiceCrudNode.cs" />
+    <Compile Include="..\Bitbird.Core.Api.Net\Nodes\Core\ServiceReadNode.cs" Link="Nodes\Core\ServiceReadNode.cs" />
+    <Compile Include="..\Bitbird.Core.Api.Net\Nodes\Core\UpdateCall.cs" Link="Nodes\Core\UpdateCall.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,6 +34,10 @@
     <ProjectReference Include="..\Bitbird.Core.Api\Bitbird.Core.Api.csproj" />
     <ProjectReference Include="..\Bitbird.Core.Data\Bitbird.Core.Data.csproj" />
     <ProjectReference Include="..\Bitbird.Core\Bitbird.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Nodes\Core\" />
   </ItemGroup>
 
 </Project>

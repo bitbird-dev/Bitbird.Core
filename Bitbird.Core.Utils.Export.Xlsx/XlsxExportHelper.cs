@@ -1,17 +1,28 @@
-﻿using Bitbird.Core.Expressions;
-using Bitbird.Core.Json.Extensions;
-using ClosedXML.Excel;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
 using System.Linq;
+using Bitbird.Core.Expressions;
+using Bitbird.Core.Json.Extensions;
+using Bitbird.Core.Utils.Export.Xlsx.Exceptions;
+using ClosedXML.Excel;
+using JetBrains.Annotations;
 
-namespace Bitbird.Core.Export.Xlsx
+namespace Bitbird.Core.Utils.Export.Xlsx
 {
     public static class XlsxExportHelper
     {
-        public static object[][] CreateTableData<T>(XlsxExport export, T[] data)
+        [UsedImplicitly, NotNull, ItemNotNull]
+        public static object[][] CreateTableData<T>(
+            [NotNull] XlsxExport export,
+            [NotNull, ItemNotNull] T[] data)
         {
+            if (data == null) throw new ArgumentNullException(nameof(data));
+            if (data.Any(x => x == null)) throw new ArgumentNullException(nameof(data));
+            if (export == null) throw new ArgumentNullException(nameof(export));
+            if (export.Columns == null) throw new ArgumentNullException(nameof(export));
+            if (export.Columns.Any(x => x == null)) throw new ArgumentNullException(nameof(export));
+            if (export.Columns.Any(x => string.IsNullOrWhiteSpace(x.Property) || x.Property.Trim().Length != x.Property.Length)) throw new ArgumentNullException(nameof(export));
+
             var compiledColumns = export.Columns.Select((c, idx) =>
             {
                 Func<T, object> accessor;
@@ -46,16 +57,32 @@ namespace Bitbird.Core.Export.Xlsx
             return tableData;
         }
 
-        public static void AddToXlsx(XLWorkbook workbook, string title, object[][] tableData)
+        [UsedImplicitly]
+        public static void AddToXlsx(
+            [NotNull] XLWorkbook workbook, 
+            [NotNull] string title, 
+            [NotNull, ItemNotNull] object[][] tableData)
         {
+            if (workbook == null) throw new ArgumentNullException(nameof(workbook));
+            if (title == null) throw new ArgumentNullException(nameof(title));
+            if (tableData == null) throw new ArgumentNullException(nameof(tableData));
+            if (tableData.Any(x => x == null)) throw new ArgumentNullException(nameof(tableData));
+
             var worksheet = workbook.Worksheets.Add(title);
             var range = worksheet.Cell(1, 1).InsertData(tableData);
             range.AddToNamed(title, XLScope.Workbook);
             worksheet.Columns().AdjustToContents();
         }
 
-        public static XLWorkbook CreateXlsx(string title, object[][] tableData)
+        [NotNull, UsedImplicitly]
+        public static XLWorkbook CreateXlsx(
+            [NotNull] string title, 
+            [NotNull, ItemNotNull] object[][] tableData)
         {
+            if (title == null) throw new ArgumentNullException(nameof(title));
+            if (tableData == null) throw new ArgumentNullException(nameof(tableData));
+            if (tableData.Any(x => x == null)) throw new ArgumentNullException(nameof(tableData));
+
             var workbook = new XLWorkbook();
             try
             {
@@ -69,8 +96,17 @@ namespace Bitbird.Core.Export.Xlsx
             return workbook;
         }
 
-        public static MemoryStream CreateXlsxToMemoryStream(MemoryStream memoryStream, string title, object[][] tableData)
+        [NotNull, UsedImplicitly]
+        public static MemoryStream CreateXlsxToMemoryStream(
+            [NotNull] MemoryStream memoryStream, 
+            [NotNull] string title, 
+            [NotNull, ItemNotNull] object[][] tableData)
         {
+            if (memoryStream == null) throw new ArgumentNullException(nameof(memoryStream));
+            if (title == null) throw new ArgumentNullException(nameof(title));
+            if (tableData == null) throw new ArgumentNullException(nameof(tableData));
+            if (tableData.Any(x => x == null)) throw new ArgumentNullException(nameof(tableData));
+
             using (var workbook = CreateXlsx(title, tableData))
             {
                 workbook.SaveAs(memoryStream);
@@ -79,8 +115,15 @@ namespace Bitbird.Core.Export.Xlsx
             return memoryStream;
         }
 
-        public static MemoryStream CreateXlsxToMemoryStream(string title, object[][] tableData)
+        [NotNull, UsedImplicitly]
+        public static MemoryStream CreateXlsxToMemoryStream(
+            [NotNull] string title,
+            [NotNull, ItemNotNull] object[][] tableData)
         {
+            if (title == null) throw new ArgumentNullException(nameof(title));
+            if (tableData == null) throw new ArgumentNullException(nameof(tableData));
+            if (tableData.Any(x => x == null)) throw new ArgumentNullException(nameof(tableData));
+
             var memoryStream = new MemoryStream();
             try
             {
@@ -94,8 +137,20 @@ namespace Bitbird.Core.Export.Xlsx
             return memoryStream;
         }
 
-        public static XLWorkbook ToXlsx<T>(this IEnumerable<T> data, XlsxExport export, string title)
+        [NotNull]
+        public static XLWorkbook ToXlsx<T>(
+            [NotNull, ItemNotNull] this T[] data, 
+            [NotNull] XlsxExport export, 
+            [NotNull] string title)
         {
+            if (data == null) throw new ArgumentNullException(nameof(data));
+            if (data.Any(x => x == null)) throw new ArgumentNullException(nameof(data));
+            if (export == null) throw new ArgumentNullException(nameof(export));
+            if (export.Columns == null) throw new ArgumentNullException(nameof(export));
+            if (export.Columns.Any(x => x == null)) throw new ArgumentNullException(nameof(export));
+            if (export.Columns.Any(x => string.IsNullOrWhiteSpace(x.Property) || x.Property.Trim().Length != x.Property.Length)) throw new ArgumentNullException(nameof(export));
+            if (title == null) throw new ArgumentNullException(nameof(title));
+
             var tableData = CreateTableData(export, data.ToArray());
             return CreateXlsx(title, tableData);
         }

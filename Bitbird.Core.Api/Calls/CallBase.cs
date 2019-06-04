@@ -13,6 +13,7 @@ namespace Bitbird.Core.Api
         : ICallBase<TData>
         where TPermissionParameter : IPermissionParameter
     {
+        [NotNull, UsedImplicitly]
         public TPermissionParameter PermissionParameter { get; }
 
         protected CallBase([NotNull]TPermissionParameter permissionParameter)
@@ -20,7 +21,6 @@ namespace Bitbird.Core.Api
             PermissionParameter = permissionParameter;
         }
 
-        [NotNull, ItemNotNull]
         public virtual async Task<TData> ExecuteAsync()
         {
             PermissionParameter.CheckIsPermitted();
@@ -28,15 +28,15 @@ namespace Bitbird.Core.Api
             return await GetDataAsync();
         }
 
-        [NotNull]
+        [NotNull, UsedImplicitly]
         public virtual Task BeforeExecution() => Task.FromResult(true);
 
-        [NotNull, ItemNotNull]
+        [NotNull, ItemNotNull, UsedImplicitly]
         protected abstract Task<TData> GetDataAsync();
 
 
 
-        [NotNull, ContractAnnotation("entry:null => halt")]
+        [NotNull, ContractAnnotation("entry:null => halt"), UsedImplicitly]
         protected T CheckNullClass<T, TCheckId>([CanBeNull] T entry, [CanBeNull] TCheckId id)
             where T : class
             where TCheckId : class
@@ -44,7 +44,7 @@ namespace Bitbird.Core.Api
             return entry ?? throw new ApiErrorException(ApiNotFoundError.Create(typeof(T).Name, id));
         }
 
-        [NotNull, ContractAnnotation("entry:null => halt")]
+        [NotNull, ContractAnnotation("entry:null => halt"), UsedImplicitly]
         protected T CheckNullStruct<T, TCheckId>([CanBeNull] T entry, [CanBeNull] TCheckId? id)
             where T : class
             where TCheckId : struct
@@ -52,8 +52,8 @@ namespace Bitbird.Core.Api
             return entry ?? throw new ApiErrorException(ApiNotFoundError.Create(typeof(T).Name, id));
         }
 
-        [NotNull, ContractAnnotation("entry:null => halt")]
-        protected T CheckNullStruct<T, TCheckId>([CanBeNull] T entry, [CanBeNull] TCheckId id)
+        [NotNull, ContractAnnotation("entry:null => halt"), UsedImplicitly]
+        protected T CheckNullStruct<T, TCheckId>([CanBeNull] T entry, TCheckId id)
             where T : class
             where TCheckId : struct
         {

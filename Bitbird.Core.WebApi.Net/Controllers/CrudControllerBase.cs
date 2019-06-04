@@ -14,6 +14,8 @@ namespace Bitbird.Core.WebApi.Controllers
     /// Provides the following methods in addition to methods provided by <see cref="ReadControllerBase{TService,TSession,TModel,TResource}" />: <see cref="CreateAsync" />, <see cref="UpdateAsync" /> and <see cref="DeleteAsync" />.
     /// Can be used for standard entity-access.
     /// </summary>
+    /// <inheritdoc cref="ReadControllerBase{TService,TSession,TModel,TResource}" />
+    /// <inheritdoc cref="ICrudControllerBase" />
     public abstract class CrudControllerBase<TService, TSession, TModel, TResource> 
         : ReadControllerBase<TService, TSession, TModel, TResource>
         , ICrudControllerBase
@@ -113,7 +115,7 @@ namespace Bitbird.Core.WebApi.Controllers
                 throw new HttpResponseException(HttpStatusCode.NotFound);
 
             if (model == null)
-                throw new ApiErrorException(new ApiParameterError(nameof(model), "The passed model is null."));
+                throw new ApiErrorException(new ApiAttributeError<TModel>(x => x, Data.Validation.ValidationMessages.NotNull));
 
             return await GetCrudServiceNode(Service).CreateAsync(await GetSessionAsync(), model);
         }
@@ -161,6 +163,9 @@ namespace Bitbird.Core.WebApi.Controllers
 
             if (model.Data.Id != id)
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
+
+            if (model.Data == null)
+                throw new ApiErrorException(new ApiAttributeError<TModel>(x => x, Data.Validation.ValidationMessages.NotNull));
 
             return await GetCrudServiceNode(Service).UpdateAsync(await GetSessionAsync(), model.Data, model.FoundAttributes);
         }

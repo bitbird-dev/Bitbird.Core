@@ -12,10 +12,12 @@ namespace Bitbird.Core.Data.Validation
         [NotNull, ItemNotNull]
         private readonly List<ApiError> Errors = new List<ApiError>();
         [CanBeNull]
-        private IGetQueryByEntity queryByEntity = null;
+        private IGetQueryByEntity queryByEntity;
         
+        [UsedImplicitly]
         public bool HasErrors => Errors.Any();
 
+        [UsedImplicitly]
         public void ThrowIfHasErrors()
         {
             if (HasErrors)
@@ -23,11 +25,12 @@ namespace Bitbird.Core.Data.Validation
         }
 
         [NotNull]
-        protected IGetQueryByEntity QueryByEntity => queryByEntity ?? throw new Exception($"An instance of {nameof(IGetQueryByEntity)} must be registered before this method can be used.");
+        private IGetQueryByEntity QueryByEntity => queryByEntity ?? throw new Exception($"An instance of {nameof(IGetQueryByEntity)} must be registered before this method can be used.");
 
+        // ReSharper disable once ParameterHidesMember
         public void RegisterQueryByEntity([NotNull] IGetQueryByEntity queryByEntity)
         {
-            this.queryByEntity = queryByEntity;
+            this.queryByEntity = queryByEntity ?? throw new ArgumentNullException(nameof(queryByEntity));
         }
 
         [NotNull]
@@ -35,6 +38,8 @@ namespace Bitbird.Core.Data.Validation
 
         private bool ExecuteCheck([NotNull] Func<bool> checkAction)
         {
+            if (checkAction == null) throw new ArgumentNullException(nameof(checkAction));
+
             try
             {
                 return checkAction();
@@ -48,6 +53,8 @@ namespace Bitbird.Core.Data.Validation
 
         private async Task<bool> ExecuteCheckAsync([NotNull] Func<Task<bool>> checkAsyncAction)
         {
+            if (checkAsyncAction == null) throw new ArgumentNullException(nameof(checkAsyncAction));
+
             try
             {
                 return await checkAsyncAction();
@@ -59,230 +66,289 @@ namespace Bitbird.Core.Data.Validation
             }
         }
 
-        [NotNull]
+        [NotNull, UsedImplicitly]
         internal Expression<Func<TEntity, object>> CastExpression<TEntity, TResult>(
             [NotNull] Expression<Func<TEntity, TResult>> expression)
         {
+            if (expression == null) throw new ArgumentNullException(nameof(expression));
+
             return Expression.Lambda<Func<TEntity, object>>(Expression.Convert(expression.Body, typeof(object)), expression.Parameters);
         }
 
+        [UsedImplicitly]
         public void AddError([NotNull] ApiError error)
         {
             if (error == null) throw new ArgumentNullException(nameof(error));
+
             Errors.Add(error);
         }
-
+        [UsedImplicitly]
         public void AddErrors([NotNull, ItemNotNull] params ApiError[] errors)
         {
             if (errors == null) throw new ArgumentNullException(nameof(errors));
             if (errors.Any(x => x == null)) throw new ArgumentNullException(nameof(errors));
+
             Errors.AddRange(errors);
         }
 
         [ContractAnnotation("value:null => false; value:notnull => true")]
+        [UsedImplicitly]
         public bool CheckNotNull<TEntity>(
             [CanBeNull] object value,
-            [NotNull] Expression<Func<TEntity, object>> attributeExpression) =>
-            ExecuteCheck(() =>
-            {
-                if (value == null)
-                {
-                    Errors.Add(new ApiAttributeError<TEntity>(attributeExpression, ValidationMessages.NotNull));
-                    return false;
-                }
+            [NotNull] Expression<Func<TEntity, object>> attributeExpression)
+        {
+            if (attributeExpression == null) throw new ArgumentNullException(nameof(attributeExpression));
 
-                return true;
+            return ExecuteCheck(() =>
+            {
+                if (value != null)
+                    return true;
+
+                Errors.Add(new ApiAttributeError<TEntity>(attributeExpression, ValidationMessages.NotNull));
+                return false;
             });
+        }
+
         [ContractAnnotation("value:null => false; value:notnull => true")]
+        [UsedImplicitly]
         public bool CheckNotNull<TEntity>(
-            [NotNull] TEntity model,
+            [CanBeNull] TEntity model,
             [CanBeNull] object value,
             [NotNull] Expression<Func<TEntity, object>> attributeExpression) => CheckNotNull(value, attributeExpression);
 
         [ContractAnnotation("value:null => false")]
+        [UsedImplicitly]
         public bool CheckNotNullOrEmpty<TEntity>(
             [CanBeNull] string value,
-            [NotNull] Expression<Func<TEntity, string>> attributeExpression) =>
-            ExecuteCheck(() =>
-            {
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression), ValidationMessages.NotNullOrEmpty));
-                    return false;
-                }
+            [NotNull] Expression<Func<TEntity, string>> attributeExpression)
+        {
+            if (attributeExpression == null) throw new ArgumentNullException(nameof(attributeExpression));
 
-                return true;
+            return ExecuteCheck(() =>
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                    return true;
+
+                Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression),
+                    ValidationMessages.NotNullOrEmpty));
+                return false;
             });
+        }
+
         [ContractAnnotation("value:null => false")]
+        [UsedImplicitly]
         public bool CheckNotNullOrEmpty<TEntity>(
-            [NotNull] TEntity model,
+            [CanBeNull] TEntity model,
             [CanBeNull] string value,
             [NotNull] Expression<Func<TEntity, string>> attributeExpression) => CheckNotNullOrEmpty(value, attributeExpression);
 
         [ContractAnnotation("value:null => true")]
+        [UsedImplicitly]
         public bool CheckNotEmpty<TEntity>(
             [CanBeNull] string value,
-            [NotNull] Expression<Func<TEntity, string>> attributeExpression) =>
-            ExecuteCheck(() =>
-            {
-                if (value != null && value.Trim().Length == 0)
-                {
-                    Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression), ValidationMessages.NotEmpty));
-                    return false;
-                }
+            [NotNull] Expression<Func<TEntity, string>> attributeExpression)
+        {
+            if (attributeExpression == null) throw new ArgumentNullException(nameof(attributeExpression));
 
-                return true;
+            return ExecuteCheck(() =>
+            {
+                if (value == null || value.Trim().Length != 0)
+                    return true;
+
+                Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression),
+                    ValidationMessages.NotEmpty));
+                return false;
             });
+        }
 
         [ContractAnnotation("value:null => true")]
+        [UsedImplicitly]
         public bool CheckMaxStringLength<TEntity>(
             [CanBeNull] string value,
             int maxLength,
-            [NotNull] Expression<Func<TEntity, string>> attributeExpression) =>
-            ExecuteCheck(() =>
-            {
-                if (value != null && value.Length > maxLength)
-                {
-                    Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression), string.Format(ValidationMessages.StringMaxLength, maxLength)));
-                    return false;
-                }
+            [NotNull] Expression<Func<TEntity, string>> attributeExpression)
+        {
+            if (attributeExpression == null) throw new ArgumentNullException(nameof(attributeExpression));
 
-                return true;
+            return ExecuteCheck(() =>
+            {
+                if (value == null || value.Length <= maxLength)
+                    return true;
+
+                Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression),
+                    string.Format(ValidationMessages.StringMaxLength, maxLength)));
+                return false;
             });
+        }
 
         [ContractAnnotation("value:null => true")]
+        [UsedImplicitly]
         public bool CheckTrimmed<TEntity>(
             [CanBeNull] string value,
-            [NotNull] Expression<Func<TEntity, string>> attributeExpression) =>
-            ExecuteCheck(() =>
-            {
-                if (value != null && !value.Trim().Equals(value) )
-                {
-                    Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression), ValidationMessages.Trimmed));
-                    return false;
-                }
+            [NotNull] Expression<Func<TEntity, string>> attributeExpression)
+        {
+            if (attributeExpression == null) throw new ArgumentNullException(nameof(attributeExpression));
 
-                return true;
+            return ExecuteCheck(() =>
+            {
+                if (value == null || value.Trim().Equals(value))
+                    return true;
+
+                Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression),
+                    ValidationMessages.Trimmed));
+                return false;
             });
+        }
 
         [ContractAnnotation("value:null => true")]
+        [UsedImplicitly]
         public bool CheckGreaterThan<TEntity, TValue>(
             [CanBeNull] TValue value,
             [NotNull] TValue limit,
             [NotNull] Expression<Func<TEntity, TValue>> attributeExpression)
-            where TValue : IComparable<TValue> =>
-            ExecuteCheck(() =>
-            {
-                if (value != null && value.CompareTo(limit) <= 0)
-                {
-                    Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression), 
-                        string.Format(ValidationMessages.GreaterThan, limit, value)));
-                    return false;
-                }
+            where TValue : IComparable<TValue>
+        {
+            if (limit == null) throw new ArgumentNullException(nameof(limit));
+            if (attributeExpression == null) throw new ArgumentNullException(nameof(attributeExpression));
 
-                return true;
+            return ExecuteCheck(() =>
+            {
+                if (value == null || value.CompareTo(limit) > 0)
+                    return true;
+
+                Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression),
+                    string.Format(ValidationMessages.GreaterThan, limit, value)));
+                return false;
             });
+        }
 
         [ContractAnnotation("value:null => true")]
+        [UsedImplicitly]
         public bool CheckGreaterThanEqual<TEntity, TValue>(
             [CanBeNull] TValue value,
             [NotNull] TValue limit,
             [NotNull] Expression<Func<TEntity, TValue>> attributeExpression)
-            where TValue : IComparable<TValue> =>
-            ExecuteCheck(() =>
-            {
-                if (value != null && value.CompareTo(limit) < 0)
-                {
-                    Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression),
-                        string.Format(ValidationMessages.GreaterThanEqual, limit, value)));
-                    return false;
-                }
+            where TValue : IComparable<TValue>
+        {
+            if (limit == null) throw new ArgumentNullException(nameof(limit));
+            if (attributeExpression == null) throw new ArgumentNullException(nameof(attributeExpression));
 
-                return true;
+            return ExecuteCheck(() =>
+            {
+                if (value == null || value.CompareTo(limit) >= 0)
+                    return true;
+
+                Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression),
+                    string.Format(ValidationMessages.GreaterThanEqual, limit, value)));
+                return false;
             });
+        }
 
         [ContractAnnotation("value:null => true")]
+        [UsedImplicitly]
         public bool CheckLessThan<TEntity, TValue>(
             [CanBeNull] TValue value,
             [NotNull] TValue limit,
             [NotNull] Expression<Func<TEntity, TValue>> attributeExpression)
-            where TValue : IComparable<TValue> =>
-            ExecuteCheck(() =>
-            {
-                if (value != null && value.CompareTo(limit) >= 0)
-                {
-                    Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression),
-                        string.Format(ValidationMessages.LessThan, limit, value)));
-                    return false;
-                }
+            where TValue : IComparable<TValue>
+        {
+            if (limit == null) throw new ArgumentNullException(nameof(limit));
+            if (attributeExpression == null) throw new ArgumentNullException(nameof(attributeExpression));
 
-                return true;
+            return ExecuteCheck(() =>
+            {
+                if (value == null || value.CompareTo(limit) < 0)
+                    return true;
+
+                Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression),
+                    string.Format(ValidationMessages.LessThan, limit, value)));
+                return false;
             });
+        }
 
         [ContractAnnotation("value:null => true")]
+        [UsedImplicitly]
         public bool CheckLessThanEqual<TEntity, TValue>(
             [CanBeNull] TValue value,
             [NotNull] TValue limit,
             [NotNull] Expression<Func<TEntity, TValue>> attributeExpression)
-            where TValue : IComparable<TValue> =>
-            ExecuteCheck(() =>
-            {
-                if (value != null && value.CompareTo(limit) > 0)
-                {
-                    Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression),
-                        string.Format(ValidationMessages.LessThanEqual, limit, value)));
-                    return false;
-                }
+            where TValue : IComparable<TValue>
+        {
+            if (limit == null) throw new ArgumentNullException(nameof(limit));
+            if (attributeExpression == null) throw new ArgumentNullException(nameof(attributeExpression));
 
-                return true;
+            return ExecuteCheck(() =>
+            {
+                if (value == null || value.CompareTo(limit) <= 0)
+                    return true;
+
+                Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression),
+                    string.Format(ValidationMessages.LessThanEqual, limit, value)));
+                return false;
             });
+        }
 
         [ContractAnnotation("value:null => true")]
+        [UsedImplicitly]
         public bool CheckBetweenInclusive<TEntity, TValue>(
             [CanBeNull] TValue value,
             [NotNull] TValue lowerLimit,
             [NotNull] TValue upperLimit,
             [NotNull] Expression<Func<TEntity, TValue>> attributeExpression)
-            where TValue : IComparable<TValue> =>
-            ExecuteCheck(() =>
-            {
-                if (value != null && value.CompareTo(lowerLimit) >= 0 && value.CompareTo(upperLimit) <= 0)
-                {
-                    Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression),
-                        string.Format(ValidationMessages.BetweenInclusive, lowerLimit, upperLimit, value)));
-                    return false;
-                }
+            where TValue : IComparable<TValue>
+        {
+            if (lowerLimit == null) throw new ArgumentNullException(nameof(lowerLimit));
+            if (upperLimit == null) throw new ArgumentNullException(nameof(upperLimit));
+            if (attributeExpression == null) throw new ArgumentNullException(nameof(attributeExpression));
 
-                return true;
+            return ExecuteCheck(() =>
+            {
+                if (value == null || value.CompareTo(lowerLimit) < 0 || value.CompareTo(upperLimit) > 0)
+                    return true;
+
+                Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression),
+                    string.Format(ValidationMessages.BetweenInclusive, lowerLimit, upperLimit, value)));
+                return false;
             });
+        }
 
         [ContractAnnotation("value:null => true")]
+        [UsedImplicitly]
         public bool CheckBetweenExclusive<TEntity, TValue>(
             [CanBeNull] TValue value,
             [NotNull] TValue lowerLimit,
             [NotNull] TValue upperLimit,
             [NotNull] Expression<Func<TEntity, TValue>> attributeExpression)
-            where TValue : IComparable<TValue> =>
-            ExecuteCheck(() =>
-            {
-                if (value != null && value.CompareTo(lowerLimit) >= 0 && value.CompareTo(upperLimit) <= 0)
-                {
-                    Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression),
-                        string.Format(ValidationMessages.BetweenExclusive, lowerLimit, upperLimit, value)));
-                    return false;
-                }
+            where TValue : IComparable<TValue>
+        {
+            if (lowerLimit == null) throw new ArgumentNullException(nameof(lowerLimit));
+            if (upperLimit == null) throw new ArgumentNullException(nameof(upperLimit));
+            if (attributeExpression == null) throw new ArgumentNullException(nameof(attributeExpression));
 
-                return true;
+            return ExecuteCheck(() =>
+            {
+                if (value == null || value.CompareTo(lowerLimit) < 0 || value.CompareTo(upperLimit) > 0)
+                    return true;
+
+                Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression),
+                    string.Format(ValidationMessages.BetweenExclusive, lowerLimit, upperLimit, value)));
+                return false;
             });
+        }
 
         [NotNull]
+        [UsedImplicitly]
         public Task<bool> CheckUniqueAsync<TEntity, TDbEntity, TValue>(
             [CanBeNull] TValue value, 
             [CanBeNull] Expression<Func<TDbEntity, bool>> filterExpression,
             [NotNull] Expression<Func<TDbEntity, TValue>> selectValueExpression,
             [NotNull] Expression<Func<TEntity, TValue>> attributeExpression)
-            where TDbEntity : class =>
-            ExecuteCheckAsync(async () =>
+            where TDbEntity : class
+        {
+            if (selectValueExpression == null) throw new ArgumentNullException(nameof(selectValueExpression));
+            if (attributeExpression == null) throw new ArgumentNullException(nameof(attributeExpression));
+
+            return ExecuteCheckAsync(async () =>
             {
                 var query = QueryByEntity.GetNonTrackingQuery<TDbEntity>();
 
@@ -291,27 +357,34 @@ namespace Bitbird.Core.Data.Validation
 
                 var valueQuery = query.Select(selectValueExpression);
                 var parameterExpression = Expression.Parameter(typeof(TValue), "x");
-                valueQuery = valueQuery.Where(Expression.Lambda<Func<TValue, bool>>(Expression.Equal(parameterExpression, Expression.Constant(value, typeof(TValue))), parameterExpression));
+                valueQuery = valueQuery.Where(Expression.Lambda<Func<TValue, bool>>(
+                    Expression.Equal(parameterExpression, Expression.Constant(value, typeof(TValue))),
+                    parameterExpression));
 
                 var queryResult = await AnyAsync(valueQuery);
 
-                if (queryResult)
-                {
-                    Errors.Add(new ApiMustBeUniqueError<TEntity, TValue>(attributeExpression, string.Format(ValidationMessages.Unique_AlreadyExists, value)));
-                    return false;
-                }
+                if (!queryResult)
+                    return true;
 
-                return true;
+                Errors.Add(new ApiMustBeUniqueError<TEntity, TValue>(attributeExpression,
+                    string.Format(ValidationMessages.Unique_AlreadyExists, value)));
+                return false;
             });
+        }
 
         [ContractAnnotation("value:null => true"), NotNull]
+        [UsedImplicitly]
         public Task<bool> CheckUniqueIfNotNullAsync<TEntity, TDbEntity, TValue>(
             [CanBeNull] TValue value,
             [CanBeNull] Expression<Func<TDbEntity, bool>> filterExpression,
             [NotNull] Expression<Func<TDbEntity, TValue>> selectValueExpression,
             [NotNull] Expression<Func<TEntity, TValue>> attributeExpression)
-            where TDbEntity : class =>
-            ExecuteCheckAsync(async () =>
+            where TDbEntity : class
+        {
+            if (selectValueExpression == null) throw new ArgumentNullException(nameof(selectValueExpression));
+            if (attributeExpression == null) throw new ArgumentNullException(nameof(attributeExpression));
+
+            return ExecuteCheckAsync(async () =>
             {
                 if (value == null)
                     return true;
@@ -323,28 +396,35 @@ namespace Bitbird.Core.Data.Validation
 
                 var valueQuery = query.Select(selectValueExpression);
                 var parameterExpression = Expression.Parameter(typeof(TValue), "x");
-                valueQuery = valueQuery.Where(Expression.Lambda<Func<TValue, bool>>(Expression.Equal(parameterExpression, Expression.Constant(value, typeof(TValue))), parameterExpression));
+                valueQuery = valueQuery.Where(Expression.Lambda<Func<TValue, bool>>(
+                    Expression.Equal(parameterExpression, Expression.Constant(value, typeof(TValue))),
+                    parameterExpression));
 
                 var queryResult = await AnyAsync(valueQuery);
 
-                if (queryResult)
-                {
-                    Errors.Add(new ApiMustBeUniqueError<TEntity, TValue>(attributeExpression, string.Format(ValidationMessages.Unique_AlreadyExists, value)));
-                    return false;
-                }
+                if (!queryResult)
+                    return true;
 
-                return true;
+                Errors.Add(new ApiMustBeUniqueError<TEntity, TValue>(attributeExpression, string.Format(ValidationMessages.Unique_AlreadyExists, value)));
+                return false;
             });
+        }
 
-        [ContractAnnotation("value:null => true")]
-        public bool CheckItemNotNull<TEntity, TElementValue>(TElementValue[] values, Expression<Func<TEntity, TElementValue[]>> collectionAttributeExpression) =>
-            ExecuteCheck(() =>
+        [ContractAnnotation("values:null => true")]
+        [UsedImplicitly]
+        public bool CheckItemNotNull<TEntity, TElementValue>(
+            [CanBeNull, ItemCanBeNull] TElementValue[] values, 
+            [NotNull] Expression<Func<TEntity, TElementValue[]>> collectionAttributeExpression)
+        {
+            if (collectionAttributeExpression == null) throw new ArgumentNullException(nameof(collectionAttributeExpression));
+
+            return ExecuteCheck(() =>
             {
                 if (values == null)
                     return true;
 
-                bool failed = false;
-                int idx = 0;
+                var failed = false;
+                var idx = 0;
 
                 foreach (var value in values)
                 {
@@ -365,75 +445,108 @@ namespace Bitbird.Core.Data.Validation
 
                 return !failed;
             });
-        [ContractAnnotation("value:null => true")]
-        public bool CheckItemNotNull<TEntity, TElementValue>([NotNull] TEntity model, TElementValue[] values, Expression<Func<TEntity, TElementValue[]>> collectionAttributeExpression) =>
+        }
+
+        [ContractAnnotation("values:null => true")]
+        [UsedImplicitly]
+        public bool CheckItemNotNull<TEntity, TElementValue>(
+            [CanBeNull] TEntity model, 
+            [CanBeNull, ItemCanBeNull] TElementValue[] values, 
+            [NotNull] Expression<Func<TEntity, TElementValue[]>> collectionAttributeExpression) =>
             CheckItemNotNull(values, collectionAttributeExpression);
 
         [ContractAnnotation("value:null => true")]
-        public bool CheckEnumValueIsDefined<TEntity, TValue>(TValue value, Expression<Func<TEntity, TValue>> attributeExpression) =>
-            ExecuteCheck(() =>
+        [UsedImplicitly]
+        public bool CheckEnumValueIsDefined<TEntity, TValue>(
+            [CanBeNull] TValue value, 
+            [NotNull] Expression<Func<TEntity, TValue>> attributeExpression)
+        {
+            if (attributeExpression == null) throw new ArgumentNullException(nameof(attributeExpression));
+
+            return ExecuteCheck(() =>
             {
-                var underlying = Nullable.GetUnderlyingType(typeof(TValue));
-                if (underlying == null)
-                { 
-                    if (!Enum.IsDefined(typeof(TValue), value))
-                    {
-                        Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression), string.Format(ValidationMessages.EnumValueIsDefined, value)));
-                        return false;
-                    }
-
-                    return true;
-                }
-
                 if (value == null)
                     return true;
 
-                if (!Enum.IsDefined(underlying, Convert.ChangeType(value, underlying)))
+                var underlying = Nullable.GetUnderlyingType(typeof(TValue));
+                if (underlying == null)
                 {
-                    Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression), string.Format(ValidationMessages.EnumValueIsDefined, value)));
-                    return false;
+                    if (Enum.IsDefined(typeof(TValue), value))
+                        return true;
                 }
-                
+                else
+                {
+                    if (Enum.IsDefined(underlying, Convert.ChangeType(value, underlying)))
+                        return true;
+                }
 
-                return true;
+                Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression), string.Format(ValidationMessages.EnumValueIsDefined, value)));
+                return false;
             });
+        }
+
         [ContractAnnotation("value:null => true")]
-        public bool CheckEnumValueIsDefined<TEntity, TValue>([NotNull] TEntity model, TValue value, Expression<Func<TEntity, TValue>> attributeExpression) =>
+        [UsedImplicitly]
+        public bool CheckEnumValueIsDefined<TEntity, TValue>(
+            [CanBeNull] TEntity model,
+            [CanBeNull] TValue value, 
+            [NotNull] Expression<Func<TEntity, TValue>> attributeExpression) =>
             CheckEnumValueIsDefined(value, attributeExpression);
 
 
         [ContractAnnotation("id:null => true")]
-        public bool CheckRelationExists<TEntity>(long? id, HashSet<long> existingIds, Expression<Func<TEntity, long?>> attributeExpression)
-            => ExecuteCheck(() =>
+        [UsedImplicitly]
+        public bool CheckRelationExists<TEntity>(
+            [CanBeNull] long? id, 
+            [NotNull] HashSet<long> existingIds, 
+            [NotNull] Expression<Func<TEntity, long?>> attributeExpression)
+        {
+            if (existingIds == null) throw new ArgumentNullException(nameof(existingIds));
+            if (attributeExpression == null) throw new ArgumentNullException(nameof(attributeExpression));
+
+            return ExecuteCheck(() =>
             {
                 if (id == null)
                     return true;
 
-                if (!existingIds.Contains(id.Value))
-                {
-                    Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression), string.Format(ValidationMessages.RelatedEntryExists, id.Value)));
-                    return false;
-                }
+                if (existingIds.Contains(id.Value))
+                    return true;
 
-                return true;
+                Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression), string.Format(ValidationMessages.RelatedEntryExists, id.Value)));
+                return false;
             });
+        }
 
-        public bool CheckRelationExists<TEntity>(long id, HashSet<long> existingIds, Expression<Func<TEntity, long?>> attributeExpression)
-            => ExecuteCheck(() =>
+        [UsedImplicitly]
+        public bool CheckRelationExists<TEntity>(
+            long id, 
+            [NotNull] HashSet<long> existingIds, 
+            [NotNull] Expression<Func<TEntity, long?>> attributeExpression)
+        {
+            if (existingIds == null) throw new ArgumentNullException(nameof(existingIds));
+            if (attributeExpression == null) throw new ArgumentNullException(nameof(attributeExpression));
+
+            return ExecuteCheck(() =>
             {
-                if (!existingIds.Contains(id))
-                {
-                    Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression), string.Format(ValidationMessages.RelatedEntryExists, id)));
-                    return false;
-                }
+                if (existingIds.Contains(id))
+                    return true;
 
-                return true;
+                Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression),
+                    string.Format(ValidationMessages.RelatedEntryExists, id)));
+                return false;
             });
+        }
 
         [ContractAnnotation("id:null => true")]
-        public Task<bool> CheckRelationExistsAsync<TEntity, TRelationDbEntity>(long? id, Expression<Func<TEntity, long?>> attributeExpression) 
-            where TRelationDbEntity : class, IId<long> =>
-            ExecuteCheckAsync(async () =>
+        [UsedImplicitly]
+        public Task<bool> CheckRelationExistsAsync<TEntity, TRelationDbEntity>(
+            [CanBeNull] long? id, 
+            [NotNull] Expression<Func<TEntity, long?>> attributeExpression) 
+            where TRelationDbEntity : class, IId<long>
+        {
+            if (attributeExpression == null) throw new ArgumentNullException(nameof(attributeExpression));
+
+            return ExecuteCheckAsync(async () =>
             {
                 if (id == null)
                     return true;
@@ -446,18 +559,23 @@ namespace Bitbird.Core.Data.Validation
 
                 var queryResult = await AnyAsync(query);
 
-                if (!queryResult)
-                {
-                    Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression), string.Format(ValidationMessages.RelatedEntryExists, id.Value)));
-                    return false;
-                }
+                if (queryResult)
+                    return true;
 
-                return true;
+                Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression),                     string.Format(ValidationMessages.RelatedEntryExists, id.Value)));
+                return false;
             });
+        }
 
-        public Task<bool> CheckRelationExistsAsync<TEntity, TRelationDbEntity>(long id, Expression<Func<TEntity, long>> attributeExpression)
-            where TRelationDbEntity : class, IId<long> =>
-            ExecuteCheckAsync(async () =>
+        [UsedImplicitly]
+        public Task<bool> CheckRelationExistsAsync<TEntity, TRelationDbEntity>(
+            long id, 
+            [NotNull] Expression<Func<TEntity, long>> attributeExpression)
+            where TRelationDbEntity : class, IId<long>
+        {
+            if (attributeExpression == null) throw new ArgumentNullException(nameof(attributeExpression));
+
+            return ExecuteCheckAsync(async () =>
             {
                 var query = QueryByEntity
                     .GetNonTrackingQuery<TRelationDbEntity>()
@@ -465,47 +583,65 @@ namespace Bitbird.Core.Data.Validation
 
                 var queryResult = await AnyAsync(query);
 
-                if (!queryResult)
-                {
-                    Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression), string.Format(ValidationMessages.RelatedEntryExists, id)));
-                    return false;
-                }
+                if (queryResult)
+                    return true;
 
-                return true;
+                Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression),
+                    string.Format(ValidationMessages.RelatedEntryExists, id)));
+                return false;
             });
+        }
 
-        public bool CheckDistinct<TEntity, TMember>(TMember[] collection, Expression<Func<TEntity, TMember[]>> attributeExpression)
-            => ExecuteCheck(() =>
+        [UsedImplicitly]
+        public bool CheckDistinct<TEntity, TMember>(
+            [CanBeNull, ItemCanBeNull] TMember[] collection, 
+            [NotNull] Expression<Func<TEntity, TMember[]>> attributeExpression)
+        {
+            if (attributeExpression == null) throw new ArgumentNullException(nameof(attributeExpression));
+
+            return ExecuteCheck(() =>
             {
                 if (collection == null)
                     return true;
 
-                var collectionWithoutNull = collection.Where(x => x != null).ToArray();
+                var collectionWithoutNull = collection
+                    .Where(x => x != null)
+                    .ToArray();
 
-                if (collectionWithoutNull.Length != collectionWithoutNull.Distinct().Count())
-                {
-                    Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression), ValidationMessages.Distinct));
-                    return false;
-                }
+                if (collectionWithoutNull.Length == collectionWithoutNull.Distinct().Count())
+                    return true;
 
-                return true;
+                Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression), ValidationMessages.Distinct));
+                return false;
             });
+        }
 
-        public bool CheckDistinct<TEntity, TMember, TEqualityMember>(TMember[] collection, IDistinctSelectEqualityMemberProvider<TMember, TEqualityMember> equalityProvider, Expression<Func<TEntity, TMember[]>> attributeExpression)
-            => ExecuteCheck(() =>
+        [UsedImplicitly]
+        public bool CheckDistinct<TEntity, TMember, TEqualityMember>(
+            [ItemCanBeNull, CanBeNull] TMember[] collection, 
+            [NotNull] IDistinctSelectEqualityMemberProvider<TMember, TEqualityMember> equalityProvider, 
+            [NotNull] Expression<Func<TEntity, TMember[]>> attributeExpression)
+        {
+            if (equalityProvider == null) throw new ArgumentNullException(nameof(equalityProvider));
+            if (attributeExpression == null) throw new ArgumentNullException(nameof(attributeExpression));
+
+            return ExecuteCheck(() =>
             {
                 if (collection == null)
                     return true;
 
-                var collectionWithoutNull = collection.Where(x => x != null).Select(x => equalityProvider.GetEqualityMember(x)).ToArray();
+                var collectionWithoutNull = collection
+                    .Where(x => x != null)
+                    .Select(equalityProvider.GetEqualityMember)
+                    .ToArray();
 
-                if (collectionWithoutNull.Length != collectionWithoutNull.Distinct().Count())
-                {
-                    Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression), ValidationMessages.Distinct));
-                    return false;
-                }
+                if (collectionWithoutNull.Length == collectionWithoutNull.Distinct().Count())
+                    return true;
 
-                return true;
+                Errors.Add(new ApiAttributeError<TEntity>(CastExpression(attributeExpression),
+                    ValidationMessages.Distinct));
+                return false;
             });
+        }
     }
 }

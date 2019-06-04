@@ -120,4 +120,16 @@
   <data name="Core_ApiSessionData_ClientApplicationId" xml:space="preserve">
     <value>The passed client application identifier must not be null or empty and must not exceed {0} letters.</value>
   </data>
+  <data name="ServiceCrudNode_Create" xml:space="preserve">
+    <value>Creating an entry of type {0}.</value>
+  </data>
+  <data name="ServiceCrudNode_Update" xml:space="preserve">
+    <value>Modifying an entry of type {0}.</value>
+  </data>
+  <data name="ServiceCrudNode_OptimisticLocking" xml:space="preserve">
+    <value>The entry was modified in the meantime (Entry type: {0}).</value>
+  </data>
+  <data name="ServiceCrudNode_Delete" xml:space="preserve">
+    <value>Deleting an entry of type {0}.</value>
+  </data>
 </root>
