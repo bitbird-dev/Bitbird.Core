@@ -1,9 +1,15 @@
-﻿namespace Bitbird.Core
+﻿using Bitbird.Core.ApiErrors;
+using JetBrains.Annotations;
+
+namespace Bitbird.Core
 {
+    [UsedImplicitly]
     public class ApiInvalidCredentialsError : ApiError
     {
         public ApiInvalidCredentialsError(string detailInfo)
-            : base(ApiErrorType.CredentialsAreInvalid, "Invalid credentials", $"The provided credentials are invalid (Details: {detailInfo}).")
+            : base(ApiErrorType.CredentialsAreInvalid, 
+                ApiErrorMessages.ApiInvalidCredentialsError_Title,
+                string.Format(ApiErrorMessages.ApiInvalidCredentialsError_Message, detailInfo))
         {
         }
     }

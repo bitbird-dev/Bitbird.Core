@@ -1,9 +1,15 @@
-﻿namespace Bitbird.Core
+﻿using Bitbird.Core.ApiErrors;
+using JetBrains.Annotations;
+
+namespace Bitbird.Core
 {
+    [UsedImplicitly]
     public class ApiUserAuthInactiveError : ApiError
     {
-        public ApiUserAuthInactiveError(string reason = null)
-            : base(ApiErrorType.AuthenticationIsNotActive, "Authentication inactive", $"This authentication method is inactive (Reason: {reason ?? "no details available"}).")
+        public ApiUserAuthInactiveError([CanBeNull] string reason = null)
+            : base(ApiErrorType.AuthenticationIsNotActive, ApiErrorMessages.ApiUserAuthInactiveError_Title,
+                string.Format(ApiErrorMessages.ApiUserAuthInactiveError_Message,
+                    reason ?? ApiErrorMessages.ApiUserAuthInactiveError_Message_NoReason))
         {
         }
     }

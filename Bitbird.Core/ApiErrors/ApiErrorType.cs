@@ -1,10 +1,8 @@
-﻿using System.Net;
-
-namespace Bitbird.Core
+﻿namespace Bitbird.Core
 {
     public enum ApiErrorType
     {
-        [HttpStatusCode(StatusCode = 418)]
+        [HttpStatusCode(StatusCode = HttpStatusCodeExtended.IAmATeapot)]
         ApiVersionMismatch,
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.Forbidden)]
         ForbiddenNoLogin,

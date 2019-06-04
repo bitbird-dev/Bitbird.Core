@@ -360,8 +360,7 @@ namespace Bitbird.Core.Api.Nodes.Core
                     }
                     catch (DbUpdateConcurrencyException)
                     {
-                        throw new ApiErrorException(
-                            new ApiOptimisticLockingError<TModel>($"The model {typeof(TModel).Name} has changed."));
+                        throw new ApiErrorException(new ApiOptimisticLockingError<TModel>($"The model {typeof(TModel).Name} has changed."));
                     }
                     catch (DbUpdateException e)
                     {

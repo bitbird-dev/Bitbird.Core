@@ -117,13 +117,88 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ApiErrorType_CannotProcessFurther_Message" xml:space="preserve">
+  <data name="ApiCannotProcessFurtherError_Message" xml:space="preserve">
     <value>The execution cannot process further. Previous errors are most likely preventing further execution. Details: {0}</value>
   </data>
-  <data name="ApiErrorType_CannotProcessFurther_Title" xml:space="preserve">
+  <data name="ApiCannotProcessFurtherError_Title" xml:space="preserve">
     <value>Cannot process further.</value>
   </data>
   <data name="ApiErrorType_MustBeUnique_Title" xml:space="preserve">
     <value>Must be unique.</value>
+  </data>
+  <data name="ApiErrorException_Message" xml:space="preserve">
+    <value>API errors have occurred (Details: {{ {0} }}).</value>
+  </data>
+  <data name="ApiEntityError_Title" xml:space="preserve">
+    <value>Entity error</value>
+  </data>
+  <data name="ApiAttributeMustBeUniqueError_Title" xml:space="preserve">
+    <value>The {0} '{1}' already exists.</value>
+  </data>
+  <data name="ApiAttributeError_Title" xml:space="preserve">
+    <value>Attribute error.</value>
+  </data>
+  <data name="ApiVersionMismatchError_Title" xml:space="preserve">
+    <value>API version missmatch.</value>
+  </data>
+  <data name="ApiVersionMismatchError_Message" xml:space="preserve">
+    <value>The requested interface version is not supported (Requested version: {0}, Supported version: {1}).</value>
+  </data>
+  <data name="ApiUserIsLockedError_Title" xml:space="preserve">
+    <value>The user is locked.</value>
+  </data>
+  <data name="ApiUserIsLockedError_Message" xml:space="preserve">
+    <value>The user is currently locked. Contact your administrator.</value>
+  </data>
+  <data name="ApiUserIsInActiveError_Title" xml:space="preserve">
+    <value>The user is inactive.</value>
+  </data>
+  <data name="ApiUserIsInActiveError_Message" xml:space="preserve">
+    <value>The user is currently inactive. Contact your administrator.</value>
+  </data>
+  <data name="ApiUserAuthInactiveError_Title" xml:space="preserve">
+    <value>Authentication inactive.</value>
+  </data>
+  <data name="ApiUserAuthInactiveError_Message" xml:space="preserve">
+    <value>This authentication method is inactive (Reason: {0}).</value>
+  </data>
+  <data name="ApiUserAuthInactiveError_Message_NoReason" xml:space="preserve">
+    <value>No details available.</value>
+  </data>
+  <data name="ApiPreconditionError_Title" xml:space="preserve">
+    <value>Precondition violated.</value>
+  </data>
+  <data name="ApiParameterError_Title" xml:space="preserve">
+    <value>Parameter error.</value>
+  </data>
+  <data name="ApiOptimisticLockingError_Title" xml:space="preserve">
+    <value>Optimistic locking error.</value>
+  </data>
+  <data name="ApiNotFoundError_Title" xml:space="preserve">
+    <value>Not found.</value>
+  </data>
+  <data name="ApiNotFoundError_Message" xml:space="preserve">
+    <value>A {0} with the given identifier could not be found (identifier='{1}', identifier info='{2}').</value>
+  </data>
+  <data name="ApiNotFoundError_Message_NoIdentifierInfo" xml:space="preserve">
+    <value>Primary key</value>
+  </data>
+  <data name="ApiInvalidCredentialsError_Title" xml:space="preserve">
+    <value>Invalid credentials.</value>
+  </data>
+  <data name="ApiInvalidCredentialsError_Message" xml:space="preserve">
+    <value>The provided credentials are invalid (Details: {0}).</value>
+  </data>
+  <data name="ApiForbiddenNoRightsError_Title" xml:space="preserve">
+    <value>Insufficient rights.</value>
+  </data>
+  <data name="ApiForbiddenNoRightsError_Message" xml:space="preserve">
+    <value>The current session does not have the right to perform this action (Action description: {0}).</value>
+  </data>
+  <data name="ApiForbiddenNoLoginError_Title" xml:space="preserve">
+    <value>Not logged in.</value>
+  </data>
+  <data name="ApiForbiddenNoLoginError_Message" xml:space="preserve">
+    <value>The current session is not logged in.</value>
   </data>
 </root>

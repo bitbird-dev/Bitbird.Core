@@ -61,20 +61,56 @@ namespace Bitbird.Core.ApiErrors {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Attribute error..
+        /// </summary>
+        public static string ApiAttributeError_Title {
+            get {
+                return ResourceManager.GetString("ApiAttributeError_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The {0} &apos;{1}&apos; already exists..
+        /// </summary>
+        public static string ApiAttributeMustBeUniqueError_Title {
+            get {
+                return ResourceManager.GetString("ApiAttributeMustBeUniqueError_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The execution cannot process further. Previous errors are most likely preventing further execution. Details: {0}.
         /// </summary>
-        public static string ApiErrorType_CannotProcessFurther_Message {
+        public static string ApiCannotProcessFurtherError_Message {
             get {
-                return ResourceManager.GetString("ApiErrorType_CannotProcessFurther_Message", resourceCulture);
+                return ResourceManager.GetString("ApiCannotProcessFurtherError_Message", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Cannot process further..
         /// </summary>
-        public static string ApiErrorType_CannotProcessFurther_Title {
+        public static string ApiCannotProcessFurtherError_Title {
             get {
-                return ResourceManager.GetString("ApiErrorType_CannotProcessFurther_Title", resourceCulture);
+                return ResourceManager.GetString("ApiCannotProcessFurtherError_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Entity error.
+        /// </summary>
+        public static string ApiEntityError_Title {
+            get {
+                return ResourceManager.GetString("ApiEntityError_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to API errors have occurred (Details: {{ {0} }})..
+        /// </summary>
+        public static string ApiErrorException_Message {
+            get {
+                return ResourceManager.GetString("ApiErrorException_Message", resourceCulture);
             }
         }
         
@@ -84,6 +120,195 @@ namespace Bitbird.Core.ApiErrors {
         public static string ApiErrorType_MustBeUnique_Title {
             get {
                 return ResourceManager.GetString("ApiErrorType_MustBeUnique_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The current session is not logged in..
+        /// </summary>
+        public static string ApiForbiddenNoLoginError_Message {
+            get {
+                return ResourceManager.GetString("ApiForbiddenNoLoginError_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not logged in..
+        /// </summary>
+        public static string ApiForbiddenNoLoginError_Title {
+            get {
+                return ResourceManager.GetString("ApiForbiddenNoLoginError_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The current session does not have the right to perform this action (Action description: {0})..
+        /// </summary>
+        public static string ApiForbiddenNoRightsError_Message {
+            get {
+                return ResourceManager.GetString("ApiForbiddenNoRightsError_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Insufficient rights..
+        /// </summary>
+        public static string ApiForbiddenNoRightsError_Title {
+            get {
+                return ResourceManager.GetString("ApiForbiddenNoRightsError_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The provided credentials are invalid (Details: {0})..
+        /// </summary>
+        public static string ApiInvalidCredentialsError_Message {
+            get {
+                return ResourceManager.GetString("ApiInvalidCredentialsError_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid credentials..
+        /// </summary>
+        public static string ApiInvalidCredentialsError_Title {
+            get {
+                return ResourceManager.GetString("ApiInvalidCredentialsError_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A {0} with the given identifier could not be found (identifier=&apos;{1}&apos;, identifier info=&apos;{2}&apos;)..
+        /// </summary>
+        public static string ApiNotFoundError_Message {
+            get {
+                return ResourceManager.GetString("ApiNotFoundError_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Primary key.
+        /// </summary>
+        public static string ApiNotFoundError_Message_NoIdentifierInfo {
+            get {
+                return ResourceManager.GetString("ApiNotFoundError_Message_NoIdentifierInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not found..
+        /// </summary>
+        public static string ApiNotFoundError_Title {
+            get {
+                return ResourceManager.GetString("ApiNotFoundError_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Optimistic locking error..
+        /// </summary>
+        public static string ApiOptimisticLockingError_Title {
+            get {
+                return ResourceManager.GetString("ApiOptimisticLockingError_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Parameter error..
+        /// </summary>
+        public static string ApiParameterError_Title {
+            get {
+                return ResourceManager.GetString("ApiParameterError_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Precondition violated..
+        /// </summary>
+        public static string ApiPreconditionError_Title {
+            get {
+                return ResourceManager.GetString("ApiPreconditionError_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This authentication method is inactive (Reason: {0})..
+        /// </summary>
+        public static string ApiUserAuthInactiveError_Message {
+            get {
+                return ResourceManager.GetString("ApiUserAuthInactiveError_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No details available..
+        /// </summary>
+        public static string ApiUserAuthInactiveError_Message_NoReason {
+            get {
+                return ResourceManager.GetString("ApiUserAuthInactiveError_Message_NoReason", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Authentication inactive..
+        /// </summary>
+        public static string ApiUserAuthInactiveError_Title {
+            get {
+                return ResourceManager.GetString("ApiUserAuthInactiveError_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The user is currently inactive. Contact your administrator..
+        /// </summary>
+        public static string ApiUserIsInActiveError_Message {
+            get {
+                return ResourceManager.GetString("ApiUserIsInActiveError_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The user is inactive..
+        /// </summary>
+        public static string ApiUserIsInActiveError_Title {
+            get {
+                return ResourceManager.GetString("ApiUserIsInActiveError_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The user is currently locked. Contact your administrator..
+        /// </summary>
+        public static string ApiUserIsLockedError_Message {
+            get {
+                return ResourceManager.GetString("ApiUserIsLockedError_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The user is locked..
+        /// </summary>
+        public static string ApiUserIsLockedError_Title {
+            get {
+                return ResourceManager.GetString("ApiUserIsLockedError_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The requested interface version is not supported (Requested version: {0}, Supported version: {1})..
+        /// </summary>
+        public static string ApiVersionMismatchError_Message {
+            get {
+                return ResourceManager.GetString("ApiVersionMismatchError_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to API version missmatch..
+        /// </summary>
+        public static string ApiVersionMismatchError_Title {
+            get {
+                return ResourceManager.GetString("ApiVersionMismatchError_Title", resourceCulture);
             }
         }
     }

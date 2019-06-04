@@ -1,9 +1,13 @@
-﻿namespace Bitbird.Core
+﻿using Bitbird.Core.ApiErrors;
+using JetBrains.Annotations;
+
+namespace Bitbird.Core
 {
+    [UsedImplicitly]
     public class ApiUserIsInActiveError : ApiError
     {
         public ApiUserIsInActiveError()
-            : base(ApiErrorType.UserIsLocked, "User is inactive", "The user is currently inactive. Contact your administrator.")
+            : base(ApiErrorType.UserIsLocked, ApiErrorMessages.ApiUserIsInActiveError_Title, ApiErrorMessages.ApiUserIsInActiveError_Message)
         {
         }
     }
