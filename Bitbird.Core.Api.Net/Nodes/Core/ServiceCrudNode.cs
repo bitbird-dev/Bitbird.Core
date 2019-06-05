@@ -693,7 +693,6 @@ namespace Bitbird.Core.Api.Nodes.Core
             if (session == null) throw new ArgumentNullException(nameof(session));
             if (dbModels == null) throw new ArgumentNullException(nameof(dbModels));
             if (models == null) throw new ArgumentNullException(nameof(models));
-            if (benchmarks == null) throw new ArgumentNullException(nameof(benchmarks));
 
             if (dbModels.Count == 0)
                 return;

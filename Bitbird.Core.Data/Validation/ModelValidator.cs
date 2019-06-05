@@ -459,13 +459,13 @@ namespace Bitbird.Core.Data.Validation
                         }
                         else
                         {
-                            var interfaceTye = validatorCheckDistinctAttribute.DistinctSelectEqualityMemberProviderType
+                            var interfaceType = validatorCheckDistinctAttribute.DistinctSelectEqualityMemberProviderType
                                                    .GetInterfaces()
                                                    .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() ==
                                                                          typeof(IDistinctSelectEqualityMemberProvider<,>)) ?? throw new Exception(
                                                    $"{validatorCheckDistinctAttribute.DistinctSelectEqualityMemberProviderType.FullName} is not of type {typeof(IDistinctSelectEqualityMemberProvider<,>).FullName}.");
 
-                            var equalityMemberType = interfaceTye.GetGenericArguments()[1];
+                            var equalityMemberType = interfaceType.GetGenericArguments()[1];
 
                             propertyBlockExpressions.Add(
                                 Expression.Assign(hasNoValidationErrorsVariableExpression,
