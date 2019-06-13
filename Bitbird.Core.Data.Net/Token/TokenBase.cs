@@ -38,7 +38,6 @@ namespace Bitbird.Core.Data
         /// Sql-DataType: datetime2.
         /// </summary>
         /// <inheritdoc cref="IToken{T}" />
-        [Column(TypeName = "datetime2")]
         [UsedImplicitly]
         public DateTime ValidUntil { get; set; }
 
@@ -46,7 +45,6 @@ namespace Bitbird.Core.Data
         /// The timestamp at which this token was created.
         /// Sql-DataType: datetime2.
         /// </summary>
-        [Column(TypeName = "datetime2")]
         [UsedImplicitly]
         public DateTime CreationDateTime { get; set; }
     }

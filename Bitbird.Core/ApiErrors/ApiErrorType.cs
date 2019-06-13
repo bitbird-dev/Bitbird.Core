@@ -3,32 +3,32 @@
     public enum ApiErrorType
     {
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.IAmATeapot)]
-        ApiVersionMismatch,
+        ApiVersionMismatch = 0,
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.Forbidden)]
-        ForbiddenNoLogin,
+        ForbiddenNoLogin = 1,
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.Forbidden)]
-        ForbiddenNoRights,
+        ForbiddenNoRights = 2,
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.NotFound)]
-        NotFound,
+        NotFound = 3,
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.UnprocessableEntity)]
-        CannotProcessFurther,
+        CannotProcessFurther = 4,
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.UnprocessableEntity)]
-        MustBeUnique,
+        MustBeUnique = 5,
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.UnprocessableEntity)]
-        InvalidAttribute,
+        InvalidAttribute = 6,
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.UnprocessableEntity)]
-        InvalidParameter,
+        InvalidParameter = 7,
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.UnprocessableEntity)]
-        InvalidEntity,
+        InvalidEntity = 8,
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.UnprocessableEntity)]
-        PreconditionViolation,
+        PreconditionViolation = 9,
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.UnprocessableEntity)]
-        OptimisticLocking,
+        OptimisticLocking = 10,
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.Unauthorized)]
-        CredentialsAreInvalid,
+        CredentialsAreInvalid = 11,
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.Unauthorized)]
-        UserIsLocked,
+        UserIsLocked = 12,
         [HttpStatusCode(StatusCode = HttpStatusCodeExtended.Unauthorized)]
-        AuthenticationIsNotActive
+        AuthenticationIsNotActive = 13
     }
 }

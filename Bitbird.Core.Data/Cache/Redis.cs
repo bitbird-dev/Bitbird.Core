@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using StackExchange.Redis;
+using StackExchange.Redis.KeyspaceIsolation;
 
 namespace Bitbird.Core.Data.Cache
 {
