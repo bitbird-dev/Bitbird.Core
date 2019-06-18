@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Resources;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -6,8 +7,10 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Bitbird.Core.Backend.DevTools.ModelGenerator.Net")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Provides a simple model generator for interface models to various languages as .NET Framework library.")]
 [assembly: AssemblyCulture("")]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("bd61a4dd-3296-4c90-a907-70263bbb552b")]
+[assembly: NeutralResourcesLanguage("en")]
+

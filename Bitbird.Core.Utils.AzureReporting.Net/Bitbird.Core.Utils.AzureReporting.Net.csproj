@@ -23,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\Bitbird.Core.Utils.AzureReporting.Net.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,6 +34,7 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\Bitbird.Core.Utils.AzureReporting.Net.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.WindowsAzure.Configuration, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -79,6 +81,7 @@
     <Compile Include="Models\UploadAttachmentModel.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Bitbird.Core.Utils.AzureReporting.Net.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

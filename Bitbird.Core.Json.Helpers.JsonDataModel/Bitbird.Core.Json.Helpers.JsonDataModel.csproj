@@ -1,18 +1,20 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <LangVersion>7.3</LangVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>Bitbird.Core.Json.Helpers.JsonDataModel</AssemblyName>
+    <NeutralLanguage>en</NeutralLanguage>
+    <Description>Provides functionality for projects using the 'old' JSON-Api functionality (inheriting from JsonApiResource) as .NET Standard library.</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>C:\Users\FlorianSchober\Source\Repos\bitbird-dev\Bitbird.Core\Bitbird.Core.Json.Helpers.JsonDataModel\Bitbird.Core.Json.Helpers.JsonDataModel.xml</DocumentationFile>
     <NoWarn>1701;1702;1591;1573</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>C:\Users\FlorianSchober\Source\Repos\bitbird-dev\Bitbird.Core\Bitbird.Core.Json.Helpers.JsonDataModel\Bitbird.Core.Json.Helpers.JsonDataModel.xml</DocumentationFile>
     <NoWarn>1701;1702;1591;1573</NoWarn>
   </PropertyGroup>
 

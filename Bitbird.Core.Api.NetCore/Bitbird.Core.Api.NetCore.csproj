@@ -1,8 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>Bitbird.Core.Api.NetCore</AssemblyName>
     <RootNamespace>Bitbird.Core.Api</RootNamespace>
+    <NeutralLanguage>en</NeutralLanguage>
+    <Description>Contains .NET Core specific implementations of the Bitbird.Core.Api library.</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
