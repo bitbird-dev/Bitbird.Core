@@ -91,6 +91,31 @@ namespace Bitbird.Core.Data.Validation
             Errors.AddRange(errors);
         }
 
+        [ContractAnnotation("value:null => true; value:notnull => false")]
+        [UsedImplicitly]
+        public bool CheckNull<TEntity>(
+            [CanBeNull] object value,
+            [NotNull] Expression<Func<TEntity, object>> attributeExpression)
+        {
+            if (attributeExpression == null) throw new ArgumentNullException(nameof(attributeExpression));
+
+            return ExecuteCheck(() =>
+            {
+                if (value == null)
+                    return true;
+
+                Errors.Add(new ApiAttributeError<TEntity>(attributeExpression, ValidationMessages.Null));
+                return false;
+            });
+        }
+
+        [ContractAnnotation("value:null => true; value:notnull => false")]
+        [UsedImplicitly]
+        public bool CheckNull<TEntity>(
+            [CanBeNull] TEntity model,
+            [CanBeNull] object value,
+            [NotNull] Expression<Func<TEntity, object>> attributeExpression) => CheckNull(value, attributeExpression);
+
         [ContractAnnotation("value:null => false; value:notnull => true")]
         [UsedImplicitly]
         public bool CheckNotNull<TEntity>(

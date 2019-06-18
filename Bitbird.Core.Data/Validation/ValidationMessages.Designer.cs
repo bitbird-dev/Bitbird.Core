@@ -187,6 +187,15 @@ namespace Bitbird.Core.Data.Validation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The value must not be set..
+        /// </summary>
+        public static string Null {
+            get {
+                return ResourceManager.GetString("Null", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The referenced entry does not exist. The referenced id was {0}..
         /// </summary>
         public static string RelatedEntryExists {

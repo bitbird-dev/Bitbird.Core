@@ -171,4 +171,7 @@
   <data name="CannotDeleteDeleted" xml:space="preserve">
     <value>Cannot delete an item that is already deleted.</value>
   </data>
+  <data name="Null" xml:space="preserve">
+    <value>The value must not be set.</value>
+  </data>
 </root>
