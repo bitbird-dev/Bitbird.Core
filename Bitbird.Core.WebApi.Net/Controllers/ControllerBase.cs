@@ -27,6 +27,7 @@ namespace Bitbird.Core.WebApi.Controllers
         private const string LoginTokenKeyHeaderKey = "X-ApiKey";
         private const string ClientApplicationHeaderKey = "X-Application";
         private const string InterfaceVersionHeaderKey = "X-InterfaceVersion";
+        private const string MobileInterfaceVersionHeaderKey = "X-MobileInterfaceVersion";
         private readonly Regex regexAcceptLanguage = new Regex(@"(?<language>\*|[a-zA-Z]{2})(-(?<country>[a-zA-Z]{2}))?(;q=(?<ratio>\d+\.?\d*))?", RegexOptions.Compiled);
 
         [NotNull, ItemNotNull]
@@ -42,6 +43,10 @@ namespace Bitbird.Core.WebApi.Controllers
         [UsedImplicitly]
         // ReSharper disable once StaticMemberInGenericType
         public static long InterfaceVersion = -1;
+
+        [UsedImplicitly]
+        // ReSharper disable once StaticMemberInGenericType
+        public static long MobileInterfaceVersion = -1;
 
         [CanBeNull]
         private static TService service;
@@ -161,6 +166,25 @@ namespace Bitbird.Core.WebApi.Controllers
 
                         if (interfaceVersion != InterfaceVersion)
                             throw new ApiErrorException(new ApiVersionMismatchError(InterfaceVersion, interfaceVersion));
+                    }
+
+                    if (Request.Headers.TryGetValues(MobileInterfaceVersionHeaderKey, out var mobileInterfaceVersionString))
+                    {
+                        var versionStrings = mobileInterfaceVersionString as string[] ?? mobileInterfaceVersionString?.ToArray();
+
+                        if (versionStrings == null)
+                            throw new ApiErrorException(new ApiParameterError(MobileInterfaceVersionHeaderKey, Properties.Resources.ControllerBase_InferfaceVersionHeader_WrongFormat));
+                        if (!versionStrings.Any())
+                            throw new ApiErrorException(new ApiParameterError(MobileInterfaceVersionHeaderKey, Properties.Resources.ControllerBase_InferfaceVersionHeader_WrongFormat));
+                        if (versionStrings.Any(x => x == null))
+                            throw new ApiErrorException(new ApiParameterError(MobileInterfaceVersionHeaderKey, Properties.Resources.ControllerBase_InferfaceVersionHeader_WrongFormat));
+                        if (versionStrings.Length != 1)
+                            throw new ApiErrorException(new ApiParameterError(MobileInterfaceVersionHeaderKey, Properties.Resources.ControllerBase_InferfaceVersionHeader_WrongFormat));
+                        if (!long.TryParse(versionStrings.FirstOrDefault() ?? string.Empty, out var mobileInterfaceVersion))
+                            throw new ApiErrorException(new ApiParameterError(MobileInterfaceVersionHeaderKey, Properties.Resources.ControllerBase_InferfaceVersionHeader_WrongFormat));
+
+                        if (mobileInterfaceVersion != MobileInterfaceVersion)
+                            throw new ApiErrorException(new ApiVersionMismatchError(MobileInterfaceVersion, mobileInterfaceVersion));
                     }
                 }
 

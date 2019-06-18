@@ -29,9 +29,13 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
     {
         private readonly ConsoleArguments arguments;
         private readonly Type[] modelResourceAssemblyTypes;
+        private readonly Func<Type, bool> modelResourceTypePredicate;
         private readonly Type[] signalRHubAssemblyTypes;
+        private readonly Func<Type, bool> signalRHubTypePredicate;
         private readonly Type[] controllerAssemblyTypes;
+        private readonly Func<Type, bool> controllerTypePredicate;
         private readonly ResourceManager[] translationResourceManagers;
+        private readonly Dictionary<string, bool> customPredicates;
         private readonly string[] languages;
         private readonly long interfaceVersion;
         private readonly DocumentationCollection documentation;
@@ -43,18 +47,26 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
         /// </summary>
         public ModelGen(ConsoleArguments arguments,
             Type[] modelResourceAssemblyTypes,
+            Func<Type, bool> modelResourceTypePredicate,
             Type[] signalRHubAssemblyTypes,
+            Func<Type, bool> signalRHubTypePredicate,
             Type[] controllerAssemblyTypes,
+            Func<Type, bool> controllerTypePredicate,
             ResourceManager[] translationResourceManagers,
+            Dictionary<string, bool> customPredicates,
             string[] languages,
             long interfaceVersion, 
             ResourceManager resourceManager)
         {
             this.arguments = arguments;
             this.modelResourceAssemblyTypes = modelResourceAssemblyTypes;
+            this.modelResourceTypePredicate = modelResourceTypePredicate;
             this.signalRHubAssemblyTypes = signalRHubAssemblyTypes;
+            this.signalRHubTypePredicate = signalRHubTypePredicate;
             this.controllerAssemblyTypes = controllerAssemblyTypes;
+            this.controllerTypePredicate = controllerTypePredicate;
             this.translationResourceManagers = translationResourceManagers;
+            this.customPredicates = customPredicates;
             this.languages = languages;
             this.interfaceVersion = interfaceVersion;
             documentation = new DocumentationCollection(arguments.DocDirectory);
@@ -154,6 +166,7 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
         {
             return modelResourceAssemblyTypes
                 .SelectMany(x => Assembly.GetAssembly(x).GetTypes())
+                .Where(modelResourceTypePredicate)
                 .Where(type => typeof(JsonApiResource).IsAssignableFrom(type))
                 .Select(type =>
                 {
@@ -173,6 +186,7 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
         {
             return signalRHubAssemblyTypes
                 .SelectMany(t => Assembly.GetAssembly(t).GetTypes())
+                .Where(signalRHubTypePredicate)
                 .Select(t => new
                 {
                     Type = t,
@@ -237,6 +251,7 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
 
             return controllerAssemblyTypes
                 .SelectMany(t => Assembly.GetAssembly(t).GetTypes())
+                .Where(controllerTypePredicate)
                 .Select(t => new
                 {
                     Type = t,
@@ -367,11 +382,13 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
             model = ReplaceSections(model, "attributes", attributesSection);
             model = ReplaceToken(model, "doc-summary", classDoc?.Get(DocumentationType.Summary, documentation));
             model = ReplaceToken(model, "className", modelType.Name);
+            model = ResolveCustomPredicates(model);
 
             // filename
             var filename = templates.Get(TemplateType.PlainModelClassFilename);
             filename = ReplaceSections(filename, "attributes", attributesSection);
             filename = ReplaceToken(filename, "className", modelType.Name);
+            filename = ResolveCustomPredicates(filename);
 
             return files.Concat(new [] { new GeneratedFile(filename, model) });
         }
@@ -463,6 +480,7 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
             model = ReplaceToken(model, "doc-summary", classDoc?.Get(DocumentationType.Summary, documentation));
             model = ReplaceToken(model, "className", resource.Instance.ResourceType.FromKebabCase());
             model = ReplaceToken(model, "route", resource.Instance.UrlPath.Trim('/', '\\'));
+            model = ResolveCustomPredicates(model);
 
             // filename
             var filename = templates.Get(TemplateType.ModelClassFilename);
@@ -472,6 +490,7 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
             filename = ReplaceToken(filename, "doc-summary", classDoc?.Get(DocumentationType.Summary, documentation));
             filename = ReplaceToken(filename, "className", resource.Instance.ResourceType.FromKebabCase());
             filename = ReplaceToken(filename, "route", resource.Instance.UrlPath.Trim('/', '\\'));
+            filename = ResolveCustomPredicates(filename);
 
             return new GeneratedFile(filename, model);
         }
@@ -491,9 +510,12 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
             // class
             var model = templates.Get(TemplateType.ProxiesClass);
             model = ReplaceSections(model, "controllers", controllerSection);
+            model = ResolveCustomPredicates(model);
 
             // filename
             var filename = templates.Get(TemplateType.ProxiesClassFilename);
+            filename = ResolveCustomPredicates(filename);
+
             return new GeneratedFile(filename, model);
         }
 
@@ -608,10 +630,13 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
             var proxy = templates.Get(TemplateType.ProxyClass);
             proxy = ReplaceSections(proxy, "actions", actionsSection);
             proxy = ReplaceToken(proxy, "controllerName", controller.Key.FriendlyName);
+            proxy = ResolveCustomPredicates(proxy);
 
             // filename
             var filename = templates.Get(TemplateType.ProxyClassFilename);
             filename = ReplaceToken(filename, "controllerName", controller.Key.FriendlyName);
+            filename = ResolveCustomPredicates(filename);
+
             return new GeneratedFile(filename, proxy);
         }
 
@@ -650,11 +675,13 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
             // file
             var file = templates.Get(TemplateType.EnumsClass);
             file = ReplaceToken(file, "enums", enumsSection);
+            file = ResolveCustomPredicates(file);
 
 
             // filename
             var filename = templates.Get(TemplateType.EnumsClassFilename);
-            file = ReplaceToken(file, "enums", enumsSection);
+            filename = ReplaceToken(filename, "enums", enumsSection);
+            filename = ResolveCustomPredicates(filename);
 
             return new GeneratedFile(filename, file);
         }
@@ -683,6 +710,7 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
             model = ReplaceToken(model, "doc-summary", classDoc?.Get(DocumentationType.Summary, documentation));
             model = ReplaceToken(model, "baseType", Enum.GetUnderlyingType(enumType), null);
             model = ReplaceToken(model, "className", enumType.Name);
+            model = ResolveCustomPredicates(model);
 
             // filename
             var filename = templates.Get(TemplateType.EnumClassFilename);
@@ -690,6 +718,7 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
             filename = ReplaceToken(filename, "doc-summary", classDoc?.Get(DocumentationType.Summary, documentation));
             filename = ReplaceToken(filename, "baseType", Enum.GetUnderlyingType(enumType), null);
             filename = ReplaceToken(filename, "className", enumType.Name);
+            filename = ResolveCustomPredicates(filename);
 
             return new GeneratedFile(filename, model);
         }
@@ -755,6 +784,7 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
                     {
                         // filename
                         var fileContent = modelSections[kvp.Key];
+                        fileContent = ResolveCustomPredicates(fileContent);
                         return new GeneratedFile(kvp.Value, fileContent);
                     });
                 }).ToArray();
@@ -770,9 +800,11 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
             // interface version
             var interfaceVersionFile = templates.Get(TemplateType.InterfaceVersion);
             interfaceVersionFile = ReplaceToken(interfaceVersionFile, "version", interfaceVersion.ToString());
+            interfaceVersionFile = ResolveCustomPredicates(interfaceVersionFile);
 
             // filename
             var filename = templates.Get(TemplateType.InterfaceVersionFilename);
+            filename = ResolveCustomPredicates(filename);
 
             return new GeneratedFile(filename, interfaceVersionFile);
         }
@@ -792,12 +824,25 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
             // file
             var routeFile = templates.Get(TemplateType.RoutesClass);
             routeFile = ReplaceToken(routeFile, "routes", routesSection);
+            routeFile = ResolveCustomPredicates(routeFile);
 
             // filename
             var filename = templates.Get(TemplateType.RoutesClassFilename);
             filename = ReplaceToken(filename, "routes", routesSection);
+            filename = ResolveCustomPredicates(filename);
 
             return new GeneratedFile(filename, routeFile);
+        }
+
+        private string ResolveCustomPredicates(string content)
+        {
+            if (customPredicates == null)
+                return content;
+
+            foreach (var customPredicate in customPredicates)
+                content = ResolvePredicate(content, customPredicate.Key, customPredicate.Value);
+
+            return content;
         }
 
         private static Dictionary<string, string> ExtractSections(string content)
