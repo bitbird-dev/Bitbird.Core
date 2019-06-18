@@ -22,7 +22,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\Bitbird.Core.Utils.AzureReporting.Net.xml</DocumentationFile>
-    <NoWarn>1591</NoWarn>
+    <NoWarn>1591;CS1591</NoWarn>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -33,7 +33,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\Bitbird.Core.Utils.AzureReporting.Net.xml</DocumentationFile>
-    <NoWarn>1591</NoWarn>
+    <NoWarn>1591;CS1591</NoWarn>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>

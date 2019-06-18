@@ -14,10 +14,12 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE;NET_CORE</DefineConstants>
+    <NoWarn>1701;1702;CS1591</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;NET_CORE</DefineConstants>
+    <NoWarn>1701;1702;CS1591</NoWarn>
   </PropertyGroup>
 
   <Import Project="..\SharedProperties.props" />

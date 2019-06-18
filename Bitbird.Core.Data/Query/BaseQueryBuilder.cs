@@ -495,8 +495,6 @@ namespace Bitbird.Core.Data.Query
         /// Will fail if called on in-memory-queries.
         /// </summary>
         /// <typeparam name="TModel">The record type.</typeparam>
-        /// <param name="query">The query to execute. Must not be null.</param>
-        /// <param name="benchmarks">A benchmark section. Can be null.</param>
         /// <returns>A query result.</returns>
         public static async Task<QueryResult<TModel>> ExecuteAsync<TModel>(this BuiltQuery<TModel> query, BenchmarkSection benchmarks, Func<IQueryable<TModel>,Task<TModel[]>> toArrayFunc, Func<IQueryable<TModel>, Task<long>> countFunc)
             where TModel : class

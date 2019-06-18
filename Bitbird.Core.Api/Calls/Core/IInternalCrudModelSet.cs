@@ -20,7 +20,7 @@ namespace Bitbird.Core.Api.Nodes.Core
         /// Persists the passed model and returns the created model (which might differ from the passed model in some calculated/related attributes, e.g. Id).
         /// Permissions are checked before creation (needed permission: AccessType.Create for the model type AND AccessType.Read for the model and related entities which are needed for model creation if queryCreated is true), and an ApiErrorException(ApiForbiddenNoRightsError) is raised if the check fails.
         /// </summary>
-        /// <param name="db">The data context to use. Must not be null. <see cref="Data.Net.DbContext.HookedStateDataContext{TDataContext, TState}.SaveChangesAsync(TState, System.Threading.CancellationToken)"/> is called on the context.</param>
+        /// <param name="db">The data context to use. Must not be null. <see cref="IHookedStateDataContext{TState}.SaveChangesAsync(TState)" /> is called on the context.</param>
         /// <param name="apiSession">The current user session.</param>
         /// <param name="state">A state object storing that is passed to the database hooks invoker.</param>
         /// <param name="model">The model which should be created. Must not be null. Some attributes might be ignored during the creation process. For more information see the documentation of the model.</param>
@@ -39,7 +39,7 @@ namespace Bitbird.Core.Api.Nodes.Core
         /// Permissions are checked before creation (needed permission: AccessType.Create for the model type AND AccessType.Read for the model and related entities which are needed for model creation if queryCreated is true), and an ApiErrorException(ApiForbiddenNoRightsError) is raised if the check fails.
         /// Returns models in the same order as their corresponding models in the models-parameter.
         /// </summary>
-        /// <param name="db">The data context to use. Must not be null. <see cref="Data.Net.DbContext.HookedStateDataContext{TDataContext, TState}.SaveChangesAsync(TState, System.Threading.CancellationToken)"/> is called on the context.</param>
+        /// <param name="db">The data context to use. Must not be null. <see cref="IHookedStateDataContext{TState}.SaveChangesAsync(TState)"/> is called on the context.</param>
         /// <param name="apiSession">The current user session.</param>
         /// <param name="state">A state object storing that is passed to the database hooks invoker.</param>
         /// <param name="models">The models which should be created. Must not be null. Some attributes might be ignored during the creation process. For more information see the documentation of the model.</param>
@@ -57,7 +57,7 @@ namespace Bitbird.Core.Api.Nodes.Core
         /// Persists changes in the passed model and returns the updated model (which might differ from the passed model in some calculated/related attributes, e.g. Id).
         /// Permissions are checked before update (needed permission: AccessType.Update for the model type AND AccessType.Read for the model type and related entities which are needed for model creation), and an ApiErrorException(ApiForbiddenNoRightsError) is raised if the check fails.
         /// </summary>
-        /// <param name="db">The data context to use. Must not be null. <see cref="Data.Net.DbContext.HookedStateDataContext{TDataContext, TState}.SaveChangesAsync(TState, System.Threading.CancellationToken)"/> is called on the context.</param>
+        /// <param name="db">The data context to use. Must not be null. <see cref="IHookedStateDataContext{TState}.SaveChangesAsync(TState)"/> is called on the context.</param>
         /// <param name="apiSession">The current user session.</param>
         /// <param name="state">A state object storing that is passed to the database hooks invoker.</param>
         /// <param name="model">The model which should be updated. Must not be null. Some attributes might be ignored during the update process. For more information see the documentation of the model.</param>
@@ -78,7 +78,7 @@ namespace Bitbird.Core.Api.Nodes.Core
         /// Permissions are checked before update (needed permission: AccessType.Update for the model type AND AccessType.Read for the model type and related entities which are needed for model creation), and an ApiErrorException(ApiForbiddenNoRightsError) is raised if the check fails.
         /// Returns models in the same order as their corresponding models in the models-parameter.
         /// </summary>
-        /// <param name="db">The data context to use. Must not be null. <see cref="Data.Net.DbContext.HookedStateDataContext{TDataContext, TState}.SaveChangesAsync(TState, System.Threading.CancellationToken)"/> is called on the context.</param>
+        /// <param name="db">The data context to use. Must not be null. <see cref="IHookedStateDataContext{TState}.SaveChangesAsync(TState)"/> is called on the context.</param>
         /// <param name="apiSession">The current user session.</param>
         /// <param name="state">A state object storing that is passed to the database hooks invoker.</param>
         /// <param name="models">The models which should be updated. Must not be null. Some attributes might be ignored during the update process. For more information see the documentation of the model.</param>
@@ -98,7 +98,7 @@ namespace Bitbird.Core.Api.Nodes.Core
         /// Deletes the model with the passed id.
         /// Permissions are checked before delete (needed permission: AccessType.Delete for the model type AND AccessType.Read for the model type and related entities which are needed for model creation), and an ApiErrorException(ApiForbiddenNoRightsError) is raised if the check fails.
         /// </summary>
-        /// <param name="db">The data context to use. Must not be null. <see cref="Data.Net.DbContext.HookedStateDataContext{TDataContext, TState}.SaveChangesAsync(TState, System.Threading.CancellationToken)"/> is called on the context.</param>
+        /// <param name="db">The data context to use. Must not be null. <see cref="IHookedStateDataContext{TState}.SaveChangesAsync(TState)"/> is called on the context.</param>
         /// <param name="apiSession">The current user session.</param>
         /// <param name="state">A state object storing that is passed to the database hooks invoker.</param>
         /// <param name="id">The id of the model to delete.</param>
@@ -116,7 +116,7 @@ namespace Bitbird.Core.Api.Nodes.Core
         /// Deletes the models with the passed ids.
         /// Permissions are checked before delete (needed permission: AccessType.Delete for the model type AND AccessType.Read for the model type and related entities which are needed for model creation), and an ApiErrorException(ApiForbiddenNoRightsError) is raised if the check fails.
         /// </summary>
-        /// <param name="db">The data context to use. Must not be null. <see cref="Data.Net.DbContext.HookedStateDataContext{TDataContext, TState}.SaveChangesAsync(TState, System.Threading.CancellationToken)"/> is called on the context.</param>
+        /// <param name="db">The data context to use. Must not be null. <see cref="IHookedStateDataContext{TState}.SaveChangesAsync(TState)"/> is called on the context.</param>
         /// <param name="apiSession">The current user session.</param>
         /// <param name="state">A state object storing that is passed to the database hooks invoker.</param>
         /// <param name="ids">The isd of the models to delete.</param>
