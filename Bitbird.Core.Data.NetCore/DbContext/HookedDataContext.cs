@@ -27,11 +27,6 @@ namespace Bitbird.Core.Data.DbContext
         where TDataContext : Microsoft.EntityFrameworkCore.DbContext
     {
         /// <summary>
-        /// The configuration for this data context.
-        /// </summary>
-        [NotNull] private readonly IConfigurationRoot config;
-
-        /// <summary>
         /// Stores the current hooks.
         /// This instance is already cloned from the hooks that were passed to the constructor, and therefore can be modified.
         /// </summary>
@@ -49,14 +44,14 @@ namespace Bitbird.Core.Data.DbContext
         /// Main constructor. All other constructors should call this one.
         /// For more information about <see cref="Microsoft.EntityFrameworkCore.DbContext" /> see the architecture of entity framework.
         /// </summary>
-        /// <param name="config">The config used to set-up the data context.</param>
+        /// <param name="dbContextOptions">The options to set up the db context.</param>
         /// <param name="hooks">The database hooks object to use. Can be null if no hooks are required. The passed object will not be changed but cloned.</param>
         /// <inheritdoc />
         protected HookedStateDataContext(
-            [NotNull] IConfigurationRoot config, 
+            [NotNull] DbContextOptions dbContextOptions, 
             [CanBeNull] DataContextHookCollection<TDataContext, TState> hooks)
+            : base(dbContextOptions)
         {
-            this.config = config;
             this.hooks = hooks?.Clone();
             this.hooks?.ForAll().AddPreEventAsyncHandler((db, state, entities, type) =>
             {
@@ -67,8 +62,6 @@ namespace Bitbird.Core.Data.DbContext
 
                 return Task.FromResult(true);
             });
-
-            ChangeTracker.AutoDetectChangesEnabled = true;
         }
         #endregion
 
@@ -85,6 +78,7 @@ namespace Bitbird.Core.Data.DbContext
         /// <returns>true if no further processing should be done.</returns>
         [UsedImplicitly]
         public virtual bool ConfigureEntity<T>([NotNull] ModelBuilder modelBuilder)
+            where T : class
         {
             return false;
         }
@@ -105,7 +99,7 @@ namespace Bitbird.Core.Data.DbContext
         {
             var entity = modelBuilder.Entity<T>();
             entity.Property(x => x.SysStartTime)
-                .HasColumnType("datetime2(0)")
+                .HasColumnType("[datetime2](0)")
                 .IsConcurrencyToken();
         }
 
