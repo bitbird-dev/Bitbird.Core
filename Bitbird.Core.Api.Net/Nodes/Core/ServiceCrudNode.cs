@@ -782,7 +782,7 @@ namespace Bitbird.Core.Api.Nodes.Core
             }
 
             var current = relation.ToDictionary(getRelatedId);
-            var toBe = value.ToHashSet();
+            var toBe = new HashSet<long>(value);
 
             var add = toBe.Where(x => !current.ContainsKey(x)).ToArray();
             var delete = current.Where(x => !toBe.Contains(x.Key)).Select(x => x.Value).ToArray();
