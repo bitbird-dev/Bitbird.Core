@@ -42,7 +42,7 @@
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="nuget pack &quot;$(ProjectDir)$(ProjectName).nuspec&quot; -OutputDirectory &quot;$(ProjectDir)bin\$(ConfigurationName)&quot; -Properties configuration=&quot;$(ConfigurationName)&quot;;company=&quot;$(Company)&quot;;product=&quot;$(Product)&quot;;copyright=&quot;$(Copyright)&quot;;authors=&quot;$(Authors)&quot;;version=&quot;$(versionprefix)&quot;;description=&quot;$(Description)&quot;;id=&quot;$(ProjectName)&quot;" />
+    <Exec Command="IF &quot;$(ConfigurationName)&quot;==&quot;Release&quot; (&#xD;&#xA;  dotnet publish &quot;$(ProjectPath)&quot; --configuration $(ConfigurationName) --no-build --no-restore --output &quot;$(ProjectDir)publish&quot;&#xD;&#xA;  nuget pack &quot;$(ProjectDir)$(ProjectName).nuspec&quot; -OutputDirectory &quot;$(ProjectDir)bin\$(ConfigurationName)&quot; -Properties configuration=&quot;$(ConfigurationName)&quot;;company=&quot;$(Company)&quot;;product=&quot;$(Product)&quot;;copyright=&quot;$(Copyright)&quot;;authors=&quot;$(Authors)&quot;;version=&quot;$(versionprefix)&quot;;description=&quot;$(Description)&quot;;id=&quot;$(ProjectName)&quot;&#xD;&#xA;)" />
   </Target>
 
 </Project>

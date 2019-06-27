@@ -11,6 +11,6 @@
     <copyright>$copyright$</copyright>
   </metadata>
   <files>
-    <file src="bin\$configuration$\**" target="bin"/>
+    <file src="publish\**" target="bin"/>
   </files>
 </package>
