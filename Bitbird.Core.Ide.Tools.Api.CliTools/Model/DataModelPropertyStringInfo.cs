@@ -1,13 +1,15 @@
 ﻿using JetBrains.Annotations;
+using Newtonsoft.Json;
 
 namespace Bitbird.Core.Ide.Tools.Api.CliTools
 {
     [UsedImplicitly]
     public sealed class DataModelPropertyStringInfo
     {
-        [CanBeNull, UsedImplicitly] private readonly int? MaximumLength;
+        [CanBeNull, UsedImplicitly] private int? MaximumLength { get; }
 
-        internal DataModelPropertyStringInfo(
+        [JsonConstructor]
+        public DataModelPropertyStringInfo(
             [CanBeNull] int? maximumLength)
         {
             MaximumLength = maximumLength;

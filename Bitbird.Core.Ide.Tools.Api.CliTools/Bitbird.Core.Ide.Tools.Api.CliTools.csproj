@@ -7,19 +7,26 @@
     <LangVersion>latest</LangVersion>
     <NeutralLanguage>en</NeutralLanguage>
     <Description>Contains meta data readers for data projects to support the generation of api classes by T4 templates as .NET Standard library.</Description>
+    <ApplicationIcon />
+    <OutputType>Exe</OutputType>
+    <StartupObject />
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn>1701;1702;1591;CS1591</NoWarn>
+    <DocumentationFile></DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <NoWarn>1701;1702;1591;CS1591</NoWarn>
+    <DocumentationFile></DocumentationFile>
   </PropertyGroup>
 
   <Import Project="..\SharedProperties.props" />
 
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="StackExchange.Redis" Version="2.0.601" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
   </ItemGroup>
 
