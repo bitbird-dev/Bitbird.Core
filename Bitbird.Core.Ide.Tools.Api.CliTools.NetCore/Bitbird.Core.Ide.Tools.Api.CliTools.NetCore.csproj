@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <LangVersion>latest</LangVersion>
     <NeutralLanguage>en</NeutralLanguage>
@@ -10,6 +10,7 @@
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject />
+    <IncludeBuildOutput>false</IncludeBuildOutput>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -39,5 +40,9 @@
   <PropertyGroup>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="nuget pack &quot;$(ProjectDir)$(ProjectName).nuspec&quot; -OutputDirectory &quot;$(ProjectDir)bin\$(ConfigurationName)&quot; -Properties configuration=&quot;$(ConfigurationName)&quot;;company=&quot;$(Company)&quot;;product=&quot;$(Product)&quot;;copyright=&quot;$(Copyright)&quot;;authors=&quot;$(Authors)&quot;;version=&quot;$(versionprefix)&quot;;description=&quot;$(Description)&quot;;id=&quot;$(ProjectName)&quot;" />
+  </Target>
 
 </Project>
