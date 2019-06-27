@@ -9,7 +9,6 @@ using Bitbird.Core.Data.DbContext;
 using Bitbird.Core.Data.Validation;
 using Bitbird.Core.Types;
 using JetBrains.Annotations;
-using Newtonsoft.Json;
 
 namespace Bitbird.Core.Ide.Tools.Api.CliTools
 {
@@ -152,7 +151,7 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
                 isComputed,
                 isNotMapped,
                 persistInApiModel,
-                foreignKeyDataModelClass.ToCsType(),
+                foreignKeyDataModelClass?.ToCsType(),
                 foreignKeyDataModelClassName,
                 foreignKeyDataModelModelName,
                 stringInfo,

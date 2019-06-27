@@ -86,7 +86,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{F50F5923
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitbird.Core.Data.Net.Tests", "Bitbird.Core.Data.Net.Tests\Bitbird.Core.Data.Net.Tests.csproj", "{014C1D6C-8852-4ABF-B57F-61021374496D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitbird.Core.Ide.Tools.Api.CliTools", "Bitbird.Core.Ide.Tools.Api.CliTools\Bitbird.Core.Ide.Tools.Api.CliTools.csproj", "{A292DB6C-3DC6-414C-B97C-C1F50EB4B186}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitbird.Core.Ide.Tools.Api.CliTools", "Bitbird.Core.Ide.Tools.Api.CliTools\Bitbird.Core.Ide.Tools.Api.CliTools.csproj", "{A292DB6C-3DC6-414C-B97C-C1F50EB4B186}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitbird.Core.Ide.Tools.Api.CliTools.NetCore", "Bitbird.Core.Ide.Tools.Api.CliTools.NetCore\Bitbird.Core.Ide.Tools.Api.CliTools.NetCore.csproj", "{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -622,6 +624,26 @@ Global
 		{A292DB6C-3DC6-414C-B97C-C1F50EB4B186}.Release|x64.Build.0 = Release|Any CPU
 		{A292DB6C-3DC6-414C-B97C-C1F50EB4B186}.Release|x86.ActiveCfg = Release|Any CPU
 		{A292DB6C-3DC6-414C-B97C-C1F50EB4B186}.Release|x86.Build.0 = Release|Any CPU
+		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}.Debug|ARM.Build.0 = Debug|Any CPU
+		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}.Debug|x64.Build.0 = Debug|Any CPU
+		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}.Debug|x86.Build.0 = Debug|Any CPU
+		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}.Release|ARM.ActiveCfg = Release|Any CPU
+		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}.Release|ARM.Build.0 = Release|Any CPU
+		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}.Release|ARM64.Build.0 = Release|Any CPU
+		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}.Release|x64.ActiveCfg = Release|Any CPU
+		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}.Release|x64.Build.0 = Release|Any CPU
+		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}.Release|x86.ActiveCfg = Release|Any CPU
+		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -658,6 +680,7 @@ Global
 		{F50F5923-7904-47F1-ACF9-EE5E17C5F35A} = {3C0F0ACB-F252-4F4D-9E3E-01A4F96D0764}
 		{014C1D6C-8852-4ABF-B57F-61021374496D} = {F50F5923-7904-47F1-ACF9-EE5E17C5F35A}
 		{A292DB6C-3DC6-414C-B97C-C1F50EB4B186} = {8D71A998-7F10-4ECA-A89A-CD0BC6A69FC3}
+		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00} = {8D71A998-7F10-4ECA-A89A-CD0BC6A69FC3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7F970483-6D84-4B58-9B0D-B4FB8745BD73}

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Bitbird.Core.Ide.Tools.Api.CliTools.NetCore": {
+      "commandName": "Project",
+      "commandLineArgs": "-Export -ExportInputBinPath \"C:\\Users\\FlorianSchober\\source\\repos\\Bitbird IoT Functions Prototype\\Bitbird.Iot.Backend.Data\\bin\\Debug\\netcoreapp2.2\\Bitbird.Iot.Backend.Data.dll\" -ExportOutput \"dataModel.json\""
+    }
+  }
+}

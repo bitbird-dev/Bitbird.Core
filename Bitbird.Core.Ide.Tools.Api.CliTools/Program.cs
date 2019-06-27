@@ -10,10 +10,10 @@ using Newtonsoft.Json;
 namespace Bitbird.Core.Ide.Tools.Api.CliTools
 {
     [UsedImplicitly]
-    internal static class Program
+    public static class Program
     {
         [UsedImplicitly]
-        private static async Task Main([NotNull] string[] args)
+        public static async Task Main([NotNull] string[] args)
         {
             try
             {
@@ -31,7 +31,7 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
                     await ExportAsync(parsedArgs);
                 }
             }
-            catch (Exception e)
+            catch (Exception e) 
             {
                 Console.Error.WriteLine(e.GetType());
                 Console.Error.WriteLine(e.Message);
@@ -49,7 +49,7 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
                 return;
             }
 
-            var assembly = Assembly.LoadFile(exportConsoleArguments.ExportInputBinPath);
+            var assembly = Assembly.LoadFrom(exportConsoleArguments.ExportInputBinPath);
             var types = assembly
                 .GetTypes()
                 .Where(t => t.GetCustomAttribute<EntityAttribute>() != null)

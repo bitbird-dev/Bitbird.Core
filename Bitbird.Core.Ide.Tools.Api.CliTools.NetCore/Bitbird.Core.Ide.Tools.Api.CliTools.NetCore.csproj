@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <LangVersion>latest</LangVersion>
     <NeutralLanguage>en</NeutralLanguage>
-    <Description>Contains meta data readers for data projects to support the generation of api classes by T4 templates as .NET Standard library and executable.</Description>
+    <Description>Contains meta data readers for data projects to support the generation of api classes by T4 templates as .NET Core library and executable.</Description>
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject />
@@ -33,6 +33,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Bitbird.Core.Data\Bitbird.Core.Data.csproj" />
     <ProjectReference Include="..\Bitbird.Core\Bitbird.Core.csproj" />
+    <ProjectReference Include="..\Bitbird.Core.Ide.Tools.Api.CliTools\Bitbird.Core.Ide.Tools.Api.CliTools.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
