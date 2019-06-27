@@ -90,6 +90,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitbird.Core.Ide.Tools.Api.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitbird.Core.Ide.Tools.Api.CliTools.NetCore", "Bitbird.Core.Ide.Tools.Api.CliTools.NetCore\Bitbird.Core.Ide.Tools.Api.CliTools.NetCore.csproj", "{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Scripts", ".Scripts", "{4FB6F213-F16E-4D5B-A0AB-A33A4B6B9188}"
+	ProjectSection(SolutionItems) = preProject
+		Publish-To-Local.ps1 = Publish-To-Local.ps1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
