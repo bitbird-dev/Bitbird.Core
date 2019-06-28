@@ -20,8 +20,8 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
         [UsedImplicitly] public bool IsTemporalTableBase { get; }
         [CanBeNull, UsedImplicitly] public string IdTypeAsCsType { get; }
         [CanBeNull, UsedImplicitly] public string IdSetterTypeAsCsType { get; }
-        [CanBeNull, UsedImplicitly] private string ImportKeyAsCsType { get; }
-        [CanBeNull, UsedImplicitly] private string ImportKeyUnderlyingTypeAsCsType { get; }
+        [CanBeNull, UsedImplicitly] public string ImportKeyAsCsType { get; }
+        [CanBeNull, UsedImplicitly] public string ImportKeyUnderlyingTypeAsCsType { get; }
 
         [UsedImplicitly, JsonIgnore]
         public bool IsIId => IdTypeAsCsType != null;
@@ -63,6 +63,7 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
             IsIIsLockedFlagEntity = isIIsLockedFlagEntity;
             IsIIsActiveFlagEntity = isIIsActiveFlagEntity;
             IsIOptimisticLockable = isIOptimisticLockable;
+            IsTemporalTableBase = isTemporalTableBase;
             IdTypeAsCsType = idTypeAsCsType;
             IdSetterTypeAsCsType = idSetterTypeAsCsType;
             ImportKeyAsCsType = importKeyAsCsType;

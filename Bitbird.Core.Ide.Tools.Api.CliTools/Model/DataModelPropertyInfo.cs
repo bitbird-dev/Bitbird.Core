@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 
@@ -89,6 +90,12 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
             ForeignKeyDataModelModelName = foreignKeyDataModelModelName;
             StringInfo = stringInfo;
             Attributes = attributes ?? throw new ArgumentNullException(nameof(attributes));
+        }
+
+        public bool TryGetAttribute<T>(out T attribute) where T : Attribute
+        {
+            attribute = Attributes.OfType<T>().FirstOrDefault();
+            return attribute != null;
         }
     }
 }

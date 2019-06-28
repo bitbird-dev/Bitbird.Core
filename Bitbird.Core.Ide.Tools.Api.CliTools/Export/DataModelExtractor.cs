@@ -155,23 +155,26 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
                 foreignKeyDataModelClassName,
                 foreignKeyDataModelModelName,
                 stringInfo,
-                propertyInfo.GetCustomAttributes()
+                propertyInfo.GetCustomAttributes(true)
                     .Select(ExtractDataModelValidationAttributeInfo)
                     .Where(a => a != null)
                     .ToArray());
         }
 
-        private Attribute ExtractDataModelValidationAttributeInfo(Attribute attribute)
+        private Attribute ExtractDataModelValidationAttributeInfo(object attribute)
         {
-            var type = attribute.GetType() ?? throw new ArgumentNullException("attribute.GetType()");
+            if (!(attribute is Attribute typedAttribute))
+                return null;
 
             AttributeTranslations.TryTranslateAttribute(attribute, out attribute);
+
+            var type = attribute.GetType() ?? throw new ArgumentNullException("attribute.GetType()");
 
             // ReSharper disable once PossibleNullReferenceException
             if (!type.FullName.StartsWith("Bitbird.Core.Data.Validation"))
                 return null;
             
-            return attribute;
+            return attribute as Attribute;
         }
     }
 }

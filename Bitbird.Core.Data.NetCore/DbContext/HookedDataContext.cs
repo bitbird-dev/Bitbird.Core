@@ -3,10 +3,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bitbird.Core.Data.DbContext.Hooks;
+using Bitbird.Core.Data.Validation;
 using Bitbird.Core.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace Bitbird.Core.Data.DbContext
 {
@@ -24,6 +24,7 @@ namespace Bitbird.Core.Data.DbContext
     public abstract class HookedStateDataContext<TDataContext, TState> 
         : Microsoft.EntityFrameworkCore.DbContext 
         , IHookedStateDataContext<TState>
+        , IGetQueryByEntity
         where TDataContext : Microsoft.EntityFrameworkCore.DbContext
     {
         /// <summary>
@@ -199,5 +200,15 @@ namespace Bitbird.Core.Data.DbContext
             // TODO: Add aritharbort on
         }
         #endregion
+
+        public IQueryable<TEntity> GetNonTrackingQuery<TEntity>() where TEntity : class
+        {
+            return Set<TEntity>().AsNoTracking();
+        }
+
+        public IQueryable<TEntity> GetTrackingQuery<TEntity>() where TEntity : class
+        {
+            return Set<TEntity>();
+        }
     }
 }
