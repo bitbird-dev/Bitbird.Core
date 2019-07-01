@@ -71,7 +71,14 @@ namespace Bitbird.Core.Utils.Export.Xlsx
             var worksheet = workbook.Worksheets.Add(title);
             var range = worksheet.Cell(1, 1).InsertData(tableData);
             range.AddToNamed(title, XLScope.Workbook);
-            worksheet.Columns().AdjustToContents();
+            try
+            {
+                worksheet.Columns().AdjustToContents();
+            }
+            catch (PlatformNotSupportedException)
+            {
+                //this error can occur if System.Drawing is not supported on a platform (e.g. Azure functions)
+            }
         }
 
         [NotNull, UsedImplicitly]
