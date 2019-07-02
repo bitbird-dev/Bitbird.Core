@@ -88,12 +88,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitbird.Core.Data.Net.Tests
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitbird.Core.Ide.Tools.Api.CliTools", "Bitbird.Core.Ide.Tools.Api.CliTools\Bitbird.Core.Ide.Tools.Api.CliTools.csproj", "{A292DB6C-3DC6-414C-B97C-C1F50EB4B186}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitbird.Core.Ide.Tools.Api.CliTools.NetCore", "Bitbird.Core.Ide.Tools.Api.CliTools.NetCore\Bitbird.Core.Ide.Tools.Api.CliTools.NetCore.csproj", "{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitbird.Core.Ide.Tools.Api.CliTools.NetCore", "Bitbird.Core.Ide.Tools.Api.CliTools.NetCore\Bitbird.Core.Ide.Tools.Api.CliTools.NetCore.csproj", "{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Scripts", ".Scripts", "{4FB6F213-F16E-4D5B-A0AB-A33A4B6B9188}"
 	ProjectSection(SolutionItems) = preProject
 		Publish-To-Local.ps1 = Publish-To-Local.ps1
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitbird.Core.Web", "Bitbird.Core.Web\Bitbird.Core.Web.csproj", "{F94CF32F-B856-4D4A-992E-4B7C3D7F690D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -649,6 +651,26 @@ Global
 		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}.Release|x64.Build.0 = Release|Any CPU
 		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}.Release|x86.ActiveCfg = Release|Any CPU
 		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00}.Release|x86.Build.0 = Release|Any CPU
+		{F94CF32F-B856-4D4A-992E-4B7C3D7F690D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F94CF32F-B856-4D4A-992E-4B7C3D7F690D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F94CF32F-B856-4D4A-992E-4B7C3D7F690D}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{F94CF32F-B856-4D4A-992E-4B7C3D7F690D}.Debug|ARM.Build.0 = Debug|Any CPU
+		{F94CF32F-B856-4D4A-992E-4B7C3D7F690D}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{F94CF32F-B856-4D4A-992E-4B7C3D7F690D}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{F94CF32F-B856-4D4A-992E-4B7C3D7F690D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F94CF32F-B856-4D4A-992E-4B7C3D7F690D}.Debug|x64.Build.0 = Debug|Any CPU
+		{F94CF32F-B856-4D4A-992E-4B7C3D7F690D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F94CF32F-B856-4D4A-992E-4B7C3D7F690D}.Debug|x86.Build.0 = Debug|Any CPU
+		{F94CF32F-B856-4D4A-992E-4B7C3D7F690D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F94CF32F-B856-4D4A-992E-4B7C3D7F690D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F94CF32F-B856-4D4A-992E-4B7C3D7F690D}.Release|ARM.ActiveCfg = Release|Any CPU
+		{F94CF32F-B856-4D4A-992E-4B7C3D7F690D}.Release|ARM.Build.0 = Release|Any CPU
+		{F94CF32F-B856-4D4A-992E-4B7C3D7F690D}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{F94CF32F-B856-4D4A-992E-4B7C3D7F690D}.Release|ARM64.Build.0 = Release|Any CPU
+		{F94CF32F-B856-4D4A-992E-4B7C3D7F690D}.Release|x64.ActiveCfg = Release|Any CPU
+		{F94CF32F-B856-4D4A-992E-4B7C3D7F690D}.Release|x64.Build.0 = Release|Any CPU
+		{F94CF32F-B856-4D4A-992E-4B7C3D7F690D}.Release|x86.ActiveCfg = Release|Any CPU
+		{F94CF32F-B856-4D4A-992E-4B7C3D7F690D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -686,6 +708,7 @@ Global
 		{014C1D6C-8852-4ABF-B57F-61021374496D} = {F50F5923-7904-47F1-ACF9-EE5E17C5F35A}
 		{A292DB6C-3DC6-414C-B97C-C1F50EB4B186} = {8D71A998-7F10-4ECA-A89A-CD0BC6A69FC3}
 		{CCDA8F2B-840E-431D-8981-AB7AA67F9F00} = {8D71A998-7F10-4ECA-A89A-CD0BC6A69FC3}
+		{F94CF32F-B856-4D4A-992E-4B7C3D7F690D} = {3C0F0ACB-F252-4F4D-9E3E-01A4F96D0764}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7F970483-6D84-4B58-9B0D-B4FB8745BD73}
