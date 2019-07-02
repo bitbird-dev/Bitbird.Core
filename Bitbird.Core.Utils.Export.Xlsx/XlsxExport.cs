@@ -6,7 +6,7 @@ namespace Bitbird.Core.Utils.Export.Xlsx
     public class XlsxExport
     {
         [ValidatorCheckRecursive]
-        [ValidatorCheckNotNullOrEmpty]
+        [ValidatorCheckNotNull]
         [UsedImplicitly, CanBeNull]
         public XlsxColumn[] Columns { get; set; }
     }

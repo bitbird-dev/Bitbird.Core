@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using Bitbird.Core.Benchmarks;
@@ -16,6 +17,11 @@ namespace Bitbird.Core.Data.Query
             QueryBuilder.LikeMethodInstance = null;
         }
 
+        public static bool IsStaticInitRun = false;
+        public static void StaticInit()
+        {
+            IsStaticInitRun = true;
+        }
 
         /// <summary>
         /// Execute the query.

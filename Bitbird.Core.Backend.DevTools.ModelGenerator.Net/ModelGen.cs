@@ -581,7 +581,7 @@ namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net
 
                 section = ResolvePredicate(section, "isArray", isArray);
 
-                section = ResolvePredicate(section, "supportsQueryInfo", a.JsonApiAttribute?.SupportsQuery ?? false);
+                section = ResolvePredicate(section, "supportsQueryInfo", returnsJsonApi || (a.JsonApiAttribute?.SupportsQuery ?? false));
 
                 section = ResolvePredicate(section, "getsBinary", a.JsonApiAttribute?.HasBinaryParameters ?? false);
                 section = ResolvePredicate(section, "getsJsonApi", !(a.JsonApiAttribute?.HasBinaryParameters ?? false) && a.BodyParameter.HasValue && (model != null));

@@ -5,7 +5,7 @@ namespace Bitbird.Core.Utils.Export.Xlsx
 {
     public class XlsxColumn
     {
-        [ValidatorCheckItemNotNull, ValidatorCheckTrimmed]
+        [ValidatorCheckNotNullOrEmpty, ValidatorCheckTrimmed]
         [CanBeNull, UsedImplicitly]
         public string Property { get; set; }
 
