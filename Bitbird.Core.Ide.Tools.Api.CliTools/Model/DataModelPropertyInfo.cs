@@ -97,5 +97,12 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
             attribute = Attributes.OfType<T>().FirstOrDefault();
             return attribute != null;
         }
+
+        public bool TryGetAttribute(string typeName, out dynamic attribute)
+        {
+            var attr = Attributes.FirstOrDefault(a => a.GetType().Name.Equals(typeName));
+            attribute = attr;
+            return attr != null;
+        }
     }
 }

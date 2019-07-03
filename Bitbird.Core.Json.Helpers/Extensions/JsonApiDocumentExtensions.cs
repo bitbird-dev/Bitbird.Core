@@ -279,8 +279,15 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         }
 
         #endregion
-        
+
         #region ToObjectCollection
+
+        public static IEnumerable<TResult> ToObjectCollection<TResult, TResource>(this JsonApiCollectionDocument document, TResource resource) where TResource : JsonApiResource
+        {
+            var primaryResourceObjects = document.Data;
+            if (primaryResourceObjects == null) throw new Exception("Json document contains no data.");
+            return primaryResourceObjects.Select(r => r.ToObject<TResult, TResource>(resource)).ToList();
+        }
 
         public static IEnumerable<TResult> ToObjectCollection<TResult, TResource>(this JsonApiCollectionDocument document) where TResource : JsonApiResource
         {
@@ -296,6 +303,12 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             foundAttributes = (idx, attrName) => (document.Data.ElementAt(idx)?.Attributes?.ContainsKey(attrName.ToJsonAttributeName()) ?? false) || (document.Data.ElementAt(idx)?.Relationships?.ContainsKey(attrName.ToRelationshipName<TResource>()) ?? false);
 
             return document.ToObjectCollection<TResult, TResource>();
+        }
+        public static IEnumerable<TResult> ToObjectCollection<TResult, TResource>(this JsonApiCollectionDocument document, TResource resource, out Func<int, string, bool> foundAttributes) where TResource : JsonApiResource
+        {
+            foundAttributes = (idx, attrName) => (document.Data.ElementAt(idx)?.Attributes?.ContainsKey(attrName.ToJsonAttributeName()) ?? false) || (document.Data.ElementAt(idx)?.Relationships?.ContainsKey(attrName.ToRelationshipName<TResource>()) ?? false);
+
+            return document.ToObjectCollection<TResult, TResource>(resource);
         }
 
         #endregion
@@ -421,6 +434,14 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             // extract primary data
             return primaryResourceObject.ToObject<TResult, TResource>();
         }
+        public static TResult ToObject<TResult, TResource>(this JsonApiDocument document, TResource resource) where TResource : JsonApiResource
+        {
+            var primaryResourceObject = document.Data;
+            if (primaryResourceObject == null) throw new Exception("Json document contains no data.");
+
+            // extract primary data
+            return primaryResourceObject.ToObject<TResult, TResource>(resource);
+        }
 
         /// <summary>
         /// Extract primary Data from the JsonApiDocument.
@@ -440,6 +461,12 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             foundAttributes = (attrName) => (document.Data.Attributes?.ContainsKey(attrName.ToJsonAttributeName()) ?? false) || (document.Data.Relationships?.ContainsKey(attrName.ToRelationshipName<TResource>()) ?? false);
 
             return document.ToObject<TResult, TResource>();
+        }
+        public static TResult ToObject<TResult, TResource>(this JsonApiDocument document, TResource resource, out Func<string, bool> foundAttributes) where TResource : JsonApiResource
+        {
+            foundAttributes = (attrName) => (document.Data.Attributes?.ContainsKey(attrName.ToJsonAttributeName()) ?? false) || (document.Data.Relationships?.ContainsKey(attrName.ToRelationshipName<TResource>()) ?? false);
+
+            return document.ToObject<TResult, TResource>(resource);
         }
 
         /// <summary>

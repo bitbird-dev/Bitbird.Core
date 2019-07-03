@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>Bitbird.Core.Web.AzureFunctions.V2.NetCore</AssemblyName>
+    <NeutralLanguage>en</NeutralLanguage>
+    <Description>Provides base classes and functionality for writing azure function (v2) web-based access layers as .NET Core library.</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>1701;1702;CS1591</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;CS1591</NoWarn>
+  </PropertyGroup>
+
+  <Import Project="..\SharedProperties.props" />
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.94.2" />
+    <PackageReference Include="DocumentFormat.OpenXml" Version="2.9.1" />
+    <PackageReference Include="ExcelNumberFormat" Version="1.0.7" />
+    <PackageReference Include="FastMember" Version="1.5.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bitbird.Core.Api\Bitbird.Core.Api.csproj" />
+    <ProjectReference Include="..\Bitbird.Core.Api.NetCore\Bitbird.Core.Api.NetCore.csproj" />
+    <ProjectReference Include="..\Bitbird.Core.Data\Bitbird.Core.Data.csproj" />
+    <ProjectReference Include="..\Bitbird.Core.Data.NetCore\Bitbird.Core.Data.NetCore.csproj" />
+    <ProjectReference Include="..\Bitbird.Core.Web\Bitbird.Core.Web.csproj" />
+    <ProjectReference Include="..\Bitbird.Core.Json.Helpers\Bitbird.Core.Json.Helpers.ApiResource.csproj" />
+    <ProjectReference Include="..\Bitbird.Core.Json\Bitbird.Core.Json.csproj" />
+    <ProjectReference Include="..\Bitbird.Core.Utils.Export.Xlsx\Bitbird.Core.Utils.Export.Xlsx.csproj" />
+    <ProjectReference Include="..\Bitbird.Core\Bitbird.Core.csproj" />
+    <ProjectReference Include="..\Bitbird.Core.NetCore\Bitbird.Core.NetCore.csproj" />
+  </ItemGroup>
+
+</Project>

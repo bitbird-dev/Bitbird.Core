@@ -56,6 +56,11 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             return (T_Result)resourceObject.ToObject(Activator.CreateInstance<T_Resource>(), typeof(T_Result));
         }
 
+        public static T_Result ToObject<T_Result, T_Resource>(this JsonApiResourceObject resourceObject, T_Resource resource) where T_Resource : JsonApiResource
+        {
+            return (T_Result)resourceObject.ToObject(resource, typeof(T_Result));
+        }
+
         /// <summary>
         /// Attempts to instatiate an object of type <paramref name="targetType"/> with data from <paramref name="resourceObject"/> using the <paramref name="apiResource"/>.
         /// </summary>
