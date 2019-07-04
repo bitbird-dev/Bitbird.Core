@@ -13,5 +13,8 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
 
         [UsedImplicitly, NotNull, CommandLineArg]
         public string ApiExportNodePostfix { get; set; } = "Node";
+
+        [UsedImplicitly, NotNull, CommandLineArg]
+        public string ApiExportModelPostfix { get; set; } = "Model";
     }
 }

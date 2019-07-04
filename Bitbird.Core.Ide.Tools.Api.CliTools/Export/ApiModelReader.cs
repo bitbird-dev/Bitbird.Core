@@ -16,15 +16,18 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
     public sealed class ApiModelReader
     {
         [NotNull] private readonly string nodePostfix;
+        [NotNull] private readonly string modelPostfix;
         [NotNull, ItemNotNull] private readonly Type[] nodeTypes;
         [NotNull, ItemNotNull] private readonly Type[] modelTypes;
 
         [UsedImplicitly]
         public ApiModelReader(
             [NotNull] string nodePostfix,
+            [NotNull] string modelPostfix,
             [NotNull] Assembly apiModelTypeAssembly)
         {
             this.nodePostfix = nodePostfix ?? throw new ArgumentNullException(nameof(nodePostfix));
+            this.modelPostfix = modelPostfix ?? throw new ArgumentNullException(nameof(modelPostfix));
 
             nodeTypes = (apiModelTypeAssembly ?? throw new ArgumentNullException(nameof(apiModelTypeAssembly)))
                 .GetTypes()
@@ -40,32 +43,52 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
         [NotNull, UsedImplicitly]
         public ApiModelAssemblyInfo ExtractApiModelInfo()
         {
+            var foundTypes = new HashSet<Type>();
+
             var apiNodeInfos = nodeTypes
-                .Select(ExtractNodeInfo)
+                .Select(x => ExtractNodeInfo(x, foundTypes))
                 .ToArray();
 
-            var apiModelInfos = modelTypes
-                .Where(t => t.IsEnum)
-                .Select(ExtractModelInfo)
-                .ToArray();
+            var nextTodoTypes = new HashSet<Type>(
+                foundTypes
+                    .Union(modelTypes));
 
-            var apiEnumInfos = modelTypes
+            var apiModelInfos = new List<ApiModelInfo>();
+            while (nextTodoTypes.Any())
+            {
+                var currentTodoTypes = nextTodoTypes.ToArray();
+                nextTodoTypes.Clear();
+
+                apiModelInfos.AddRange(currentTodoTypes
+                    .Where(t => !t.IsEnum)
+                    .ToArray()
+                    .Select(x => ExtractModelInfo(x, foundTypes, nextTodoTypes)));
+            }
+
+            var apiEnumInfos = foundTypes
                 .Where(t => t.IsEnum)
                 .Select(ExtractEnumInfo)
                 .ToArray();
 
             return new ApiModelAssemblyInfo(
                 apiNodeInfos,
-                apiModelInfos,
+                apiModelInfos.ToArray(),
                 apiEnumInfos);
         }
 
         [NotNull]
-        private ApiModelInfo ExtractModelInfo([NotNull] Type type)
+        private ApiModelInfo ExtractModelInfo(
+            [NotNull] Type type, 
+            [NotNull, ItemNotNull] HashSet<Type> foundTypes, 
+            [NotNull, ItemNotNull] HashSet<Type> nextTodoTypes)
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
+            if (foundTypes == null) throw new ArgumentNullException(nameof(foundTypes));
+
             if (!type.IsClass)
                 throw new Exception($"{type.FullName} is not a class.");
+            if (!type.Name.EndsWith(modelPostfix))
+                throw new Exception($"{type.FullName} does not end with {modelPostfix}.");
 
             var classIgnores = new HashSet<string>(
                 type.GetCustomAttributes<IgnorePropertyInResourceAttribute>()
@@ -109,7 +132,11 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
                         navProp.Name,
                         idProp.Name,
                         p.First().Attribute.RelationType,
-                        navProp.PropertyType.ToCsType());
+                        navProp.PropertyType.ToCsType(t =>
+                        {
+                            if (foundTypes.Add(t))
+                                nextTodoTypes.Add(t);
+                        }));
                 })
                 .OrderBy(x => x.Type)
                 .ThenBy(x => x.Name)
@@ -124,7 +151,7 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
 
             var attributes = properties
                 .Where(p => !relationPropertyNameMap.Contains(p.Name))
-                .Select(ExtractModelAttributeInfo)
+                .Select(x => ExtractModelAttributeInfo(x, foundTypes, nextTodoTypes))
                 .ToArray();
 
             var idAttribute = attributes.SingleOrDefault(p => p.Name == "Id");
@@ -135,19 +162,30 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
                 .ToArray();
             
             return new ApiModelInfo(
+                type.Name,
+                type.Name.Substring(0, type.Name.Length - modelPostfix.Length),
                 idAttribute,
                 attributes,
                 relations);
         }
 
         [NotNull]
-        private ApiModelAttributeInfo ExtractModelAttributeInfo([NotNull] PropertyInfo property)
+        private ApiModelAttributeInfo ExtractModelAttributeInfo(
+            [NotNull] PropertyInfo property,
+            [NotNull, ItemNotNull] HashSet<Type> foundTypes, 
+            [NotNull, ItemNotNull] HashSet<Type> nextTodoTypes)
         {
             if (property == null) throw new ArgumentNullException(nameof(property));
+            if (foundTypes == null) throw new ArgumentNullException(nameof(foundTypes));
+            if (nextTodoTypes == null) throw new ArgumentNullException(nameof(nextTodoTypes));
 
             return new ApiModelAttributeInfo(
                 property.Name,
-                property.PropertyType.ToCsType());
+                property.PropertyType.ToCsType(t =>
+                {
+                    if (foundTypes.Add(t))
+                        nextTodoTypes.Add(t);
+                }));
         }
 
         [NotNull]
@@ -171,9 +209,12 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
         }
 
         [NotNull]
-        private ApiNodeInfo ExtractNodeInfo([NotNull] Type nodeType)
+        private ApiNodeInfo ExtractNodeInfo(
+            [NotNull] Type nodeType, 
+            [NotNull, ItemNotNull] HashSet<Type> foundTypes)
         {
             if (nodeType == null) throw new ArgumentNullException(nameof(nodeType));
+            if (foundTypes == null) throw new ArgumentNullException(nameof(foundTypes));
 
             if (!nodeType.Name.EndsWith(nodePostfix))
                 throw new Exception($"Class {nodeType.FullName} does not have the postfix {nodePostfix}.");
@@ -185,7 +226,7 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
 
             var additionalMethods = nodeType.GetMethods()
                 .Where(m => m.GetCustomAttribute<ExposeMethodToWebAttribute>() != null)
-                .Select(ExtractNodeMethodInfo)
+                .Select(x => ExtractNodeMethodInfo(x, foundTypes))
                 .ToArray();
             
             return new ApiNodeInfo(
@@ -193,14 +234,17 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
                 nodeType.Name.Substring(0, nodeType.Name.Length - nodePostfix.Length),
                 isCrud,
                 isRead,
-                modelType.ToCsType(),
+                modelType?.ToCsType(t => foundTypes.Add(t)),
                 additionalMethods);
         }
 
         [NotNull]
-        private ApiNodeMethodInfo ExtractNodeMethodInfo([NotNull] MethodInfo method)
+        private ApiNodeMethodInfo ExtractNodeMethodInfo(
+            [NotNull] MethodInfo method, 
+            [NotNull, ItemNotNull] HashSet<Type> foundTypes)
         {
             if (method == null) throw new ArgumentNullException(nameof(method));
+            if (foundTypes == null) throw new ArgumentNullException(nameof(foundTypes));
 
             var isAsync = (method.ReturnType.IsDerivedFromGeneric(typeof(Task<>), out var taskArguments) ||
                 method.ReturnType.IsDerivedFrom(typeof(Task))) ;
@@ -234,31 +278,37 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
                 methodName, 
                 methodName.ToKebabCase(),
                 isAsync,
-                returnType.ToCsType(),
-                routeParameters.Select(ExtractNodeMethodRouteParameter).SingleOrDefault(),
-                bodyParameters.Select(ExtractNodeMethodBodyParameterInfo).SingleOrDefault());
+                returnType?.ToCsType(t => foundTypes.Add(t)),
+                routeParameters.Select(x => ExtractNodeMethodRouteParameter(x, foundTypes)).SingleOrDefault(),
+                bodyParameters.Select(x => ExtractNodeMethodBodyParameterInfo(x, foundTypes)).SingleOrDefault());
         }
 
         [NotNull]
-        private ApiNodeMethodRouteParameterInfo ExtractNodeMethodBodyParameterInfo([NotNull] ParameterInfo parameter)
+        private ApiNodeMethodRouteParameterInfo ExtractNodeMethodBodyParameterInfo(
+            [NotNull] ParameterInfo parameter, 
+            [NotNull, ItemNotNull] HashSet<Type> foundTypes)
         {
             if (parameter == null) throw new ArgumentNullException(nameof(parameter));
+            if (foundTypes == null) throw new ArgumentNullException(nameof(foundTypes));
             
             return new ApiNodeMethodRouteParameterInfo(
                 parameter.Position,
                 parameter.Name,
-                parameter.ParameterType.ToCsType());
+                parameter.ParameterType.ToCsType(t => foundTypes.Add(t)));
         }
 
         [NotNull]
-        private ApiNodeMethodBodyParameterInfo ExtractNodeMethodRouteParameter([NotNull] ParameterInfo parameter)
+        private ApiNodeMethodBodyParameterInfo ExtractNodeMethodRouteParameter(
+            [NotNull] ParameterInfo parameter, 
+            [NotNull, ItemNotNull] HashSet<Type> foundTypes)
         {
             if (parameter == null) throw new ArgumentNullException(nameof(parameter));
+            if (foundTypes == null) throw new ArgumentNullException(nameof(foundTypes));
 
             return new ApiNodeMethodBodyParameterInfo(
                 parameter.Position, 
                 parameter.Name,
-                parameter.ParameterType.ToCsType());
+                parameter.ParameterType.ToCsType(t => foundTypes.Add(t)));
         }
     }
 }

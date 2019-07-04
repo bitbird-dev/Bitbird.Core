@@ -57,7 +57,9 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
 
             var assembly = Assembly.LoadFrom(exportConsoleArguments.DataExportInputBinPath);
 
-            var extractor = new DataModelReader(exportConsoleArguments.DataExportDbModelPostfix, assembly);
+            var extractor = new DataModelReader(
+                exportConsoleArguments.DataExportDbModelPostfix, 
+                assembly);
             var dataModel = extractor.ExtractDataModelInfo();
 
             var serializer = new DataModelSerializer(exportConsoleArguments.DataExportOutput);
@@ -76,7 +78,10 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
 
             var assembly = Assembly.LoadFrom(exportConsoleArguments.ApiExportInputBinPath);
 
-            var extractor = new ApiModelReader(exportConsoleArguments.ApiExportNodePostfix, assembly);
+            var extractor = new ApiModelReader(
+                exportConsoleArguments.ApiExportNodePostfix,
+                exportConsoleArguments.ApiExportModelPostfix,
+                assembly);
             var apiModel = extractor.ExtractApiModelInfo();
 
             var serializer = new ApiModelSerializer(exportConsoleArguments.ApiExportOutput);
