@@ -37,6 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Bitbird.Core.Api\Bitbird.Core.Api.csproj" />
     <ProjectReference Include="..\Bitbird.Core.Data\Bitbird.Core.Data.csproj" />
     <ProjectReference Include="..\Bitbird.Core\Bitbird.Core.csproj" />
   </ItemGroup>

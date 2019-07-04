@@ -7,24 +7,24 @@ using Newtonsoft.Json;
 namespace Bitbird.Core.Ide.Tools.Api.CliTools
 {
     [UsedImplicitly]
-    public sealed class DataModelSerializer
+    public sealed class ApiModelSerializer
     {
         [NotNull] private readonly string path;
 
         [UsedImplicitly]
-        public DataModelSerializer([NotNull] string path)
+        public ApiModelSerializer([NotNull] string path)
         {
             this.path = path ?? throw new ArgumentNullException(nameof(path));
         }
 
         [NotNull, ItemNotNull, UsedImplicitly]
-        public Task<DataModelAssemblyInfo> ReadAsync()
+        public Task<ApiModelAssemblyInfo> ReadAsync()
         {
-            DataModelAssemblyInfo model;
+            ApiModelAssemblyInfo model;
 
             using (var file = File.OpenText(path))
             {
-                model = (DataModelAssemblyInfo)CreateSerializer().Deserialize(file, typeof(DataModelAssemblyInfo));
+                model = (ApiModelAssemblyInfo)CreateSerializer().Deserialize(file, typeof(ApiModelAssemblyInfo));
                 file.Close();
             }
 
@@ -32,7 +32,7 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
         }
 
         [NotNull, UsedImplicitly]
-        public async Task WriteAsync([NotNull] DataModelAssemblyInfo model)
+        public async Task WriteAsync([NotNull] ApiModelAssemblyInfo model)
         {
             if (model == null) throw new ArgumentNullException(nameof(model));
 

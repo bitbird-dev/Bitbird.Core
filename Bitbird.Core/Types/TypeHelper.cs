@@ -1,11 +1,71 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace Bitbird.Core.Types
 {
     public static class TypeFormatter
     {
+        public static bool IsDerivedFrom([NotNull] this Type type, [NotNull] Type baseType)
+        {
+            if (type == null) throw new ArgumentNullException(nameof(type));
+            if (baseType == null) throw new ArgumentNullException(nameof(baseType));
+
+            while (type != null)
+            {
+                if (type == baseType)
+                    return true;
+
+                type = type.BaseType;
+            }
+
+            return false;
+        }
+        public static bool IsDerivedFromGeneric([NotNull] this Type type, [NotNull] Type genericBaseType, [NotNull] out Type[] genericArguments)
+        {
+            if (type == null) throw new ArgumentNullException(nameof(type));
+            if (genericBaseType == null) throw new ArgumentNullException(nameof(genericBaseType));
+
+            while (type != null)
+            {
+                if (type.IsGenericType && type.GetGenericTypeDefinition() == genericBaseType)
+                {
+                    genericArguments = type.GetGenericArguments();
+                    return true;
+                }
+
+                type = type.BaseType;
+            }
+
+            genericArguments = new Type[0];
+            return false;
+        }
+        public static bool IsDerivedFromGeneric([NotNull] this Type type, [NotNull] Type genericBaseType)
+        {
+            return IsDerivedFromGeneric(type, genericBaseType, out var _);
+        }
+        public static bool Implements([NotNull] this Type type, [NotNull] Type @interface)
+        {
+            return @interface.IsAssignableFrom(type);
+        }
+        public static bool ImplementsGeneric([NotNull] this Type type, [NotNull] Type genericInterface, [NotNull] out Type[] genericArguments)
+        {
+            if (type == null) throw new ArgumentNullException(nameof(type));
+            if (genericInterface == null) throw new ArgumentNullException(nameof(genericInterface));
+
+            var found = type
+                .GetInterfaces()
+                .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericInterface);
+
+            genericArguments = found?.GetGenericArguments() ?? new Type[0];
+            return found != null;
+        }
+        public static bool ImplementsGeneric([NotNull] this Type type, [NotNull] Type genericInterface)
+        {
+            return ImplementsGeneric(type, genericInterface, out var _);
+        }
+
         public static string ToCsType(this Type type, Action<Type> foundType = null)
         {
             string FormatPrimitiveType(Type t)

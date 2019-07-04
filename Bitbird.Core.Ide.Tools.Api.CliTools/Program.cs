@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Bitbird.Core.CommandLineArguments;
-using Bitbird.Core.Data.CliToolAnnotations;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 
@@ -12,9 +10,11 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
     [UsedImplicitly]
     public static class Program
     {
-        [UsedImplicitly]
+        [NotNull, UsedImplicitly]
         public static async Task Main([NotNull] string[] args)
         {
+            if (args == null) throw new ArgumentNullException(nameof(args));
+
             try
             {
                 var parsedArgs = args.ParseArgs();
@@ -26,9 +26,14 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
                     return;
                 }
 
-                if (consoleArguments.Export)
+                if (consoleArguments.DataExport)
                 {
-                    await ExportAsync(parsedArgs);
+                    await DataExportAsync(parsedArgs);
+                }
+
+                if (consoleArguments.ApiExport)
+                {
+                    await ApiExportAsync(parsedArgs);
                 }
             }
             catch (Exception e) 
@@ -40,26 +45,42 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
             }
         }
 
-        private static async Task ExportAsync([NotNull] ParsedCommandLineArguments parsedArgs)
+        [NotNull]
+        private static async Task DataExportAsync([NotNull] ParsedCommandLineArguments parsedArgs)
         {
             if (!parsedArgs
-                .Extract(out ExportConsoleArguments exportConsoleArguments)
+                .Extract(out DataExportConsoleArguments exportConsoleArguments)
                 .IsSuccess())
             {
                 return;
             }
 
-            var assembly = Assembly.LoadFrom(exportConsoleArguments.ExportInputBinPath);
-            var types = assembly
-                .GetTypes()
-                .Where(t => t.GetCustomAttribute<EntityAttribute>() != null)
-                .ToArray();
+            var assembly = Assembly.LoadFrom(exportConsoleArguments.DataExportInputBinPath);
 
-            var extractor = new DataModelReader(exportConsoleArguments.ExportDbModelPostfix, types);
+            var extractor = new DataModelReader(exportConsoleArguments.DataExportDbModelPostfix, assembly);
             var dataModel = extractor.ExtractDataModelInfo();
 
-            var serializer = new DataModelSerializer(exportConsoleArguments.ExportOutput);
+            var serializer = new DataModelSerializer(exportConsoleArguments.DataExportOutput);
             await serializer.WriteAsync(dataModel);
+        }
+
+        [NotNull]
+        private static async Task ApiExportAsync([NotNull] ParsedCommandLineArguments parsedArgs)
+        {
+            if (!parsedArgs
+                .Extract(out ApiExportConsoleArguments exportConsoleArguments)
+                .IsSuccess())
+            {
+                return;
+            }
+
+            var assembly = Assembly.LoadFrom(exportConsoleArguments.ApiExportInputBinPath);
+
+            var extractor = new ApiModelReader(exportConsoleArguments.ApiExportNodePostfix, assembly);
+            var apiModel = extractor.ExtractApiModelInfo();
+
+            var serializer = new ApiModelSerializer(exportConsoleArguments.ApiExportOutput);
+            await serializer.WriteAsync(apiModel);
         }
     }
 }

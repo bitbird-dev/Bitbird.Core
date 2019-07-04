@@ -19,17 +19,16 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
         [NotNull, ItemNotNull] private readonly Type[] dataModelTypes;
 
         [UsedImplicitly]
-        public DataModelReader([NotNull] string modelPostfix, [NotNull, ItemNotNull] params Type[] dataModelTypes)
+        public DataModelReader(
+            [NotNull] string modelPostfix, 
+            [NotNull] Assembly dataModelTypeAssembly)
         {
-            if (dataModelTypes == null)
-                throw new ArgumentNullException(nameof(dataModelTypes));
-            if (dataModelTypes.Length == 0)
-                throw new ArgumentException("Value cannot be an empty collection.", nameof(dataModelTypes));
-            if (dataModelTypes.Any(x => x == null))
-                throw new ArgumentException("Value cannot be contain null.", nameof(dataModelTypes));
-
             this.modelPostfix = modelPostfix ?? throw new ArgumentNullException(nameof(modelPostfix));
-            this.dataModelTypes = dataModelTypes;
+
+            dataModelTypes = (dataModelTypeAssembly ?? throw new ArgumentNullException(nameof(dataModelTypeAssembly)))
+                .GetTypes()
+                .Where(t => t.GetCustomAttribute<EntityAttribute>() != null)
+                .ToArray();
         }
 
         [NotNull, UsedImplicitly]
@@ -45,6 +44,8 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
         [NotNull]
         private DataModelInfo ExtractDataModelInfo([NotNull] Type dataModelType)
         {
+            if (dataModelType == null) throw new ArgumentNullException(nameof(dataModelType));
+
             if (!dataModelType.Name.EndsWith(modelPostfix))
                 throw new Exception($"Class {dataModelType.FullName} does not have the postfix {modelPostfix}.");
 
@@ -99,6 +100,8 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
         [CanBeNull]
         private DataModelPropertyInfo ExtractDataModelPropertyInfo([NotNull] PropertyInfo propertyInfo)
         {
+            if (propertyInfo == null) throw new ArgumentNullException(nameof(propertyInfo));
+
             if (propertyInfo.GetCustomAttribute<IgnoreInApiModelAttribute>() != null)
                 return null;
 
@@ -161,14 +164,17 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
                     .ToArray());
         }
 
-        private Attribute ExtractDataModelValidationAttributeInfo(object attribute)
+        [CanBeNull]
+        private static Attribute ExtractDataModelValidationAttributeInfo([NotNull] object attribute)
         {
-            if (!(attribute is Attribute typedAttribute))
+            if (attribute == null) throw new ArgumentNullException(nameof(attribute));
+
+            if (!(attribute is Attribute))
                 return null;
 
             AttributeTranslations.TryTranslateAttribute(attribute, out attribute);
 
-            var type = attribute.GetType() ?? throw new ArgumentNullException("attribute.GetType()");
+            var type = attribute.GetType();
 
             // ReSharper disable once PossibleNullReferenceException
             if (!type.FullName.StartsWith("Bitbird.Core.Data.Validation"))
