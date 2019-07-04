@@ -8,6 +8,7 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
     {
         [NotNull, UsedImplicitly] public string NodeTypeName { get; }
         [NotNull, UsedImplicitly] public string NodeName { get; }
+        [NotNull, UsedImplicitly] public string Namespace { get; }
         [UsedImplicitly] public bool IsCrud { get; }
         [UsedImplicitly] public bool IsRead { get; }
         [CanBeNull, UsedImplicitly] public string ModelTypeAsCsType { get; }
@@ -15,6 +16,7 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
 
         public ApiNodeInfo([NotNull] string nodeTypeName,
             [NotNull] string nodeName,
+            [NotNull] string @namespace,
             bool isCrud,
             bool isRead,
             [CanBeNull] string modelTypeAsCsType, 
@@ -22,6 +24,7 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
         {
             NodeTypeName = nodeTypeName ?? throw new ArgumentNullException(nameof(nodeTypeName));
             NodeName = nodeName ?? throw new ArgumentNullException(nameof(nodeName));
+            Namespace = @namespace ?? throw new ArgumentNullException(nameof(@namespace));
             IsCrud = isCrud;
             IsRead = isRead;
             ModelTypeAsCsType = modelTypeAsCsType;

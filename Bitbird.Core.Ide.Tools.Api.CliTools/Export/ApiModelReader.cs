@@ -113,12 +113,23 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
                 .GroupBy(p => p.Attribute.RelationName)
                 .Select(p =>
                 {
+                    Type propertyType;
                     if (p.Count() == 2)
+                    {
+                        propertyType = p.Single(x => !x.Attribute.IsId).Property.PropertyType;
+                        if (propertyType.IsArray)
+                            propertyType = propertyType.GetElementType();
+
                         return new ApiModelRelationInfo(
                             p.Single(x => !x.Attribute.IsId).Property.Name,
                             p.Single(x => x.Attribute.IsId).Property.Name,
                             p.First().Attribute.RelationType,
-                            p.Single(x => !x.Attribute.IsId).Property.PropertyType.ToCsType());
+                            propertyType.ToCsType(t =>
+                            {
+                                if (foundTypes.Add(t))
+                                    nextTodoTypes.Add(t);
+                            }));
+                    }
 
                     var idProp = p.Single().Attribute.IsId
                         ? p.Single().Property
@@ -128,11 +139,15 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
                         ? p.Single().Property
                         : type.GetProperties().Single(x => x.Name == p.Single().Attribute.RelatedPropertyName);
 
+                    propertyType = navProp.PropertyType;
+                    if (propertyType.IsArray)
+                        propertyType = propertyType.GetElementType();
+
                     return new ApiModelRelationInfo(
                         navProp.Name,
                         idProp.Name,
                         p.First().Attribute.RelationType,
-                        navProp.PropertyType.ToCsType(t =>
+                        propertyType.ToCsType(t =>
                         {
                             if (foundTypes.Add(t))
                                 nextTodoTypes.Add(t);
@@ -164,6 +179,7 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
             return new ApiModelInfo(
                 type.Name,
                 type.Name.Substring(0, type.Name.Length - modelPostfix.Length),
+                type.Name.Substring(0, type.Name.Length - modelPostfix.Length).ToKebabCase(),
                 idAttribute,
                 attributes,
                 relations);
@@ -232,6 +248,7 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
             return new ApiNodeInfo(
                 nodeType.Name,
                 nodeType.Name.Substring(0, nodeType.Name.Length - nodePostfix.Length),
+                nodeType.Namespace ?? throw new Exception($"Namespace of type {nodeType.FullName} is null."),
                 isCrud,
                 isRead,
                 modelType?.ToCsType(t => foundTypes.Add(t)),
@@ -279,12 +296,12 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
                 methodName.ToKebabCase(),
                 isAsync,
                 returnType?.ToCsType(t => foundTypes.Add(t)),
-                routeParameters.Select(x => ExtractNodeMethodRouteParameter(x, foundTypes)).SingleOrDefault(),
-                bodyParameters.Select(x => ExtractNodeMethodBodyParameterInfo(x, foundTypes)).SingleOrDefault());
+                bodyParameters.Select(x => ExtractNodeMethodBodyParameterInfo(x, foundTypes)).SingleOrDefault(),
+                routeParameters.Select(x => ExtractNodeMethodRouteParameterInfo(x, foundTypes)).SingleOrDefault());
         }
 
         [NotNull]
-        private ApiNodeMethodRouteParameterInfo ExtractNodeMethodBodyParameterInfo(
+        private ApiNodeMethodRouteParameterInfo ExtractNodeMethodRouteParameterInfo(
             [NotNull] ParameterInfo parameter, 
             [NotNull, ItemNotNull] HashSet<Type> foundTypes)
         {
@@ -298,7 +315,7 @@ namespace Bitbird.Core.Ide.Tools.Api.CliTools
         }
 
         [NotNull]
-        private ApiNodeMethodBodyParameterInfo ExtractNodeMethodRouteParameter(
+        private ApiNodeMethodBodyParameterInfo ExtractNodeMethodBodyParameterInfo(
             [NotNull] ParameterInfo parameter, 
             [NotNull, ItemNotNull] HashSet<Type> foundTypes)
         {
