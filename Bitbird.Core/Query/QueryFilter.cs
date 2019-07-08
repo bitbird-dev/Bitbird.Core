@@ -127,7 +127,7 @@ namespace Bitbird.Core.Query
 
             if (expression is UnaryExpression unaryExpression && 
                 unaryExpression.NodeType == ExpressionType.Convert &&
-                unaryExpression.Operand.Type.IsEnum)
+                ((unaryExpression.Operand.Type.IsEnum) || (Nullable.GetUnderlyingType(unaryExpression.Operand.Type)?.IsEnum ?? false)))
             {
                 return TryConvertToMember(unaryExpression.Operand, out memberExpression);
             }
