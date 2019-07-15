@@ -1,10 +1,5 @@
 ﻿using Bitbird.Core.Json.Helpers.ApiResource.Exceptions;
 using Bitbird.Core.Json.Helpers.ApiResource.Extensions;
-#if NET40
-
-#else
-using Humanizer;
-#endif
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -12,47 +7,28 @@ using System.Text;
 
 namespace Bitbird.Core.Json.Helpers.ApiResource
 {
-
-
     /// <summary>
     /// Represents a resource that can be consumed by clients.
     /// </summary>
     public abstract class JsonApiResource
     {
-        public Func<string,string> TypeNamingStrategy { get; private set; }
-        private static readonly ConcurrentDictionary<Type, JsonApiResource> Resources =
-            new ConcurrentDictionary<Type, JsonApiResource>();
+        private readonly List<ResourceAttribute> attributes = new List<ResourceAttribute>();
+        private readonly List<ResourceRelationship> relationships = new List<ResourceRelationship>();
+        private readonly Func<string, string> typeNamingStrategy;
+        private string resourceType;
+        private string urlPath;
+        private string idProperty;
+        private LinkType linkType = LinkType.All;
 
-        private readonly List<ResourceAttribute> _attributes = new List<ResourceAttribute>();
-        private readonly List<ResourceRelationship> _relationships = new List<ResourceRelationship>();
-        
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApiResource"/> class.
         /// </summary>
         protected JsonApiResource(Func<string, string> typeNamingStrategy = null)
         {
-            TypeNamingStrategy = (typeNamingStrategy != null) ? typeNamingStrategy : (s)=>s.ToDashed();
+            this.typeNamingStrategy = (typeNamingStrategy != null) ? typeNamingStrategy : (s)=>s.ToDashed();
             var type = GetType();
-
-            var name = type.Name;
-            {
-                var uppercaseName = name.ToUpperInvariant();
-                var typename = name;
-                if (uppercaseName.EndsWith("APIRESOURCE"))
-                {
-                    OfType(name.Remove(name.Length - "APIRESOURCE".Length));
-                }
-                else if(uppercaseName.EndsWith("RESOURCE"))
-                {
-                    OfType(name.Remove(name.Length - "RESOURCE".Length));
-                }
-                else
-                {
-                    OfType(name);
-                }
-            }
-
+            
             WithId("Id");
 
             Resources.TryAdd(type, this);
@@ -61,32 +37,50 @@ namespace Bitbird.Core.Json.Helpers.ApiResource
         /// <summary>
         /// Gets the url path of this resource.
         /// </summary>
-        public string UrlPath { get; private set; }
+        public string UrlPath
+        {
+            get => urlPath ?? throw new Exception($"{nameof(UrlPath)} of type {GetType().FullName} was null. Call {nameof(OfType)} in the constructor of this type to ensure that this value is set.");
+            private set => urlPath = value;
+        }
 
         /// <summary>
         /// Gets the type name of this resource.
         /// </summary>
-        public string ResourceType { get; private set; }
+        public string ResourceType
+        {
+            get => resourceType ?? throw new Exception($"{nameof(ResourceType)} of type {GetType().FullName} was null. Call {nameof(OfType)} in the constructor of this type to ensure that this value is set.");
+            private set => resourceType = value;
+        }
+
+        public Func<string, string> TypeNamingStrategy => typeNamingStrategy;
 
         /// <summary>
         /// Gets the defined attributes of this resource.
         /// </summary>
-        public IEnumerable<ResourceAttribute> Attributes => _attributes;
+        public IEnumerable<ResourceAttribute> Attributes => attributes;
 
         /// <summary>
         /// Gets the defined relationships of this resource.
         /// </summary>
-        public IEnumerable<ResourceRelationship> Relationships => _relationships;
+        public IEnumerable<ResourceRelationship> Relationships => relationships;
 
         /// <summary>
         /// Gets the defined identifier of this resource.
         /// </summary>
-        public string IdProperty { get; private set; }
+        public string IdProperty
+        {
+            get => idProperty;
+            private set => idProperty = value;
+        }
 
         /// <summary>
         /// Gets the defined <see cref="LinkType"/> to be generated for this resource.
         /// </summary>
-        public LinkType LinkType { get; private set; } = LinkType.All;
+        public LinkType LinkType
+        {
+            get => linkType;
+            private set => linkType = value;
+        }
 
         /// <summary>
         /// Returns metadata for API responses that serialize this resource.
@@ -115,22 +109,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource
         /// is the name of the class (without 'Resource', if it exists).
         /// </summary>
         /// <param name="value">The type of the resource.</param>
-        protected void OfType(string value)
-        {
-#if NET40
-            //TODO: PLuralize for NET40
-            throw new NotImplementedException("Not available in NET40. Use OfType(string value, string path).");
-#else
-            OfType(value, value.Pluralize(inputIsKnownToBeSingular: false));
-#endif
-        }
-
-        /// <summary>
-        /// Customize the type name of this resource. The default value
-        /// is the name of the class (without 'Resource', if it exists).
-        /// </summary>
-        /// <param name="value">The type of the resource.</param>
-        /// <param name="path">The url pathspec of this relationship (default is the
+        /// <param name="path">The url pathspec of this relationship (should be the
         /// pluralized version of the type name)</param>
         protected void OfType(string value, string path)
         {
@@ -177,7 +156,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource
 
             var result = new ResourceAttribute(name);
 
-            _attributes.Add(result);
+            attributes.Add(result);
 
             return result;
         }
@@ -216,7 +195,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource
             var resource = GetUniqueResource<T>();
             var result = new ResourceRelationship<T>(name, idPropertyName, path, RelationshipKind.BelongsTo, resource, withLinks);
 
-            _relationships.Add(result);
+            relationships.Add(result);
 
             return result;
         }
@@ -253,7 +232,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource
             var resource = GetUniqueResource<T>();
             var result = new ResourceRelationship<T>(name, idPropertyName, path, RelationshipKind.HasMany, resource, withLinks);
 
-            _relationships.Add(result);
+            relationships.Add(result);
 
             return result;
         }
@@ -277,6 +256,9 @@ namespace Bitbird.Core.Json.Helpers.ApiResource
                 throw new JsonApiException(ErrorType.Server, "You cannot add an attribute named 'relationships'.");
             }
         }
+
+
+        private static readonly ConcurrentDictionary<Type, JsonApiResource> Resources = new ConcurrentDictionary<Type, JsonApiResource>();
 
         private static T GetUniqueResource<T>()
             where T : JsonApiResource, new()
