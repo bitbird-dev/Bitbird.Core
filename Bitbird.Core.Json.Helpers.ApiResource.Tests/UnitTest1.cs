@@ -27,6 +27,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
         {
             public ModelOneResource()
             {
+                OfType("Model1", "/Model1s");
                 WithId(nameof(ModelOne.Id));
                 Attribute(nameof(ModelOne.HomeAttribute));
                 BelongsTo<Model2Resource>(nameof(ModelOne.Model2), nameof(ModelOne.Model2Id));
@@ -52,6 +53,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
         {
             public Model2Resource()
             {
+                OfType("Model2", "/Model2s");
                 WithId(nameof(Model2.Id));
                 Attribute(nameof(Model2.Name));
             }
@@ -66,6 +68,7 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Tests
         {
             public Model3Resource()
             {
+                OfType("Model3", "/Model3s");
                 WithId(nameof(Model3.Id));
                 BelongsTo<Model2Resource>(nameof(Model3.ModelReference), nameof(Model3.ModelReferenceId));
                 BelongsTo<Model3Resource>(nameof(Model3.NestedReference), nameof(Model3.NestedReferenceId));
