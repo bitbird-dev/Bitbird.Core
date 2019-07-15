@@ -1,6 +1,10 @@
 ﻿using Bitbird.Core.Json.Helpers.ApiResource.Exceptions;
 using Bitbird.Core.Json.Helpers.ApiResource.Extensions;
+#if NET40
+
+#else
 using Humanizer;
+#endif
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -113,7 +117,12 @@ namespace Bitbird.Core.Json.Helpers.ApiResource
         /// <param name="value">The type of the resource.</param>
         protected void OfType(string value)
         {
+#if NET40
+            //TODO: PLuralize for NET40
+            throw new NotImplementedException("Not available in NET40. Use OfType(string value, string path).");
+#else
             OfType(value, value.Pluralize(inputIsKnownToBeSingular: false));
+#endif
         }
 
         /// <summary>

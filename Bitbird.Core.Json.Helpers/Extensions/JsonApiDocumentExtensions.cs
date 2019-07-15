@@ -458,7 +458,11 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
         {
             if (targetType.IsNonStringEnumerable())
             {
+#if NET40
+                var innerType = targetType.GetGenericArguments()[0];
+#else
                 var innerType = targetType.GenericTypeArguments[0];
+#endif
                 return document.ToObjectCollection(apiResource, innerType);
             }
             var primaryResourceObject = document.Data;
@@ -490,9 +494,9 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             return document.ToObject(apiResource, targetType);
         }
 
-        #endregion
+#endregion
 
-        #region ToObjectCollection
+#region ToObjectCollection
 
         public static IEnumerable<TResult> ToObjectCollection<TResult, TResource>(this JsonApiDocument document) where TResource : JsonApiResource
         {
@@ -538,9 +542,9 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             return document.ToObjectCollection(apiResource, targetType);
         }
 
-        #endregion
+#endregion
 
-        #region GetIncludedResource
+#region GetIncludedResource
 
         public static TResult GetIncludedResource<TResult, TResultApiResource>(this JsonApiDocument document, object id) where TResultApiResource : JsonApiResource where TResult : class
         {
@@ -557,6 +561,6 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
             return document.Included?.GetResource(id, apiResource)?.ToObject(apiResource, type);
         }
 
-        #endregion
+#endregion
     }
 }
