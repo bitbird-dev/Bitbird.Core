@@ -4,13 +4,12 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <OutputType>Exe</OutputType>
     <LangVersion>latest</LangVersion>
     <NeutralLanguage>en</NeutralLanguage>
     <Description>Contains meta data readers for data projects to support the generation of api classes by T4 templates as .NET Core library and executable.</Description>
-    <ApplicationIcon />
-    <OutputType>Exe</OutputType>
-    <StartupObject />
-    <IncludeBuildOutput>false</IncludeBuildOutput>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -44,11 +43,10 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="IF &quot;$(ConfigurationName)&quot;==&quot;Release&quot; (&#xD;&#xA;  dotnet publish &quot;$(ProjectPath)&quot; --configuration $(ConfigurationName) --no-build --no-restore --output &quot;$(ProjectDir)publish&quot;&#xD;&#xA;  nuget pack &quot;$(ProjectDir)$(ProjectName).nuspec&quot; -OutputDirectory &quot;$(ProjectDir)bin\$(ConfigurationName)&quot; -Properties configuration=&quot;$(ConfigurationName)&quot;;company=&quot;$(Company)&quot;;product=&quot;$(Product)&quot;;copyright=&quot;$(Copyright)&quot;;authors=&quot;$(Authors)&quot;;version=&quot;$(versionprefix)&quot;;description=&quot;$(Description)&quot;;id=&quot;$(ProjectName)&quot;&#xD;&#xA;)" />
+    <Exec Command="IF &quot;$(ConfigurationName)&quot;==&quot;Release&quot; (&#xD;&#xA;  powershell -ExecutionPolicy Unrestricted -File &quot;$(SolutionDir)Create-Package.ps1&quot; -ProjectDir $(ProjectDir) -ProjectPath $(ProjectPath) -ProjectName $(ProjectName)&#xD;&#xA;)" />
   </Target>
 
 </Project>
