@@ -187,7 +187,6 @@
     <Compile Include="JsonApi\Models\JsonApiErrorObject.cs" />
     <Compile Include="JsonApi\Models\JsonApiErrors.cs" />
     <Compile Include="JsonApi\Models\JsonApiErrorSource.cs" />
-    <Compile Include="Models\IdModel.cs" />
     <Compile Include="Properties\Resources.de.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -198,7 +197,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Resources\IdModelResource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
@@ -236,6 +234,10 @@
     <ProjectReference Include="..\Bitbird.Core.Utils.Export.Xlsx\Bitbird.Core.Utils.Export.Xlsx.csproj">
       <Project>{7e62ded4-5d43-4b77-87dd-e00d0036ad7d}</Project>
       <Name>Bitbird.Core.Utils.Export.Xlsx</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Bitbird.Core.Web\Bitbird.Core.Web.csproj">
+      <Project>{F94CF32F-B856-4D4A-992E-4B7C3D7F690D}</Project>
+      <Name>Bitbird.Core.Web</Name>
     </ProjectReference>
     <ProjectReference Include="..\Bitbird.Core\Bitbird.Core.csproj">
       <Project>{B882B7FF-75E0-4A51-91E0-D67F4D01211C}</Project>

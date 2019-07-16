@@ -12,7 +12,6 @@ using Bitbird.Core.Data.Query;
 using Bitbird.Core.Query;
 using Bitbird.Core.WebApi.Controllers;
 using Bitbird.Core.WebApi.JsonApi;
-using Bitbird.Core.WebApi.Models;
 
 namespace Bitbird.Core.Backend.DevTools.RestDoc.Net
 {

@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using Bitbird.Core.WebApi.Models;
+using Bitbird.Core.Web.Models;
 using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
 

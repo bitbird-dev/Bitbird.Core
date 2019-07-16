@@ -17,7 +17,6 @@ using Bitbird.Core.Json.Helpers.ApiResource;
 using Bitbird.Core.Types;
 using Bitbird.Core.WebApi.Controllers;
 using Bitbird.Core.WebApi.JsonApi;
-using Bitbird.Core.WebApi.Resources;
 using Microsoft.AspNet.SignalR;
 
 namespace Bitbird.Core.Backend.DevTools.ModelGenerator.Net

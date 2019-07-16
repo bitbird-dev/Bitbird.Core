@@ -13,7 +13,6 @@ using Bitbird.Core.Query;
 using Bitbird.Core.Utils.Export.Xlsx;
 using Bitbird.Core.WebApi.Extensions;
 using Bitbird.Core.WebApi.JsonApi;
-using Bitbird.Core.WebApi.Resources;
 
 namespace Bitbird.Core.WebApi.Controllers
 {
@@ -218,53 +217,6 @@ namespace Bitbird.Core.WebApi.Controllers
         public async Task<TModel> GetAsync(long id)
         {
             return await GetReadServiceNode(Service).GetByIdAsync(await GetSessionAsync(), id);
-        }
-
-
-        /// <summary>
-        /// HTTP-verb: <c>GET</c>
-        /// 
-        /// Route: <c>{controller}/{id:long}/relationships/{relation name}</c>
-        /// 
-        /// Expected HTTP-headers:
-        /// - <c>Content-Type: application/vnd.api+json</c>
-        /// - <c>Accept: application/vnd.api+json</c>
-        /// - <c>X-ApiKey: {session token}</c>
-        /// 
-        /// Recommended HTTP-headers:
-        /// - <c>Accept-Encoding: gzip,deflate</c>
-        /// 
-        /// HTTP-body: empty
-        /// 
-        /// Query-parameters: empty
-        /// 
-        /// Returns the requested relation of the record of the entity specified by the TModel type parameter with the given id (passed in the route).
-        /// The return value can be a single record or a collection of records depending on the type of relation (belongs-to vs to-many).
-        /// The JSON-Api resource that is used for serialization is <see cref="IdModelResource"/>, which will return a type and and id only.
-        /// 
-        /// Queries the corresponding api service node to return the requested record, if the current session is permitted to read it,
-        /// then queries the api service to return the relation, if the current session nis permitted to read it.
-        /// 
-        /// If the current session is not allowed to access the primary record (defined by the passed id),
-        /// an error is returned.
-        /// 
-        /// If the relation is a single-result-relation (belongs-to), and the current session is not allowed to access the relation or the related record,
-        /// an error is returned.
-        /// 
-        /// If the relation is a multi-result-relation (to-many), and the current session is not allowed to access the relation, an error is returned.
-        /// If the relation is a multi-result-relation (to-many), and the current session is not allowed to access a related record, no error is returned, but the record is not included in the result set.
-        /// </summary>
-        /// <param name="id">Read from route. The id of the requested record.</param>
-        /// <param name="relationName">The name of the relation.</param>
-        /// <returns>The requested record.</returns>
-        [HttpGet, Route("{id:long}/relationships/{relationName}"), JsonApi(typeof(IdModelResource))]
-        public async Task<JsonApiOverridePrimaryType> GetRelationAsync(long id, string relationName)
-        {
-            var relation = CrudControllerResourceMetaData.Instance.ForModel<TModel>()(relationName)
-                ?? throw new HttpResponseException(HttpStatusCode.NotFound);
-
-            var primaryData = await GetReadServiceNode(Service).GetByIdAsync(await GetSessionAsync(), id);
-            return new JsonApiOverridePrimaryType(relation.ReadIdModels(primaryData), relation.Type);
         }
     }
 }

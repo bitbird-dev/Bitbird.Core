@@ -15,6 +15,8 @@ namespace Bitbird.Core.Web.Resources
         public IdModelResource()
         {
             WithId(nameof(IdModel.Id));
+
+            OfType("id-model", "/id-models");
         }
     }
 }
