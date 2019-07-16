@@ -93,12 +93,13 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Scripts", ".Scripts", "{4FB6F213-F16E-4D5B-A0AB-A33A4B6B9188}"
 	ProjectSection(SolutionItems) = preProject
 		Increase-Version.ps1 = Increase-Version.ps1
+		Init-Local-Dev.ps1 = Init-Local-Dev.ps1
 		Publish-To-Local.ps1 = Publish-To-Local.ps1
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitbird.Core.Web", "Bitbird.Core.Web\Bitbird.Core.Web.csproj", "{F94CF32F-B856-4D4A-992E-4B7C3D7F690D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitbird.Core.Web.AzureFunctions.V2.NetCore", "Bitbird.Core.Web.AzureFunctions.V2.NetCore\Bitbird.Core.Web.AzureFunctions.V2.NetCore.csproj", "{F57ED3C0-0D49-4FC9-9910-D79E09FE76EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitbird.Core.Web.AzureFunctions.V2.NetCore", "Bitbird.Core.Web.AzureFunctions.V2.NetCore\Bitbird.Core.Web.AzureFunctions.V2.NetCore.csproj", "{F57ED3C0-0D49-4FC9-9910-D79E09FE76EE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

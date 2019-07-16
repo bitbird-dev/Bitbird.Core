@@ -8,6 +8,10 @@ if ([string]::IsNullOrWhitespace($Dir)) {
 
 Write-Host ("Publishing to local nuget dir: {0}" -f $Dir);
 
+if (!(Test-Path $Dir)) {
+	New-Item -ItemType Directory -Path $Dir;
+}
+
 [string[]] $packages = Get-ChildItem *.nupkg -Recurse | ?{ !$_.FullName.Contains("packages\") } | %{ $_.FullName };
 
 foreach ($package in $packages) {
