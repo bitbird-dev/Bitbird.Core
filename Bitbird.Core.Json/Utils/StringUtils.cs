@@ -179,7 +179,11 @@ namespace Bitbird.Core.Json.Utils
 
         public static string GetAttributeName(PropertyInfo propertyInfo)
         {
+#if (NET40)
+            var customName = propertyInfo.GetCustomAttributes(typeof(JsonPropertyAttribute), false).FirstOrDefault() as JsonPropertyAttribute;
+#else
             var customName = propertyInfo.GetCustomAttribute<JsonPropertyAttribute>();
+#endif
             string attributeName = (customName != null) ? customName.PropertyName : propertyInfo.Name;
             return attributeName = attributeName.Trim();
         }

@@ -2,7 +2,6 @@
 using Bitbird.Core.Json.Helpers.ApiResource.UrlPathBuilder;
 using Bitbird.Core.Json.Helpers.Base.Converters;
 using Bitbird.Core.Json.JsonApi;
-using Humanizer;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -147,7 +146,11 @@ namespace Bitbird.Core.Json.Helpers.ApiResource.Extensions
                         if (idProp.PropertyType.IsArray)
                             innerType = idProp.PropertyType.GetElementType();
                         else if (idProp.PropertyType.IsNonStringEnumerable())
+#if (NET40)
+                            innerType = idProp.PropertyType.GetGenericArguments()[0];
+#else
                             innerType = idProp.PropertyType.GenericTypeArguments[0];
+#endif
                         else
                             throw new Exception($"{nameof(JsonApiResourceObjectExtensions)}: Trying to read the relation, could not find element-type of type {idProp.PropertyType.FullName}.");
                         
