@@ -1,8 +1,9 @@
 param(
-    [string] $ProjectDir,
-	[string] $ProjectPath,
-	[string] $ProjectName,
-	[string] $VersionPostfix
+    [parameter(Mandatory = $true)][string] $ProjectDir,
+	[parameter(Mandatory = $true)][string] $ProjectPath,
+	[parameter(Mandatory = $true)][string] $ProjectName,
+	[parameter(Mandatory = $false)][switch] $IsTool = $false,
+	[parameter(Mandatory = $false)][string] $VersionPostfix = ""
 )
 
 # Helper functions
@@ -37,6 +38,12 @@ function ReadPackTokens {
 }
 
 function EnsureNuspecExists {
+	[string] $defaultNuspecFiles = '    <file src="publish\**" target="lib"/>';
+
+	if ($IsTool) {
+		$defaultNuspecFiles = '    <file src="publish\**" target="tools"/>';
+	}
+
 	[string] $defaultNuspec = '<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
@@ -50,9 +57,9 @@ function EnsureNuspecExists {
     <copyright>$Copyright$</copyright>
   </metadata>
   <files>
-    <file src="publish\**" target="lib"/>
+{0}
   </files>
-</package>';
+</package>' -f $defaultNuspecFiles;
 	
 	[string] $nuspecPath = ([System.IO.Path]::Combine($ProjectDir, ("{0}.nuspec" -f $ProjectName)));
 
@@ -100,6 +107,9 @@ function Main {
 		"-OutputDirectory", $outdir,
 		"-Properties", ('Configuration="{0}";ProjectName="{1}";VersionPostfix="{2}"{3}' -f $ConfigurationName, $ProjectName, $VersionPostfix, $tokens)
 	)
+	if ($IsTool){
+		$params = $params += '-Tool';
+	}
 	& "nuget" $params;
 }
 

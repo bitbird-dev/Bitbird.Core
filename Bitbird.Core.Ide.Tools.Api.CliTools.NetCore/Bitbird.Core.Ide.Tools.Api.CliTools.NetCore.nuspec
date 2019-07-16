@@ -11,6 +11,6 @@
     <copyright>$Copyright$</copyright>
   </metadata>
   <files>
-    <file src="publish\**" target="bin"/>
+    <file src="publish\**" target="tools"/>
   </files>
 </package>

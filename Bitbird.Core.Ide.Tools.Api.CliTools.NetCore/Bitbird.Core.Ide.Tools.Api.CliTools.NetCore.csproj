@@ -46,7 +46,7 @@
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="IF &quot;$(ConfigurationName)&quot;==&quot;Release&quot; (&#xD;&#xA;  powershell -ExecutionPolicy Unrestricted -File &quot;$(SolutionDir)Create-Package.ps1&quot; -ProjectDir $(ProjectDir) -ProjectPath $(ProjectPath) -ProjectName $(ProjectName)&#xD;&#xA;)" />
+    <Exec Command="IF &quot;$(ConfigurationName)&quot;==&quot;Release&quot; (&#xD;&#xA;  powershell -ExecutionPolicy Unrestricted -File &quot;$(SolutionDir)Create-Package.ps1&quot; -ProjectDir $(ProjectDir) -ProjectPath $(ProjectPath) -ProjectName $(ProjectName) -IsTool&#xD;&#xA;)" />
   </Target>
 
 </Project>
