@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using StackExchange.Redis;
-using StackExchange.Redis.KeyspaceIsolation;
 
 namespace Bitbird.Core.Data.Cache
 {
@@ -19,7 +18,7 @@ namespace Bitbird.Core.Data.Cache
         private readonly string connectionString;
         private readonly IContractResolver contractResolver;
         internal readonly ConnectionMultiplexer Connection;
-        private bool isDisposed = false;
+        private bool isDisposed;
 
         public string FormatChannelForCurrentDb(string channel) => $"Db[{Db.Database}].{channel}";
 
@@ -498,14 +497,29 @@ namespace Bitbird.Core.Data.Cache
             });
         internal string SerializeObject(object objectToCache)
         {
+            // TODO: serialize version. User typed approach?
             return JsonConvert.SerializeObject(objectToCache
                 , Formatting.Indented
                 , SerializerSettings);
         }
         internal T DeserializeObject<T>(string serializedObject)
         {
-            return JsonConvert.DeserializeObject<T>(serializedObject
-                , SerializerSettings);
+            if (serializedObject == null)
+                throw new RedisVersioningWrongFormatException("Serialized object is null.");
+
+            var splitIdx = serializedObject.IndexOf('\n');
+            if (splitIdx == -1)
+                throw new RedisVersioningWrongFormatException("Newline marker not found.");
+
+            var versionString = serializedObject.Substring(0, splitIdx);
+            if (!uint.TryParse(versionString, out var serializedVersion))
+                throw new RedisVersioningWrongFormatException($"Could not parse version-string as uint. Version: {versionString}");
+
+            var currentVersion = RedisVersioningAttribute.GetVersion<T>();
+            if (currentVersion != serializedVersion)
+                throw new RedisVersioningWrongVersionException(currentVersion, serializedVersion);
+
+            return JsonConvert.DeserializeObject<T>(serializedObject.Substring(splitIdx + 1), SerializerSettings);
         }
     }
 }
