@@ -12,6 +12,7 @@ using Bitbird.Core.Json.Helpers.ApiResource;
 using Bitbird.Core.Json.Helpers.ApiResource.Extensions;
 using Bitbird.Core.Json.JsonApi;
 using Bitbird.Core.Query;
+using Bitbird.Core.Web.JsonApi;
 using Newtonsoft.Json;
 
 namespace Bitbird.Core.WebApi.JsonApi
