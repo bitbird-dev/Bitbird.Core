@@ -177,7 +177,6 @@
     <Compile Include="JsonApi\JsonApiErrorExtensions.cs" />
     <Compile Include="JsonApi\JsonApiErrorFilter.cs" />
     <Compile Include="JsonApi\JsonApiMediaTypeFormatter.cs" />
-    <Compile Include="JsonApi\JsonApiMetaData.cs" />
     <Compile Include="JsonApi\JsonApiOverridePrimaryType.cs" />
     <Compile Include="JsonApi\JsonApiResourceAlwaysIncludedRelationAttribute.cs" />
     <Compile Include="JsonApi\JsonApiResourceInverseRelationAttribute.cs" />
