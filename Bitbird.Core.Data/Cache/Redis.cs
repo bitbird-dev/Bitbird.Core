@@ -377,7 +377,7 @@ namespace Bitbird.Core.Data.Cache
 
             if (WriteDebugOutput) Debug.WriteLine($"RedisCache.GetOrAddMany {string.Join(",",keys.Select(k => k.Value.ToString()))}");
 
-            var missing = new List<int>();
+            var missingIndices = new List<int>();
             var storedValues = await Db.StringGetAsync(keys.Select(key => key.Value).ToArray());
 
             for (var i = 0; i < storedValues.Length; i++)
@@ -399,16 +399,16 @@ namespace Bitbird.Core.Data.Cache
                     { /* ignored - cannot deserialize - must be refreshed */ }
                 }
 
-                missing.Add(i);
+                missingIndices.Add(i);
             }
 
-            if (missing.Any())
+            if (missingIndices.Any())
             {
-                var missingKeys = missing.Select(idx => keys[idx].Key).ToArray();
+                var missingKeys = missingIndices.Select(idx => keys[idx].Key).ToArray();
                 var missingElements = await valueFactory(missingKeys);
 
-                foreach (var i in missing)
-                    ret[i] = missingElements[i];
+                foreach (var item in missingIndices.Select((i, idx) => new { OriginalIdx = i, MissingIdx = idx }))
+                    ret[item.OriginalIdx] = missingElements[item.MissingIdx];
 
                 await SetManyAsync(prefix, missingKeys
                     .Select((key, idx) => new
