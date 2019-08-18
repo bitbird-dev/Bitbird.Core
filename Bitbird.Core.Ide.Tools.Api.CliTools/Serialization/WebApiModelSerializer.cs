@@ -3,10 +3,10 @@
 namespace Bitbird.Core.Ide.Tools.Api.CliTools
 {
     [UsedImplicitly]
-    public sealed class DataModelSerializer : BaseModelSerializer<DataModelAssemblyInfo>
+    public sealed class WebApiModelSerializer : BaseModelSerializer<WebApiModelAssemblyInfo>
     {
         [UsedImplicitly]
-        public DataModelSerializer([NotNull] string path)
+        public WebApiModelSerializer([NotNull] string path)
             : base(path)
         {
         }
