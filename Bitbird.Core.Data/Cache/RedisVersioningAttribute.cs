@@ -8,17 +8,14 @@ namespace Bitbird.Core.Data.Cache
     [AttributeUsage(AttributeTargets.Class)]
     public sealed class RedisVersioningAttribute : Attribute
     {
-        public readonly uint Version;
+        public uint Version { get; }
 
         public RedisVersioningAttribute(uint version = 0u)
         {
             Version = version;
         }
 
-        public override string ToString()
-        {
-            return $"{nameof(Version)}: {Version}";
-        }
+        public override string ToString() => $"v{Version}";
 
 
         private static readonly ConcurrentDictionary<Type, uint> VersionsByType = new ConcurrentDictionary<Type, uint>();

@@ -488,38 +488,41 @@ namespace Bitbird.Core.Data.Cache
         private JsonSerializerSettings serializerSettings;
 
         private JsonSerializerSettings SerializerSettings =>
-            serializerSettings ?? (serializerSettings = new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
-                PreserveReferencesHandling = PreserveReferencesHandling.Objects,
-                TypeNameHandling = TypeNameHandling.All,
-                ContractResolver = contractResolver
-            });
-        internal string SerializeObject(object objectToCache)
+            serializerSettings 
+                ?? (serializerSettings = new JsonSerializerSettings
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    TypeNameHandling = TypeNameHandling.All,
+                    ContractResolver = contractResolver
+                });
+        internal string SerializeObject<T>(T objectToCache)
         {
-            // TODO: serialize version. User typed approach?
-            return JsonConvert.SerializeObject(objectToCache
-                , Formatting.Indented
-                , SerializerSettings);
+            var entry = new VersionedRedisEntry<T>(
+                objectToCache, 
+                RedisVersioningAttribute.GetVersion<T>());
+
+            return JsonConvert.SerializeObject(
+                entry,
+                Formatting.Indented,
+                SerializerSettings);
         }
         internal T DeserializeObject<T>(string serializedObject)
         {
             if (serializedObject == null)
                 throw new RedisVersioningWrongFormatException("Serialized object is null.");
 
-            var splitIdx = serializedObject.IndexOf('\n');
-            if (splitIdx == -1)
-                throw new RedisVersioningWrongFormatException("Newline marker not found.");
-
-            var versionString = serializedObject.Substring(0, splitIdx);
-            if (!uint.TryParse(versionString, out var serializedVersion))
-                throw new RedisVersioningWrongFormatException($"Could not parse version-string as uint. Version: {versionString}");
-
+            var entry = JsonConvert.DeserializeObject<VersionedRedisEntry<T>>(
+                serializedObject, 
+                SerializerSettings);
+            if (entry == null)
+                throw new RedisVersioningWrongFormatException("Deserialized entry was null.");
+            
             var currentVersion = RedisVersioningAttribute.GetVersion<T>();
-            if (currentVersion != serializedVersion)
-                throw new RedisVersioningWrongVersionException(currentVersion, serializedVersion);
+            if (currentVersion != entry.Version)
+                throw new RedisVersioningWrongVersionException(currentVersion, entry.Version);
 
-            return JsonConvert.DeserializeObject<T>(serializedObject.Substring(splitIdx + 1), SerializerSettings);
+            return entry.Data;
         }
     }
 }
