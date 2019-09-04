@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using StackExchange.Redis;
-using StackExchange.Redis.KeyspaceIsolation;
 
 namespace Bitbird.Core.Data.Cache
 {
@@ -19,7 +18,7 @@ namespace Bitbird.Core.Data.Cache
         private readonly string connectionString;
         private readonly IContractResolver contractResolver;
         internal readonly ConnectionMultiplexer Connection;
-        private bool isDisposed = false;
+        private bool isDisposed;
 
         public string FormatChannelForCurrentDb(string channel) => $"Db[{Db.Database}].{channel}";
 
@@ -489,23 +488,41 @@ namespace Bitbird.Core.Data.Cache
         private JsonSerializerSettings serializerSettings;
 
         private JsonSerializerSettings SerializerSettings =>
-            serializerSettings ?? (serializerSettings = new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
-                PreserveReferencesHandling = PreserveReferencesHandling.Objects,
-                TypeNameHandling = TypeNameHandling.All,
-                ContractResolver = contractResolver
-            });
-        internal string SerializeObject(object objectToCache)
+            serializerSettings 
+                ?? (serializerSettings = new JsonSerializerSettings
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    TypeNameHandling = TypeNameHandling.All,
+                    ContractResolver = contractResolver
+                });
+        internal string SerializeObject<T>(T objectToCache)
         {
-            return JsonConvert.SerializeObject(objectToCache
-                , Formatting.Indented
-                , SerializerSettings);
+            var entry = new VersionedRedisEntry<T>(
+                objectToCache, 
+                RedisVersioningAttribute.GetVersion<T>());
+
+            return JsonConvert.SerializeObject(
+                entry,
+                Formatting.Indented,
+                SerializerSettings);
         }
         internal T DeserializeObject<T>(string serializedObject)
         {
-            return JsonConvert.DeserializeObject<T>(serializedObject
-                , SerializerSettings);
+            if (serializedObject == null)
+                throw new RedisVersioningWrongFormatException("Serialized object is null.");
+
+            var entry = JsonConvert.DeserializeObject<VersionedRedisEntry<T>>(
+                serializedObject, 
+                SerializerSettings);
+            if (entry == null)
+                throw new RedisVersioningWrongFormatException("Deserialized entry was null.");
+            
+            var currentVersion = RedisVersioningAttribute.GetVersion<T>();
+            if (currentVersion != entry.Version)
+                throw new RedisVersioningWrongVersionException(currentVersion, entry.Version);
+
+            return entry.Data;
         }
     }
 }
