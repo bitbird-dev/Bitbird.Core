@@ -498,9 +498,11 @@ namespace Bitbird.Core.Data.Cache
                 });
         internal string SerializeObject<T>(T objectToCache)
         {
-            var entry = new VersionedRedisEntry<T>(
-                objectToCache, 
-                RedisVersioningAttribute.GetVersion<T>());
+            var entry = new VersionedRedisEntry<T>
+            {
+                Data = objectToCache,
+                Version = RedisVersioningAttribute.GetVersion<T>()
+            };
 
             return JsonConvert.SerializeObject(
                 entry,

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 
 namespace Bitbird.Core.Data.Cache
 {
@@ -8,25 +7,10 @@ namespace Bitbird.Core.Data.Cache
         : IEquatable<VersionedRedisEntry<T>>
             , IComparable<VersionedRedisEntry<T>>
     {
-        [JsonProperty(
-            PropertyName = "d",
-            DefaultValueHandling = DefaultValueHandling.Include,
-            Required = Required.AllowNull)]
-        public T Data { get; }
-
-        [JsonProperty(
-            PropertyName = "v", 
-            DefaultValueHandling = DefaultValueHandling.Include, 
-            Required = Required.DisallowNull)]
-        public uint Version { get; }
-
-        [JsonConstructor]
-        public VersionedRedisEntry(T d, uint v)
-        {
-            Data = d;
-            Version = v;
-        }
-
+        public T Data { get; set; }
+        
+        public uint Version { get; set; }
+        
         public void Deconstruct(out T data, out uint version)
         {
             data = Data;
@@ -44,7 +28,7 @@ namespace Bitbird.Core.Data.Cache
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (obj.GetType() != GetType()) return false;
             return Equals((VersionedRedisEntry<T>) obj);
         }
 
@@ -52,7 +36,9 @@ namespace Bitbird.Core.Data.Cache
         {
             unchecked
             {
+                // ReSharper disable NonReadonlyMemberInGetHashCode
                 return (EqualityComparer<T>.Default.GetHashCode(Data) * 397) ^ (int) Version;
+                // ReSharper restore NonReadonlyMemberInGetHashCode
             }
         }
 
