@@ -67,9 +67,14 @@ namespace Bitbird.Core.Data.Net.Tests
     [TestClass]
     public class RedisVersioningTests
     {
+        private const bool testWithLocalRedis = false;
+
         [TestMethod]
         public async Task TestWithVersionAsync()
         {
+            if (!testWithLocalRedis)
+                return;
+
             var redis = await Redis.ConnectAsync("127.0.0.1:6379,defaultDatabase=15,ssl=False,abortConnect=False,allowAdmin=true");
             await redis.ClearAsync();
 
@@ -90,6 +95,9 @@ namespace Bitbird.Core.Data.Net.Tests
         [TestMethod]
         public async Task TestWithoutVersionAsync()
         {
+            if (!testWithLocalRedis)
+                return;
+
             var redis = await Redis.ConnectAsync("127.0.0.1:6379,defaultDatabase=15,ssl=False,abortConnect=False,allowAdmin=true");
             await redis.ClearAsync();
 
