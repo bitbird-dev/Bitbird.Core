@@ -178,7 +178,7 @@
     <value>Nicht gefunden.</value>
   </data>
   <data name="ApiNotFoundError_Message" xml:space="preserve">
-    <value>Ein {0}-Eintrag mit der Identifikation konnte nicht gefunden werden (Identifikation: '{1}', Identifikationsiunfo: '{2}').</value>
+    <value>Ein {0}-Eintrag mit der Identifikation konnte nicht gefunden werden (Identifikation: '{1}', Identifikationsinfo: '{2}').</value>
   </data>
   <data name="ApiNotFoundError_Message_NoIdentifierInfo" xml:space="preserve">
     <value>Primärschlüssel</value>
