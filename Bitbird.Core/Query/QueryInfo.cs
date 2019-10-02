@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace Bitbird.Core.Query
 {
@@ -16,7 +17,7 @@ namespace Bitbird.Core.Query
             sortProperties,
             filterExpression == null ? null : QueryFilter.Parse(filterExpression),
             paging,
-            includes == null ? null : includes.Select(include => EncodeMemberExpression((MemberExpression)include.Body, include.Parameters[0])).ToArray())
+            includes?.Select(include => EncodeMemberExpression(include.Body, include.Parameters[0])).ToArray())
         {
         }
         private QueryInfo(
@@ -25,36 +26,62 @@ namespace Bitbird.Core.Query
             QueryPaging paging = null,
             string[] includes = null)
             : base(
-                sortProperties,
+                sortProperties?.Cast<QuerySortProperty>().ToArray(),
                 filters,
                 paging,
                 includes)
         {
         }
 
-        public QueryInfo<T> AddFilter(Expression<Func<T, bool>> filterExpression)
+        public QueryInfo<T> AddFilter([NotNull] Expression<Func<T, bool>> filterExpression)
         {
+            if (filterExpression == null) throw new ArgumentNullException(nameof(filterExpression));
+
             return new QueryInfo<T>(
                 SortProperties?.Cast<QuerySortProperty<T>>().ToArray(), 
                 (Filters ?? new QueryFilter[0]).Concat(QueryFilter.Parse(filterExpression)).ToArray(),
                 Paging,
                 Includes);
         }
-        public QueryInfo<T> AddFilter(params QueryFilter[] filters)
+        public QueryInfo<T> AddFilter([NotNull] params QueryFilter[] filters)
         {
+            if (filters == null) throw new ArgumentNullException(nameof(filters));
+
             return new QueryInfo<T>(
                 SortProperties?.Cast<QuerySortProperty<T>>().ToArray(),
                 (Filters ?? new QueryFilter[0]).Concat(filters).ToArray(),
                 Paging,
                 Includes);
         }
-        public QueryInfo<T> AddIncludes(params Expression<Func<T, object>>[] includeExpression)
+        public QueryInfo<T> AddSorting([NotNull] Expression<Func<T, object>> sortExpression, bool ascending = true)
         {
+            if (sortExpression == null) throw new ArgumentNullException(nameof(sortExpression));
+
+            return new QueryInfo<T>(
+                (SortProperties?.Cast<QuerySortProperty<T>>().ToArray() ?? new QuerySortProperty<T>[0]).Concat(new []{ new QuerySortProperty<T>(sortExpression, ascending) }).ToArray(),
+                Filters,
+                Paging,
+                Includes);
+        }
+        public QueryInfo<T> AddSorting([NotNull] params QuerySortProperty[] sortings)
+        {
+            if (sortings == null) throw new ArgumentNullException(nameof(sortings));
+
+            return new QueryInfo<T>(
+                (SortProperties?.Cast<QuerySortProperty<T>>().ToArray() ?? new QuerySortProperty<T>[0]).Concat(sortings.Cast<QuerySortProperty<T>>()).ToArray(),
+                Filters,
+                Paging,
+                Includes);
+        }
+        public QueryInfo<T> AddIncludes([NotNull] params Expression<Func<T, object>>[] includeExpression)
+        {
+            if (includeExpression == null) throw new ArgumentNullException(nameof(includeExpression));
+
             return new QueryInfo<T>(
                 SortProperties?.Cast<QuerySortProperty<T>>().ToArray(),
                 Filters,
                 Paging,
-                (Includes ?? new string[0]).Concat(includeExpression.Select(e => QueryInfo.EncodeMemberExpression((MemberExpression)e.Body, e.Parameters[0]))).ToArray());
+                (Includes ?? new string[0]).Concat(includeExpression.Select(e => EncodeMemberExpression(e.Body, e.Parameters[0]))).ToArray());
         }
         public QueryInfo<T> AddPaging(int pageSize, int page)
         {
@@ -73,7 +100,7 @@ namespace Bitbird.Core.Query
         public readonly QueryPaging Paging;
         public readonly string[] Includes;
 
-        public QueryInfo() : this(null, null, null, null)
+        public QueryInfo() : this(null)
         {
         }
         public QueryInfo(QuerySortProperty[] sortProperties = null, QueryFilter[] filters = null, QueryPaging paging = null, string[] includes = null)
@@ -155,23 +182,40 @@ namespace Bitbird.Core.Query
         }
         
 
-        internal static string EncodeMemberExpression(MemberExpression memberExpression, ParameterExpression parameter)
+        internal static string EncodeMemberExpression(Expression expression, ParameterExpression parameter)
         {
-            string instance = null;
-            switch (memberExpression.Expression)
+            switch (expression)
             {
-                case MemberExpression instanceMemberExpression:
-                    instance = EncodeMemberExpression(instanceMemberExpression, parameter);
-                    break;
+                case UnaryExpression unaryExpression:
+                {
+                    if (unaryExpression.NodeType == ExpressionType.Convert)
+                        return EncodeMemberExpression(unaryExpression.Operand, parameter);
+
+                    throw new Exception($"{nameof(EncodeMemberExpression)}: The expression of type {expression.NodeType} is not supported ({expression}).");
+                }
+                case MemberExpression memberExpression:
+                {
+                    return string.Join(
+                        ".", 
+                        new[]
+                            {
+                                EncodeMemberExpression(memberExpression.Expression, parameter),
+                                memberExpression.Member.Name
+                            }
+                            .Where(x => x != null));
+                }
                 case ParameterExpression parameterExpression:
+                {
                     if (parameter != null && (parameterExpression.Name != parameter.Name || parameterExpression.Type != parameter.Type))
                         throw new Exception($"{nameof(EncodeMemberExpression)}: Unknown parameter found: {parameterExpression.Name} of Type {parameterExpression.Type}. The only known parameter is {parameter.Name} of Type {parameter.Type}.");
-                    break;
-            }
 
-            return instance != null
-                ? $"{instance}.{memberExpression.Member.Name}"
-                : memberExpression.Member.Name;
+                    return null;
+                }
+                default:
+                {
+                    throw new Exception($"{nameof(EncodeMemberExpression)}: The expression of type {expression.NodeType} is not supported ({expression}).");
+                }
+            }
         }
     }
 

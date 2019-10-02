@@ -6,7 +6,7 @@ namespace Bitbird.Core.Query
     public class QuerySortProperty<T> : QuerySortProperty
     {
         public QuerySortProperty(Expression<Func<T, object>> propertyExpression, bool ascending = true) 
-            : base(QueryInfo.EncodeMemberExpression((MemberExpression)propertyExpression.Body, propertyExpression.Parameters[0]), ascending)
+            : base(QueryInfo.EncodeMemberExpression(propertyExpression.Body, propertyExpression.Parameters[0]), ascending)
         {
 
         }

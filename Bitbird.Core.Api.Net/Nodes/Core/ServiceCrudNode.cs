@@ -321,7 +321,7 @@ namespace Bitbird.Core.Api.Nodes.Core
                     var whereExpressionParam = Expression.Parameter(typeof(TDbModel), "x");
                     var whereExpressionBody = Expression.Equal(Expression.Property(whereExpressionParam, nameof(IId<TId>.Id)), Expression.Constant(id, typeof(TId)));
 
-                    var dbModelQuery = FilterDbModelCollection(GetDbSet(db))
+                    var dbModelQuery = FilterForDirectReadDbModelCollection(GetDbSet(db))
                         .Where(Expression.Lambda<Func<TDbModel, bool>>(whereExpressionBody, whereExpressionParam));
                     var dbMetaDataQuery = SelectDbMetaData(db, session, dbModelQuery);
 
